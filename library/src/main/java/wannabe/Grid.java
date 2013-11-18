@@ -35,7 +35,7 @@ public class Grid implements Iterable<Voxel> {
         subGrid.voxels.add(vox);
       }
     }
-    System.out.println(String.format("Subgrid %s, %s, %s, %s has size %s", x, y, width, height, subGrid.voxels.size()));
+//    System.out.println(String.format("Subgrid %s, %s, %s, %s has size %s", x, y, width, height, subGrid.voxels.size()));
     return subGrid;
   }
 

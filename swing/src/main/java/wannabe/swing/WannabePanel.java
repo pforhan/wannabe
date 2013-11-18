@@ -1,13 +1,12 @@
 package wannabe.swing;
 
+import android.util.SparseArray;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.Grid;
@@ -19,6 +18,35 @@ import wannabe.projection.Projection;
 import wannabe.util.UIs;
 
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
+  public enum RenderType {
+    circle, roundedSquare, square, filledCircle, filledRoundedSquare, filledSquare;
+    public void draw(Graphics2D canvas, Rendered rendered) {
+      switch (this) {
+        case circle:
+          break;
+        case filledCircle:
+          break;
+        case roundedSquare:
+          break;
+        case filledRoundedSquare;
+          break;
+        case square:
+          break;
+        case filledSquare:
+          break;
+
+        default:
+          throw new IllegalArgumentException("Unknown RenderType: " + this);
+      }
+    }
+
+    public RenderType next() {
+      RenderType[] values = values();
+      int next = ordinal() + 1;
+      return next != values.length ? values[next] : values[0];
+    }
+  }
+
   // TODO allow custom render styles, cicle, rect, round-rect, etc.
 
   private static final Grid EMPTY_GRID = new Grid();
@@ -35,12 +63,14 @@ import wannabe.util.UIs;
   int heightCells;
   int centerX;
   int centerY;
+  final SparseArray<Color> colorCache = new SparseArray<Color>(256);
 
+  // Playfield paraphanellia:
   private Grid grid = EMPTY_GRID;
-  /** Camera is fixed to the center of the widget. */
-//  private Camera camera = new Camera(PLAYFIELD_WIDTH / 2, PLAYFIELD_HEIGHT / 2, 0);
+  /** Camera is fixed to the top-left of the widget. */
   private Camera camera = new Camera(0, 0, 0);
   private Projection projection = new Isometric();
+  private RenderType renderType = RenderType.filledCircle;
 
   public WannabePanel() {
     setOpaque(true);
@@ -54,38 +84,10 @@ import wannabe.util.UIs;
 
         int shortest = Math.min(widthPx, heightPx);
         float scale = (float) shortest / (float) PREFERRED_SIZE.height;
-        // TODO We should probably honor the case where preferredSize.WIDTH != preferredSize.HEIGHT
         realPixelSize = (int) (PIXEL_SIZE * scale);
         widthCells = UIs.pxToCells(widthPx, realPixelSize);
         heightCells = UIs.pxToCells(heightPx, realPixelSize);
         projection.setPixelSize(realPixelSize);
-      }
-    });
-    addKeyListener(new KeyAdapter() {
-      @Override public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-          case KeyEvent.VK_UP:
-            camera.position.y++;
-            break;
-          case KeyEvent.VK_DOWN:
-            camera.position.y--;
-            break;
-          case KeyEvent.VK_LEFT:
-            camera.position.x++;
-            break;
-          case KeyEvent.VK_RIGHT:
-            camera.position.x--;
-            break;
-          case KeyEvent.VK_Z:
-            camera.position.z++;
-            break;
-          case KeyEvent.VK_X:
-            camera.position.z--;
-            break;
-          default:
-            // Don't care.
-            break;
-        }
       }
     });
   }
@@ -96,6 +98,10 @@ import wannabe.util.UIs;
 
   @Override public void setCamera(Camera camera) {
     this.camera = camera;
+  }
+
+  @Override public Camera getCamera() {
+    return camera;
   }
 
   @Override public void setPerspective(Projection projection) {
@@ -131,8 +137,8 @@ import wannabe.util.UIs;
 
     for (Voxel voxel : paintGrid) {
       Rendered r = projection.render(camera, voxel.position);
-      g.setColor(new Color(voxel.color)); // TODO cache colors
-      g.fillOval(r.left, r.top, r.size, r.size); // TODO offer alternate rendering modes
+      g.setColor(getColor(voxel));
+      g.fillOval(r.left, r.top, r.size, r.size);
     }
 
     // Now, draw the camera position:
@@ -143,5 +149,14 @@ import wannabe.util.UIs;
     // Timing info:
     long end = System.currentTimeMillis() - start;
     if (end > 100) System.out.println("render took " + end);
+  }
+
+  protected Color getColor(Voxel voxel) {
+    Color color = colorCache.get(voxel.color);
+    if (color == null) {
+      color = new Color(voxel.color);
+      colorCache.put(voxel.color, color);
+    }
+    return color;
   }
 }

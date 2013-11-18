@@ -15,9 +15,9 @@ public class Camera {
    * reused on every call to translate().
    */
   public Position translate(Position toTranslate) {
-    translated.x = position.x + toTranslate.x;
-    translated.y = position.y + toTranslate.y;
-    translated.z = position.z + toTranslate.z;
+    translated.x = toTranslate.x - position.x;
+    translated.y = toTranslate.y - position.y;
+    translated.z = toTranslate.z - position.z;
     return translated;
   }
 }
