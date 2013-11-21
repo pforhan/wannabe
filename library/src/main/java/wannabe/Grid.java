@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+// TODO make a Grid for a background or something, that's optimized for its voxels not changing.  Could have a really efficient subGrid implementation.
+//  How to organize that, though?
 public class Grid implements Iterable<Voxel> {
   private static final Comparator<Voxel> zIncreasing = new Comparator<Voxel>() {
     @Override public int compare(Voxel o1, Voxel o2) {

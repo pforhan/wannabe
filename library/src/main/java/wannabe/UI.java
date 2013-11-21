@@ -8,7 +8,7 @@ public interface UI {
   void setGrid(Grid grid);
   void setCamera(Camera camera);
   Camera getCamera();
-  void setPerspective(Projection projection);
+  void setProjection(Projection projection);
   /** Called when the clock advances and the UI should be rendered. */
   void render();
 }

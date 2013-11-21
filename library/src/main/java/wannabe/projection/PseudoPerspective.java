@@ -17,23 +17,19 @@ import wannabe.Voxel;
  */
 public class PseudoPerspective implements Projection {
   private final Rendered rendered = new Rendered();
-  private int pixelSize;
 
-  @Override public Rendered render(Camera camera, Position position) {
-    // Determine distance from camera:
+  @Override public Rendered render(Camera camera, Position position, int pixelSize) {
+    // Determine distance from camera: TODO this is why camera may need to start in the middle of the screen
     int xDiff = camera.position.x - position.x;
     int yDiff = camera.position.y - position.y;
+    int zDiff = camera.position.z - position.z;
 
-    // Get the rough location to draw
+    // Get the rough location to draw from:
     Position onScreen = camera.translate(position);
-    rendered.left = pixelSize * position.x - position.z;
-    rendered.top = pixelSize * position.y - position.z;
-    rendered.size = pixelSize;
+    rendered.left = pixelSize * onScreen.x - onScreen.z * xDiff;
+    rendered.top = pixelSize * onScreen.y - onScreen.z * yDiff;
+    rendered.size = pixelSize - zDiff;
 
     return rendered;
-  }
-
-  @Override public void setPixelSize(int size) {
-    this.pixelSize = size;
   }
 }

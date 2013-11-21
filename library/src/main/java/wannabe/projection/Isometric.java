@@ -12,19 +12,13 @@ import wannabe.Voxel;
  */
 public class Isometric implements Projection {
   private final Rendered rendered = new Rendered();
-  private int pixelSize;
 
-
-  @Override public Rendered render(Camera camera, Position position) {
+  @Override public Rendered render(Camera camera, Position position, int pixelSize) {
     position = camera.translate(position);
     rendered.left = pixelSize * position.x - position.z;
     rendered.top = pixelSize * position.y - position.z;
     rendered.size = pixelSize;
 
     return rendered;
-  }
-
-  @Override public void setPixelSize(int size) {
-    this.pixelSize = size;
   }
 }

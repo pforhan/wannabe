@@ -19,22 +19,35 @@ import wannabe.util.UIs;
 
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
   public enum RenderType {
-    circle, roundedSquare, square, filledCircle, filledRoundedSquare, filledSquare;
-    public void draw(Graphics2D canvas, Rendered rendered) {
+    circle, filledCircle, roundedSquare, filledRoundedSquare, square, filledSquare, threeDSquare, filledThreeDSquare;
+    public void draw(Graphics2D g, Rendered r) {
       switch (this) {
         case circle:
+          g.drawOval(r.left, r.top, r.size, r.size);
           break;
         case filledCircle:
+          g.fillOval(r.left, r.top, r.size, r.size);
           break;
         case roundedSquare:
+          int arc = r.size / 3;
+          g.drawRoundRect(r.left, r.top, r.size, r.size, arc, arc);
           break;
-        case filledRoundedSquare;
+        case filledRoundedSquare:
+          arc = r.size / 3;
+          g.fillRoundRect(r.left, r.top, r.size, r.size, arc, arc);
           break;
         case square:
+          g.drawRect(r.left, r.top, r.size, r.size);
           break;
         case filledSquare:
+          g.fillRect(r.left, r.top, r.size, r.size);
           break;
-
+        case threeDSquare:
+          g.draw3DRect(r.left, r.top, r.size, r.size, true);
+          break;
+        case filledThreeDSquare:
+          g.fill3DRect(r.left, r.top, r.size, r.size, true);
+          break;
         default:
           throw new IllegalArgumentException("Unknown RenderType: " + this);
       }
@@ -68,7 +81,7 @@ import wannabe.util.UIs;
   // Playfield paraphanellia:
   private Grid grid = EMPTY_GRID;
   /** Camera is fixed to the top-left of the widget. */
-  private Camera camera = new Camera(0, 0, 0);
+  private Camera camera = new Camera(25, 25, 0);
   private Projection projection = new Isometric();
   private RenderType renderType = RenderType.filledCircle;
 
@@ -87,7 +100,6 @@ import wannabe.util.UIs;
         realPixelSize = (int) (PIXEL_SIZE * scale);
         widthCells = UIs.pxToCells(widthPx, realPixelSize);
         heightCells = UIs.pxToCells(heightPx, realPixelSize);
-        projection.setPixelSize(realPixelSize);
       }
     });
   }
@@ -104,8 +116,12 @@ import wannabe.util.UIs;
     return camera;
   }
 
-  @Override public void setPerspective(Projection projection) {
+  @Override public void setProjection(Projection projection) {
     this.projection = projection;
+  }
+
+  public Projection getProjection() {
+    return projection;
   }
 
   /** Updates timer, requests refresh. */
@@ -115,6 +131,14 @@ import wannabe.util.UIs;
 
   @Override public Dimension getPreferredSize() {
     return PREFERRED_SIZE;
+  }
+
+  public void setRenderType(RenderType renderType) {
+    this.renderType = renderType;
+  }
+
+  public RenderType getRenderType() {
+    return renderType;
   }
 
   @Override protected void paintBorder(Graphics g) {
@@ -136,9 +160,9 @@ import wannabe.util.UIs;
     paintGrid.sortByPainters();
 
     for (Voxel voxel : paintGrid) {
-      Rendered r = projection.render(camera, voxel.position);
+      Rendered r = projection.render(camera, voxel.position, realPixelSize);
       g.setColor(getColor(voxel));
-      g.fillOval(r.left, r.top, r.size, r.size);
+      renderType.draw(g, r);
     }
 
     // Now, draw the camera position:

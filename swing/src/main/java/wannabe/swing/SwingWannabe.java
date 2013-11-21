@@ -4,6 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import wannabe.Camera;
+import wannabe.projection.Projections;
 import wannabe.util.Grids;
 
 public class SwingWannabe {
@@ -14,7 +15,7 @@ public class SwingWannabe {
     frame.setContentPane(panel);
 
     panel.setGrid(Grids.heightMap());
-//    panel.setPerspective(new Flat());
+    panel.setProjection(Projections.PROJECTIONS.get(0));
 
     frame.setSize(panel.getPreferredSize());
     frame.setVisible(true);
@@ -41,6 +42,11 @@ public class SwingWannabe {
           case KeyEvent.VK_X:
             camera.position.z++;
             break;
+          case KeyEvent.VK_R:
+            panel.setRenderType(panel.getRenderType().next());
+            break;
+          case KeyEvent.VK_P:
+            panel.setProjection(Projections.next(panel.getProjection()));
           default:
             // Don't care.
             // TODO add dynamic changing of draw style
