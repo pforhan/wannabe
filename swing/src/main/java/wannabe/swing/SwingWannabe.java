@@ -1,23 +1,29 @@
 package wannabe.swing;
 
+import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.projection.Projections;
-import wannabe.util.Grids;
+import wannabe.util.SampleGrids;
 
 public class SwingWannabe {
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    final WannabePanel panel = new WannabePanel();
-    frame.setContentPane(panel);
+    JPanel mainLayout = new JPanel(new BorderLayout());
+    frame.setContentPane(mainLayout);
 
-    panel.setGrid(Grids.heightMap());
+    final WannabePanel panel = new WannabePanel();
+    mainLayout.add(panel, BorderLayout.CENTER);
+    mainLayout.add(new HelpPanel(), BorderLayout.EAST);
+
+    panel.setGrid(SampleGrids.GRIDS.get(0));
     panel.setProjection(Projections.PROJECTIONS.get(0));
 
-    frame.setSize(panel.getPreferredSize());
+    frame.setSize(mainLayout.getPreferredSize());
     frame.setVisible(true);
 
     final Camera camera = panel.getCamera();
@@ -42,6 +48,9 @@ public class SwingWannabe {
           case KeyEvent.VK_X:
             camera.position.z++;
             break;
+          case KeyEvent.VK_G:
+            panel.setGrid(SampleGrids.next(panel.getGrid()));
+            break;
           case KeyEvent.VK_R:
             panel.setRenderType(panel.getRenderType().next());
             break;
@@ -49,8 +58,6 @@ public class SwingWannabe {
             panel.setProjection(Projections.next(panel.getProjection()));
           default:
             // Don't care.
-            // TODO add dynamic changing of draw style
-            // TODO add dynamic changing of perspective
             break;
         }
       }

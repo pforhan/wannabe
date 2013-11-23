@@ -1,20 +1,25 @@
 // Copyright 2013 Square, Inc.
 package wannabe.util;
 
+import wannabe.grid.Grid;
+import wannabe.grid.SimpleGrid;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
-import wannabe.Grid;
 import wannabe.Voxel;
 
-public class Grids {
-
+public class SampleGrids {
+  /** Grid stretching 30x30 with pixels every 10 along the edge, and 600 random pixels. */
   public static Grid randomGrid() {
-    Grid grid = new Grid();
+    Grid grid = new SimpleGrid();
     grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
     grid.add(new Voxel(1, 0, 0, 0xEEDDFF));
     grid.add(new Voxel(0, 1, 0, 0xDDFFEE));
@@ -27,14 +32,15 @@ public class Grids {
 
     Random r = new Random();
     for (int i = 0; i < 600; i++) {
-      grid.add(new Voxel(r.nextInt(30), r.nextInt(30), r.nextInt(21) - 10,
-          0xAAAAAA + r.nextInt(0x555555)));
+      grid.add(new Voxel(r.nextInt(30), r.nextInt(30), r.nextInt(21) - 10, 0xAAAAAA + r
+          .nextInt(0x555555)));
     }
     return grid;
   }
 
+  /** 30x30 grid with all 900 voxels specified. */
   public static Grid fullRandomGrid() {
-    Grid grid = new Grid();
+    Grid grid = new SimpleGrid();
 
     Random r = new Random();
     // Grab one randomly to animate:
@@ -62,6 +68,7 @@ public class Grids {
 
     Thread t = new Thread(new Runnable() {
       final Voxel myAnimated = animated.get();
+
       @Override public void run() {
         while (true) {
           myAnimated.position.z++;
@@ -78,6 +85,32 @@ public class Grids {
     return grid;
   }
 
+  /** Creates a grid with two hundred towers of up to 50 voxels in a 30x30 grid. */
+  public static Grid perspectiveBox() {
+    Grid grid = new SimpleGrid();
+    Random r = new Random();
+    for (int i = 0; i < 200; i++) {
+      int x = r.nextInt(30);
+      int y = r.nextInt(30);
+      int height = r.nextInt(50);
+      for (int z = 0; z < height; z++) {
+        int color = 0x999999 + r.nextInt(0x666666);
+        grid.add(new Voxel(x, y, z, color));
+      }
+    }
+    return grid;
+  }
+
+  /** Grid with the heightMap as a base, with "clouds" above and shadows below them. */
+  public static Grid cloudySky() {
+    // TODO finish
+    return new SimpleGrid();
+  }
+
+  /**
+   * Loads the sample-heightmap image into a Grid, with lighter pixels given a greater height
+   * and a bluer color.
+   */
   public static Grid heightMap() {
     // TODO pick by platform
     return Swing.heightMap();
@@ -85,7 +118,7 @@ public class Grids {
 
   public static class Swing {
     public static Grid heightMap() {
-      Grid grid = new Grid();
+      Grid grid = new SimpleGrid();
       try {
         BufferedImage img = ImageIO.read(Swing.class.getResourceAsStream("/example-heightmap.png"));
         WritableRaster raster = img.getRaster();
@@ -93,9 +126,8 @@ public class Grids {
         byte[] bytes = data.getData();
 
         int width = img.getWidth();
-        System.out.println(
-            String.format("Width %s, height %s, w*h %s, len %s",
-                width, img.getHeight(), width * img.getHeight(), bytes.length));
+        System.out.println(String.format("Width %s, height %s, w*h %s, len %s", width,
+            img.getHeight(), width * img.getHeight(), bytes.length));
         for (int i = 0; i < bytes.length; i++) {
           byte b = bytes[i];
           int x = i % width;
@@ -111,4 +143,20 @@ public class Grids {
       return grid;
     }
   }
+
+  private static final Grid[] GRID_ARRAY = new Grid[] {
+    heightMap(),
+    perspectiveBox(),
+    cloudySky(),
+    fullRandomGrid(),
+    randomGrid(),
+  };
+
+  public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(GRID_ARRAY));
+
+  public static Grid next(Grid current) {
+    int nextIdx = GRIDS.indexOf(current) + 1;
+    return GRIDS.get(nextIdx < GRIDS.size() ? nextIdx : 0);
+  }
+
 }

@@ -3,7 +3,10 @@ package wannabe;
 
 /** Movable view of the playfield. */
 public class Camera {
+  /** The position of this camera in the voxel space. */
   public final Position position;
+  /** This position of this camera in the UI (pixel) space.  The size value is ignored. */
+  public final Rendered uiPosition = new Rendered();
   private final Position translated = new Position();
 
   public Camera(int x, int y, int z) {

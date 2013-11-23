@@ -9,8 +9,9 @@ import wannabe.Rendered;
 public interface Projection {
   /**
    * Resolves a {@link Position} to a two-dimensional location relative to the specified
-   * {@link Camera} with a height-0 size of {@code pixelSize}.
-   * Implementations may reuse this instance for performance.
+   * {@link Camera} with a height-0 size of {@code pixelSize}.  Projections should honor
+   * {@link Camera#uiPosition} to allow the UI to render voxels appropriately.
+   * Implementations may reuse the returned Rendered instance for performance.
    */
   Rendered render(Camera camera, Position position, int pixelSize);
 }

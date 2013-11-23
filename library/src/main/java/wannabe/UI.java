@@ -1,6 +1,8 @@
 // Copyright 2013 Square, Inc.
 package wannabe;
 
+import wannabe.grid.Grid;
+
 import wannabe.projection.Projection;
 
 public interface UI {

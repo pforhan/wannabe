@@ -15,8 +15,8 @@ public class Isometric implements Projection {
 
   @Override public Rendered render(Camera camera, Position position, int pixelSize) {
     position = camera.translate(position);
-    rendered.left = pixelSize * position.x - position.z;
-    rendered.top = pixelSize * position.y - position.z;
+    rendered.left = pixelSize * position.x - position.z + camera.uiPosition.left;
+    rendered.top = pixelSize * position.y - position.z + camera.uiPosition.top;
     rendered.size = pixelSize;
 
     return rendered;

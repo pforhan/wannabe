@@ -17,8 +17,8 @@ public class Flat implements Projection {
     position = camera.translate(position);
     // TODO tweak, not sure what a good value is here:
     int zOffset = position.z / 4;
-    rendered.left = pixelSize * position.x - zOffset;
-    rendered.top = pixelSize * position.y - zOffset;
+    rendered.left = pixelSize * position.x - zOffset + camera.uiPosition.left;
+    rendered.top = pixelSize * position.y - zOffset + camera.uiPosition.top;
     rendered.size = pixelSize + zOffset << 1;
 
     return rendered;

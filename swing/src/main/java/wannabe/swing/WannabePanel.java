@@ -1,5 +1,8 @@
 package wannabe.swing;
 
+import wannabe.grid.Grid;
+import wannabe.grid.SimpleGrid;
+
 import android.util.SparseArray;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,7 +12,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 import wannabe.Camera;
-import wannabe.Grid;
 import wannabe.Rendered;
 import wannabe.UI;
 import wannabe.Voxel;
@@ -60,9 +62,7 @@ import wannabe.util.UIs;
     }
   }
 
-  // TODO allow custom render styles, cicle, rect, round-rect, etc.
-
-  private static final Grid EMPTY_GRID = new Grid();
+  private static final Grid EMPTY_GRID = new SimpleGrid();
   private static final int PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
   private static final int MIN_PLAYFIELD_WIDTH = 50;
@@ -70,18 +70,20 @@ import wannabe.util.UIs;
       PIXEL_SIZE * MIN_PLAYFIELD_HEIGHT);
 
   int realPixelSize = PIXEL_SIZE;
+  // Our dimensions:
   int widthPx;
   int heightPx;
   int widthCells;
   int heightCells;
-  int centerX;
-  int centerY;
+  // Center cell:
+  int halfWidthCells;
+  int halfHeightCells;
   final SparseArray<Color> colorCache = new SparseArray<Color>(256);
 
   // Playfield paraphanellia:
   private Grid grid = EMPTY_GRID;
-  /** Camera is fixed to the top-left of the widget. */
-  private Camera camera = new Camera(25, 25, 0);
+  /** Camera is fixed to the center of the widget. */
+  private Camera camera = new Camera(0, 0, 0);
   private Projection projection = new Isometric();
   private RenderType renderType = RenderType.filledCircle;
 
@@ -89,23 +91,30 @@ import wannabe.util.UIs;
     setOpaque(true);
     setFocusable(true);
     addComponentListener(new ComponentAdapter() {
+
       @Override public void componentResized(ComponentEvent e) {
         widthPx = getWidth();
         heightPx = getHeight();
-        centerX = widthPx >> 1;
-        centerY = heightPx >> 1;
+        camera.uiPosition.left = widthPx >> 1;
+        camera.uiPosition.top = heightPx >> 1;
 
         int shortest = Math.min(widthPx, heightPx);
         float scale = (float) shortest / (float) PREFERRED_SIZE.height;
         realPixelSize = (int) (PIXEL_SIZE * scale);
         widthCells = UIs.pxToCells(widthPx, realPixelSize);
         heightCells = UIs.pxToCells(heightPx, realPixelSize);
+        halfWidthCells = widthCells >> 1;
+        halfHeightCells = heightCells >> 1;
       }
     });
   }
 
   @Override public void setGrid(Grid grid) {
     this.grid = grid;
+  }
+
+  public Grid getGrid() {
+    return grid;
   }
 
   @Override public void setCamera(Camera camera) {
@@ -156,23 +165,29 @@ import wannabe.util.UIs;
     g.fillRect(0, 0, widthPx, heightPx);
 
     // Determine the voxels we care about:
-    Grid paintGrid = grid.subGrid(camera.position.x, camera.position.y, widthCells, heightCells);
+    Grid paintGrid = grid.subGrid(camera.position.x - halfWidthCells, //
+        camera.position.y - halfHeightCells, widthCells, heightCells);
     paintGrid.sortByPainters();
+    long gridOps = System.currentTimeMillis();
 
     for (Voxel voxel : paintGrid) {
       Rendered r = projection.render(camera, voxel.position, realPixelSize);
+      // If it's going to render off-screen, don't bother drawing.
+      if (r.left < -realPixelSize || r.left > widthPx //
+          || r.top < -realPixelSize || r.top > heightPx) {
+        continue;
+      }
       g.setColor(getColor(voxel));
       renderType.draw(g, r);
     }
 
-    // Now, draw the camera position:
-    g.setColor(Color.WHITE);
-    int halfSize = realPixelSize >> 1;
-    g.drawRect(centerX - halfSize, centerY - halfSize, realPixelSize, realPixelSize);
-
     // Timing info:
     long end = System.currentTimeMillis() - start;
-    if (end > 100) System.out.println("render took " + end);
+    if (end > 100) {
+      long gridTime = gridOps - start;
+      System.out.println(String.format("render took %s; %s was grid, %s was render", end, gridTime,
+          end - gridTime));
+    }
   }
 
   protected Color getColor(Voxel voxel) {
