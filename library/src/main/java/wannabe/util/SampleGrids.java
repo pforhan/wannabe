@@ -1,8 +1,5 @@
-// Copyright 2013 Square, Inc.
+// Copyright 2013 Patrick Forhan.
 package wannabe.util;
-
-import wannabe.grid.Grid;
-import wannabe.grid.SimpleGrid;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -15,6 +12,8 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
 import wannabe.Voxel;
+import wannabe.grid.Grid;
+import wannabe.grid.SimpleGrid;
 
 public class SampleGrids {
   /** Grid stretching 30x30 with pixels every 10 along the edge, and 600 random pixels. */

@@ -1,4 +1,4 @@
-// Copyright 2013 Square, Inc.
+// Copyright 2013 Patrick Forhan.
 package wannabe;
 
 public class Position {

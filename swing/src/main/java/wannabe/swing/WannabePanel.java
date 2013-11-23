@@ -1,7 +1,5 @@
+// Copyright 2013 Patrick Forhan.
 package wannabe.swing;
-
-import wannabe.grid.Grid;
-import wannabe.grid.SimpleGrid;
 
 import android.util.SparseArray;
 import java.awt.Color;
@@ -15,6 +13,8 @@ import wannabe.Camera;
 import wannabe.Rendered;
 import wannabe.UI;
 import wannabe.Voxel;
+import wannabe.grid.Grid;
+import wannabe.grid.SimpleGrid;
 import wannabe.projection.Isometric;
 import wannabe.projection.Projection;
 import wannabe.util.UIs;
