@@ -38,6 +38,33 @@
           </configuration>
         </plugin>
       </plugins>
+
+      <plugin>
+        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <version>3.7.0</version>
+        <extensions>true</extensions>
+        <configuration>
+            <lint>
+              <ignoreWarnings>false</ignoreWarnings>
+              <skip>true</skip>
+              <failOnError>true</failOnError>
+              <enableHtml>true</enableHtml>
+            </lint>
+          <sdk>
+            <platform>17</platform>
+          </sdk>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <id>lint</id>
+            <goals>
+              <goal>lint</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </pluginManagement>
   </build>
 </project>

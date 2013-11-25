@@ -19,7 +19,7 @@ public class PseudoPerspective implements Projection {
   private final Rendered rendered = new Rendered();
 
   @Override public Rendered render(Camera camera, Position position, int pixelSize) {
-    // Determine distance from camera: TODO this is why camera may need to start in the middle of the screen
+    // Determine distance from camera:
     int xDiff = camera.position.x - position.x;
     int yDiff = camera.position.y - position.y;
     int zDiff = camera.position.z - position.z;

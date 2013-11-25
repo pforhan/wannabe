@@ -9,12 +9,6 @@ import java.util.List;
 import wannabe.Position;
 import wannabe.Voxel;
 
-// TODO make a Grid for a background or something, that's optimized for its voxels not changing.
-//  Could have a really efficient subGrid implementation. How to organize that, though?
-//  It'd have to be by x and y, then.
-// The trick is that if there is a single Grid holding voxels, anything moving atop that will cause
-//  changes.  My need to come up with a way of having a background grid and a foreground grid,
-//  and making sure the stuff on foreground stays equal or higher z.
 public class SimpleGrid implements Grid {
   private static final Comparator<Voxel> zIncreasing = new Comparator<Voxel>() {
     @Override public int compare(Voxel o1, Voxel o2) {
@@ -23,14 +17,16 @@ public class SimpleGrid implements Grid {
   };
 
   private final List<Voxel> voxels = new ArrayList<Voxel>();
-  private final SimpleGrid subGrid = new SimpleGrid();
+  private SimpleGrid subGrid;
 
   @Override public Iterator<Voxel> iterator() {
     return voxels.iterator();
   }
 
   @Override public Grid subGrid(int x, int y, int width, int height) {
+    if (subGrid == null) subGrid = new SimpleGrid();
     subGrid.voxels.clear();
+
     for (Voxel vox : voxels) {
       Position pos = vox.position;
       if (pos.x >= x && pos.x < x + width //
@@ -38,7 +34,6 @@ public class SimpleGrid implements Grid {
         subGrid.voxels.add(vox);
       }
     }
-//    System.out.println(String.format("Subgrid %s, %s, %s, %s has size %s", x, y, width, height, subGrid.voxels.size()));
     return subGrid;
   }
 
@@ -57,5 +52,10 @@ public class SimpleGrid implements Grid {
 
   @Override public int size() {
     return voxels.size();
+  }
+
+  @Override public Grid unmodifyableGrid() {
+    // TODO implement me!
+    return null;
   }
 }

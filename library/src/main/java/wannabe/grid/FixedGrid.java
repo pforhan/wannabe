@@ -8,9 +8,17 @@ import wannabe.Position;
 import wannabe.Voxel;
 
 /** A grid optimized for subGrid usage.  It assumes that none of its voxels ever change. */
+// Internal discussion follows:
+//TODO make a Grid for a background or something, that's optimized for its voxels not changing.
+//Could have a really efficient subGrid implementation. How to organize that, though?
+//It'd have to be by x and y, then.
+//The trick is that if there is a single Grid holding voxels, anything moving atop that will cause
+//changes.  My need to come up with a way of having a background grid and a foreground grid,
+//and making sure the stuff on foreground stays equal or higher z.
+
 public class FixedGrid implements Grid {
   private final List<Voxel> voxels = new ArrayList<Voxel>();
-  private final FixedGrid subGrid = new FixedGrid();
+  private final FixedGrid subGrid = new FixedGrid(null);
 
   public FixedGrid(Grid baseGrid) {
     // TODO try to finish this... optimizing for x and y is at odds with z-sorting

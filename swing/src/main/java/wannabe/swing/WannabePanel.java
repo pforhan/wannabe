@@ -167,8 +167,8 @@ import wannabe.util.UIs;
     // Determine the voxels we care about:
     Grid paintGrid = grid.subGrid(camera.position.x - halfWidthCells, //
         camera.position.y - halfHeightCells, widthCells, heightCells);
-    paintGrid.sortByPainters();
-    long gridOps = System.currentTimeMillis();
+    ((SimpleGrid) paintGrid).sortByPainters();
+    long afterGrid = System.currentTimeMillis();
 
     for (Voxel voxel : paintGrid) {
       Rendered r = projection.render(camera, voxel.position, realPixelSize);
@@ -184,7 +184,7 @@ import wannabe.util.UIs;
     // Timing info:
     long end = System.currentTimeMillis() - start;
     if (end > 100) {
-      long gridTime = gridOps - start;
+      long gridTime = afterGrid - start;
       System.out.println(String.format("render took %s; %s was grid, %s was render", end, gridTime,
           end - gridTime));
     }
