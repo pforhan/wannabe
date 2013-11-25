@@ -13,9 +13,9 @@ Right now, this is simply a collection of little classes.
 
 Then there's how to display these:
 
-* A Camera keeps track of where we're looking.
-* A Projection converts a Position to a pixel location, given a Camera and a pixel size.  There's Flat, Isometric, and (still-in-progress) Perspective Projections.
-* A UI keeps track of the Grid, the Camera, and the Projection, and actually renders the result.
+* A `Camera` keeps track of where we're looking.
+* A `Projection` converts a Position to a pixel location, given a Camera and a pixel size.  There's `Flat`, `Isometric`, and (still-in-progress) `Perspective` Projections.
+* A `UI` keeps track of the Grid, the Camera, and the Projection, and actually renders the result.
 
 Samples
 -------
