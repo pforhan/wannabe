@@ -18,7 +18,7 @@ import wannabe.grid.SimpleGrid;
 public class SampleGrids {
   /** Grid stretching 30x30 with pixels every 10 along the edge, and 600 random pixels. */
   public static Grid randomGrid() {
-    Grid grid = new SimpleGrid();
+    Grid grid = new SimpleGrid("random sparse 30x30");
     grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
     grid.add(new Voxel(1, 0, 0, 0xEEDDFF));
     grid.add(new Voxel(0, 1, 0, 0xDDFFEE));
@@ -39,7 +39,7 @@ public class SampleGrids {
 
   /** 30x30 grid with all 900 voxels specified. */
   public static Grid fullRandomGrid() {
-    Grid grid = new SimpleGrid();
+    Grid grid = new SimpleGrid("random full 30x30");
 
     Random r = new Random();
     // Grab one randomly to animate:
@@ -86,7 +86,7 @@ public class SampleGrids {
 
   /** Creates a grid with two hundred towers of up to 50 voxels in a 30x30 grid. */
   public static Grid perspectiveBox() {
-    Grid grid = new SimpleGrid();
+    Grid grid = new SimpleGrid("200 towers 30x30");
     Random r = new Random();
     for (int i = 0; i < 200; i++) {
       int x = r.nextInt(30);
@@ -102,7 +102,7 @@ public class SampleGrids {
 
   /** Grid with the heightMap as a base, with "clouds" above and shadows below them. */
   public static Grid cloudySky() {
-    Grid grid = heightMap();
+    Grid grid = heightMap("cloudy heightmap 256x256", false);
     Random r = new Random();
     for (int row = 40; row < 70; row++) {
       for (int col = 40; col < 70; col++) {
@@ -112,18 +112,22 @@ public class SampleGrids {
     return grid;
   }
 
+  public static Grid deepHeightMap() {
+    return heightMap("deep heightmap 256x256", true);
+  }
   /**
    * Loads the sample-heightmap image into a Grid, with lighter pixels given a greater height
    * and a bluer color.
+   * @param name TODO
    */
-  public static Grid heightMap() {
+  public static Grid heightMap(String name, boolean deep) {
     // TODO pick by platform
-    return Swing.heightMap();
+    return Swing.heightMap(name, deep);
   }
 
   public static class Swing {
-    public static Grid heightMap() {
-      Grid grid = new SimpleGrid();
+    public static Grid heightMap(String name, boolean deep) {
+      Grid grid = new SimpleGrid(name);
       try {
         BufferedImage img = ImageIO.read(Swing.class.getResourceAsStream("/example-heightmap.png"));
         WritableRaster raster = img.getRaster();
@@ -140,6 +144,13 @@ public class SampleGrids {
           int z = (0xFF & b) / 4;
           int color = 0x888800 + b;
           grid.add(new Voxel(x, y, z, color));
+          // Continue down to height 0 if deep:
+          if (deep) {
+            for (int d = 0; d < z; d++) {
+              // TODO will it look nicer to vary the color along with the height?
+              grid.add(new Voxel(x, y, d, color));
+            }
+          }
         }
 
       } catch (IOException ex) {
@@ -149,15 +160,14 @@ public class SampleGrids {
     }
   }
 
-  private static final Grid[] GRID_ARRAY = new Grid[] {
-    heightMap(),
+  public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
+    heightMap("heightMap 256x256", false),
+    heightMap("deep heightmap 256x256", true),
     cloudySky(),
     perspectiveBox(),
     fullRandomGrid(),
-    randomGrid(),
-  };
-
-  public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(GRID_ARRAY));
+    randomGrid()
+  ));
 
   public static Grid next(Grid current) {
     int nextIdx = GRIDS.indexOf(current) + 1;

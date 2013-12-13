@@ -14,6 +14,8 @@ import wannabe.Voxel;
  * This class doesn't calculate a real perspective offset. Instead, it adds a simple x and/or y
  * pixel offset for increasing distance from the camera. All voxels at the same Z height have the
  * same size.
+ * TODO change that last bit; as x or y offset increase, z should decrease a bit.
+ * TODO xDiff and yDiff are too drastic.
  */
 public class PseudoPerspective implements Projection {
   private final Rendered rendered = new Rendered();

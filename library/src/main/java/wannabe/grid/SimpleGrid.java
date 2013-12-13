@@ -17,14 +17,20 @@ public class SimpleGrid implements Grid {
   };
 
   private final List<Voxel> voxels = new ArrayList<Voxel>();
+  private final String name;
   private SimpleGrid subGrid;
+
+
+  public SimpleGrid(String name) {
+    this.name = name;
+  }
 
   @Override public Iterator<Voxel> iterator() {
     return voxels.iterator();
   }
 
   @Override public Grid subGrid(int x, int y, int width, int height) {
-    if (subGrid == null) subGrid = new SimpleGrid();
+    if (subGrid == null) subGrid = new SimpleGrid("sub of " + name);
     subGrid.voxels.clear();
 
     for (Voxel vox : voxels) {
@@ -57,5 +63,9 @@ public class SimpleGrid implements Grid {
   @Override public Grid unmodifyableGrid() {
     // TODO implement me!
     return null;
+  }
+
+  @Override public String toString() {
+    return name;
   }
 }

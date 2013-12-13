@@ -8,13 +8,12 @@ import java.util.List;
 /** Converts a 3d Position to a 2d coordinate for rendering. */
 public class Projections {
 
-  private static final Projection[] PROJECTION_ARRAY = new Projection[] {
-      new Isometric(),
-      new Flat(),
-      new PseudoPerspective(),
-  };
   public static final List<Projection> PROJECTIONS =
-      Collections.unmodifiableList(Arrays.asList(PROJECTION_ARRAY));
+      Collections.unmodifiableList(Arrays.asList(
+          new Isometric(),
+          new Flat(),
+          new PseudoPerspective()
+      ));
 
   public static Projection next(Projection current) {
     int nextIdx = PROJECTIONS.indexOf(current) + 1;
