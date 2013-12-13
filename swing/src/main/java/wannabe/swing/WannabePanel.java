@@ -21,7 +21,7 @@ import wannabe.util.UIs;
 
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
   public enum RenderType {
-    circle, filledCircle, roundedSquare, filledRoundedSquare, square, filledSquare, threeDSquare, filledThreeDSquare;
+    circle, filledCircle, roundedSquare, filledRoundedSquare, square, filledSquare, threeDSquare, filledThreeDSquare, pixel;
     public void draw(Graphics2D g, Rendered r) {
       switch (this) {
         case circle:
@@ -50,6 +50,9 @@ import wannabe.util.UIs;
         case filledThreeDSquare:
           g.fill3DRect(r.left, r.top, r.size, r.size, true);
           break;
+        case pixel:
+          g.drawLine(r.left, r.top, r.left, r.top);
+          break;
         default:
           throw new IllegalArgumentException("Unknown RenderType: " + this);
       }
@@ -62,7 +65,7 @@ import wannabe.util.UIs;
     }
   }
 
-  private static final Grid EMPTY_GRID = new SimpleGrid();
+  private static final Grid EMPTY_GRID = new SimpleGrid("empty");
   private static final int PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
   private static final int MIN_PLAYFIELD_WIDTH = 50;
@@ -101,6 +104,7 @@ import wannabe.util.UIs;
         int shortest = Math.min(widthPx, heightPx);
         float scale = (float) shortest / (float) PREFERRED_SIZE.height;
         realPixelSize = (int) (PIXEL_SIZE * scale);
+        if (realPixelSize < 1) realPixelSize = 1;
         widthCells = UIs.pxToCells(widthPx, realPixelSize);
         heightCells = UIs.pxToCells(heightPx, realPixelSize);
         halfWidthCells = widthCells >> 1;

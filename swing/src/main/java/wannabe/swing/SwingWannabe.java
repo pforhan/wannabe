@@ -7,7 +7,11 @@ import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
+import wannabe.grid.Grid;
+import wannabe.projection.Projection;
 import wannabe.projection.Projections;
+import wannabe.swing.SettingsPanel.Listener;
+import wannabe.swing.WannabePanel.RenderType;
 import wannabe.util.SampleGrids;
 
 public class SwingWannabe {
@@ -18,11 +22,29 @@ public class SwingWannabe {
     frame.setContentPane(mainLayout);
 
     final WannabePanel panel = new WannabePanel();
+    final SettingsPanel settings = new SettingsPanel();
+    settings.setListener(new Listener() {
+      @Override public void onRenderTypeChanged(RenderType newType) {
+        panel.setRenderType(newType);
+      }
+
+      @Override public void onProjectionChanged(Projection newProjection) {
+        panel.setProjection(newProjection);
+      }
+
+      @Override public void onGridChanged(Grid newGrid) {
+        panel.setGrid(newGrid);
+      }
+    });
+
     mainLayout.add(panel, BorderLayout.CENTER);
-    mainLayout.add(new HelpPanel(), BorderLayout.EAST);
+    mainLayout.add(settings, BorderLayout.EAST);
 
     panel.setGrid(SampleGrids.GRIDS.get(0));
+    settings.gridSelected(SampleGrids.GRIDS.get(0));
     panel.setProjection(Projections.PROJECTIONS.get(0));
+    settings.projectionSelected(Projections.PROJECTIONS.get(0));
+    settings.renderTypeSelected(panel.getRenderType());
 
     frame.setSize(mainLayout.getPreferredSize());
     frame.setVisible(true);
@@ -50,13 +72,19 @@ public class SwingWannabe {
             camera.position.z++;
             break;
           case KeyEvent.VK_G:
-            panel.setGrid(SampleGrids.next(panel.getGrid()));
+            Grid nextGrid = SampleGrids.next(panel.getGrid());
+            panel.setGrid(nextGrid);
+            settings.gridSelected(nextGrid);
             break;
           case KeyEvent.VK_R:
-            panel.setRenderType(panel.getRenderType().next());
+            RenderType nextRenderType = panel.getRenderType().next();
+            panel.setRenderType(nextRenderType);
+            settings.renderTypeSelected(nextRenderType);
             break;
           case KeyEvent.VK_P:
-            panel.setProjection(Projections.next(panel.getProjection()));
+            Projection next = Projections.next(panel.getProjection());
+            panel.setProjection(next);
+            settings.projectionSelected(next);
           default:
             // Don't care.
             break;
