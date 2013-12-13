@@ -102,8 +102,14 @@ public class SampleGrids {
 
   /** Grid with the heightMap as a base, with "clouds" above and shadows below them. */
   public static Grid cloudySky() {
-    // TODO finish
-    return new SimpleGrid();
+    Grid grid = heightMap();
+    Random r = new Random();
+    for (int row = 40; row < 70; row++) {
+      for (int col = 40; col < 70; col++) {
+        grid.add(new Voxel(col, row, 100 + r.nextInt(20) - 10, 0xFFFFFF));
+      }
+    }
+    return grid;
   }
 
   /**
@@ -145,8 +151,8 @@ public class SampleGrids {
 
   private static final Grid[] GRID_ARRAY = new Grid[] {
     heightMap(),
-    perspectiveBox(),
     cloudySky(),
+    perspectiveBox(),
     fullRandomGrid(),
     randomGrid(),
   };
