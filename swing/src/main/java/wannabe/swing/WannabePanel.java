@@ -5,7 +5,6 @@ import android.util.SparseArray;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
@@ -115,9 +114,8 @@ import wannabe.util.UIs;
   @Override protected void paintChildren(Graphics g) {
   }
 
-  @Override public final void paintComponent(Graphics realGraphics) {
+  @Override public final void paintComponent(Graphics g) {
     long start = System.currentTimeMillis();
-    Graphics2D g = (Graphics2D) realGraphics.create();
 
     // Background:
     g.setColor(Color.BLACK);
@@ -136,7 +134,7 @@ import wannabe.util.UIs;
           || r.top < -realPixelSize || r.top > heightPx) {
         continue;
       }
-      g.setColor(getColor(voxel));
+      g.setColor(getSwingColor(voxel.color));
       renderType.draw(g, r);
     }
 
@@ -149,11 +147,11 @@ import wannabe.util.UIs;
     }
   }
 
-  protected Color getColor(Voxel voxel) {
-    Color color = colorCache.get(voxel.color);
+  private Color getSwingColor(int rgba) {
+    Color color = colorCache.get(rgba);
     if (color == null) {
-      color = new Color(voxel.color);
-      colorCache.put(voxel.color, color);
+      color = new Color(rgba);
+      colorCache.put(rgba, color);
     }
     return color;
   }

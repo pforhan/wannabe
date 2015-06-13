@@ -4,6 +4,7 @@ package wannabe;
 import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 
+/** Implementors know how to render a {@link Grid} to a device. */
 public interface UI {
   void setSize(int width, int height);
   void setGrid(Grid grid);

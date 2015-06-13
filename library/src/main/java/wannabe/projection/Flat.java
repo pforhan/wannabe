@@ -15,11 +15,10 @@ public class Flat implements Projection {
 
   @Override public Rendered render(Camera camera, Position position, int pixelSize) {
     position = camera.translate(position);
-    // TODO tweak, not sure what a good value is here:
-    int zOffset = position.z / 4;
+    int zOffset = position.z >> 2;
     rendered.left = pixelSize * position.x - zOffset + camera.uiPosition.left;
     rendered.top = pixelSize * position.y - zOffset + camera.uiPosition.top;
-    rendered.size = pixelSize + zOffset << 1;
+    rendered.size = pixelSize + zOffset + zOffset;
 
     return rendered;
   }

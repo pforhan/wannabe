@@ -29,7 +29,7 @@ public class PseudoPerspective implements Projection {
     // Get the rough location to draw from:
     Position onScreen = camera.translate(position);
     rendered.size = pixelSize - zDiff;
-    int halfSize = rendered.size >> 1; // TODO it's a shame I have to calculate this on every voxel
+    int halfSize = rendered.size >> 1;
     rendered.left = pixelSize * onScreen.x - onScreen.z * xDiff + camera.uiPosition.left - halfSize;
     rendered.top = pixelSize * onScreen.y - onScreen.z * yDiff + camera.uiPosition.top - halfSize;
 
