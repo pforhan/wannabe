@@ -14,12 +14,12 @@ Right now, this is simply a collection of little classes.
 Then there's how to display these:
 
 * A `Camera` keeps track of where we're looking.
-* A `Projection` converts a Position to a pixel location, given a Camera and a pixel size.  There's `Flat`, `Isometric`, and (still-in-progress) `Perspective` Projections.
+* A `Projection` converts a Position to a pixel location, given a Camera and a pixel size.  There's `Flat`, `Isometric`, and (still-in-progress) `PseudoPerspective` Projections.
 * A `UI` keeps track of the Grid, the Camera, and the Projection, and actually renders the result.
 
 Samples
 -------
-Right now, you can run SwingWannabe, a java-AWT and Swing implementation that I'm using as my testbed.  It loads a [heightmap](http://en.wikipedia.org/wiki/Heightmap) and displays the resulting Grid.  I went ahead and implemented 8 different render modes (shown here with the Isometric projection).
+You can run SwingWannabe, a java-AWT and Swing implementation that I'm using as my testbed.  It loads a [heightmap](http://en.wikipedia.org/wiki/Heightmap) and displays the resulting Grid.  I went ahead and implemented 8 different render modes (shown here with the Isometric projection).
 
 Original heightmap:
 
@@ -42,7 +42,7 @@ My expectation is that the camera will always be looking down the z-axis.  The p
 
 Why?
 ----
-I don't have a better answer here than what I've said.  This is a way to learn some little bits about 3d graphics while working in a simple space.  And potentially it can be a good platform from which to develop, perhaps, one or more small games.
+I don't have a better answer here than what I've said.  This is a way to learn some little bits about 3d graphics while working in a simple space.  And potentially it can be a good platform from which to develop some small games.
 
 License
 -------
