@@ -11,7 +11,6 @@ import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
 import wannabe.swing.SettingsPanel.Listener;
-import wannabe.swing.WannabePanel.RenderType;
 import wannabe.util.SampleGrids;
 
 public class SwingWannabe {
@@ -21,7 +20,8 @@ public class SwingWannabe {
     JPanel mainLayout = new JPanel(new BorderLayout());
     frame.setContentPane(mainLayout);
 
-    final WannabePanel panel = new WannabePanel();
+    final Camera camera = new Camera(0, 0, 0);
+    final WannabePanel panel = new WannabePanel(camera);
     final SettingsPanel settings = new SettingsPanel();
     settings.setListener(new Listener() {
       @Override public void onRenderTypeChanged(RenderType newType) {
@@ -49,7 +49,6 @@ public class SwingWannabe {
     frame.setSize(mainLayout.getPreferredSize());
     frame.setVisible(true);
 
-    final Camera camera = panel.getCamera();
     panel.addKeyListener(new KeyAdapter() {
       @Override public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
@@ -85,6 +84,16 @@ public class SwingWannabe {
             Projection next = Projections.next(panel.getProjection());
             panel.setProjection(next);
             settings.projectionSelected(next);
+            break;
+          case KeyEvent.VK_1:
+            panel.realPixelSize = 1;
+            break;
+          case KeyEvent.VK_2:
+            panel.realPixelSize = 2;
+            break;
+          case KeyEvent.VK_BACK_QUOTE:
+            panel.realPixelSize = WannabePanel.DEFAULT_PIXEL_SIZE;
+            break;
           default:
             // Don't care.
             break;

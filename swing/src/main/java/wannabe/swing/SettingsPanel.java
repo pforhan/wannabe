@@ -17,15 +17,14 @@ import javax.swing.event.ListSelectionListener;
 import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
-import wannabe.swing.WannabePanel.RenderType;
 import wannabe.util.SampleGrids;
 
 public class SettingsPanel extends JPanel {
 
   private static final long serialVersionUID = 1L;
-  private JList projection;
-  private JList renderType;
-  private JList grid;
+  private final JList projection;
+  private final JList renderType;
+  private final JList grid;
   private Listener listener;
   private boolean reacting;
 
@@ -41,6 +40,9 @@ public class SettingsPanel extends JPanel {
         + "G - change SimpleGrid\n"
         + "R - change renderer\n"
         + "P - change projection\n"
+        + "1 - set pixel size to 1\n"
+        + "2 - set pixel size to 2\n"
+        + "` - set pixel size to default\n"
         );
     help.setFocusable(false);
     help.setEditable(false);

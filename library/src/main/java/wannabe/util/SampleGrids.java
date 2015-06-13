@@ -85,7 +85,7 @@ public class SampleGrids {
   }
 
   /** Creates a grid with two hundred towers of up to 50 voxels in a 30x30 grid. */
-  public static Grid perspectiveBox() {
+  public static Grid towers() {
     Grid grid = new SimpleGrid("200 towers 30x30");
     Random r = new Random();
     for (int i = 0; i < 200; i++) {
@@ -164,7 +164,7 @@ public class SampleGrids {
     heightMap("heightMap 256x256", false),
     heightMap("deep heightmap 256x256", true),
     cloudySky(),
-    perspectiveBox(),
+    towers(),
     fullRandomGrid(),
     randomGrid()
   ));

@@ -19,60 +19,17 @@ import wannabe.projection.Isometric;
 import wannabe.projection.Projection;
 import wannabe.util.UIs;
 
+/** Swing painting code to display a Wannabe {@link Grid}. */
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
-  public enum RenderType {
-    circle, filledCircle, roundedSquare, filledRoundedSquare, square, filledSquare, threeDSquare, filledThreeDSquare, pixel;
-    public void draw(Graphics2D g, Rendered r) {
-      switch (this) {
-        case circle:
-          g.drawOval(r.left, r.top, r.size, r.size);
-          break;
-        case filledCircle:
-          g.fillOval(r.left, r.top, r.size, r.size);
-          break;
-        case roundedSquare:
-          int arc = r.size / 3;
-          g.drawRoundRect(r.left, r.top, r.size, r.size, arc, arc);
-          break;
-        case filledRoundedSquare:
-          arc = r.size / 3;
-          g.fillRoundRect(r.left, r.top, r.size, r.size, arc, arc);
-          break;
-        case square:
-          g.drawRect(r.left, r.top, r.size, r.size);
-          break;
-        case filledSquare:
-          g.fillRect(r.left, r.top, r.size, r.size);
-          break;
-        case threeDSquare:
-          g.draw3DRect(r.left, r.top, r.size, r.size, true);
-          break;
-        case filledThreeDSquare:
-          g.fill3DRect(r.left, r.top, r.size, r.size, true);
-          break;
-        case pixel:
-          g.drawLine(r.left, r.top, r.left, r.top);
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown RenderType: " + this);
-      }
-    }
-
-    public RenderType next() {
-      RenderType[] values = values();
-      int next = ordinal() + 1;
-      return next != values.length ? values[next] : values[0];
-    }
-  }
-
   private static final Grid EMPTY_GRID = new SimpleGrid("empty");
-  private static final int PIXEL_SIZE = 20;
+  static final int DEFAULT_PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
   private static final int MIN_PLAYFIELD_WIDTH = 50;
-  private static final Dimension PREFERRED_SIZE = new Dimension(PIXEL_SIZE * MIN_PLAYFIELD_WIDTH,
-      PIXEL_SIZE * MIN_PLAYFIELD_HEIGHT);
+  private static final Dimension PREFERRED_SIZE
+      = new Dimension(DEFAULT_PIXEL_SIZE * MIN_PLAYFIELD_WIDTH,
+          DEFAULT_PIXEL_SIZE * MIN_PLAYFIELD_HEIGHT);
 
-  int realPixelSize = PIXEL_SIZE;
+  int realPixelSize = DEFAULT_PIXEL_SIZE;
   // Our dimensions:
   int widthPx;
   int heightPx;
@@ -86,11 +43,13 @@ import wannabe.util.UIs;
   // Playfield paraphanellia:
   private Grid grid = EMPTY_GRID;
   /** Camera is fixed to the center of the widget. */
-  private Camera camera = new Camera(0, 0, 0);
+  private Camera camera;
   private Projection projection = new Isometric();
   private RenderType renderType = RenderType.filledCircle;
 
-  public WannabePanel() {
+  public WannabePanel(Camera camera) {
+    this.camera = camera;
+
     setOpaque(true);
     setFocusable(true);
     addComponentListener(new ComponentAdapter() {
@@ -103,7 +62,7 @@ import wannabe.util.UIs;
 
         int shortest = Math.min(widthPx, heightPx);
         float scale = (float) shortest / (float) PREFERRED_SIZE.height;
-        realPixelSize = (int) (PIXEL_SIZE * scale);
+        realPixelSize = (int) (DEFAULT_PIXEL_SIZE * scale);
         if (realPixelSize < 1) realPixelSize = 1;
         widthCells = UIs.pxToCells(widthPx, realPixelSize);
         heightCells = UIs.pxToCells(heightPx, realPixelSize);
@@ -123,10 +82,6 @@ import wannabe.util.UIs;
 
   @Override public void setCamera(Camera camera) {
     this.camera = camera;
-  }
-
-  @Override public Camera getCamera() {
-    return camera;
   }
 
   @Override public void setProjection(Projection projection) {
@@ -176,7 +131,7 @@ import wannabe.util.UIs;
 
     for (Voxel voxel : paintGrid) {
       Rendered r = projection.render(camera, voxel.position, realPixelSize);
-      // If it's going to render off-screen, don't bother drawing.
+      // If it's going to be fully off-screen, don't bother drawing.
       if (r.left < -realPixelSize || r.left > widthPx //
           || r.top < -realPixelSize || r.top > heightPx) {
         continue;
