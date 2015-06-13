@@ -47,7 +47,7 @@ import wannabe.util.UIs;
   private Projection projection = new Isometric();
   private RenderType renderType = RenderType.filledCircle;
 
-  public WannabePanel(Camera camera) {
+  public WannabePanel(final Camera camera) {
     this.camera = camera;
 
     setOpaque(true);
