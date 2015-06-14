@@ -50,26 +50,25 @@ public class SimpleGrid implements Grid {
   }
 
   @Override public Grid subGrid(int x, int y, int width, int height) {
-    if (subGrid == null) subGrid = new SimpleGrid("sub of " + name);
-    subGrid.clear();
-
-    for (Voxel vox : voxels) {
-      Position pos = vox.position;
-      if (pos.x >= x && pos.x < x + width //
-          && pos.y >= y && pos.y < y + height) {
-        subGrid.voxels.add(vox);
-      }
+    // TODO consider: how does a translation affect the above coordinates?
+    if (subGrid == null) {
+      subGrid = new SimpleGrid("sub of " + name);
+      // Don't forget to set a translation if there was one:
+      subGrid.translate(translation);
     }
+    subGrid.clear();
+    addTranslated(subGrid, x, y, width, height, false);
     return subGrid;
   }
 
   /** Sorts the voxels by z order, from lowest to highest. */
-  public void sortByPainters() {
+  @Override public void optimize() {
+    // TODO should I also order by x and y?
     Collections.sort(voxels, zIncreasing);
   }
 
-  @Override public boolean add(Voxel v) {
-    return voxels.add(v);
+  @Override public void add(Voxel v) {
+    voxels.add(v);
   }
 
   @Override public boolean remove(Voxel v) {
@@ -80,16 +79,33 @@ public class SimpleGrid implements Grid {
     voxels.clear();
   }
 
-  @Override public void importGrid(Grid grid) {
-    // TODO may be some nicer way here, pre-sorting or something...
-    for (Voxel foreignvVoxel : grid) {
-      voxels.add(foreignvVoxel);
+  @Override public void exportTo(Grid grid, int x, int y, int width, int height) {
+    // TODO consider: how does a translation affect the above coordinates?
+    addTranslated(grid, x, y, width, height, true);
+  }
+
+  private void addTranslated(Grid grid, int x, int y, int width, int height, boolean cloneVoxels) {
+    Position workhorse = new Position(0, 0, 0);
+    for (Voxel vox : voxels) {
+      Position pos = vox.position;
+      workhorse.set(pos);
+      workhorse.add(translation);
+      if (workhorse.x >= x && workhorse.x < x + width //
+          && workhorse.y >= y && workhorse.y < y + height) {
+        if (cloneVoxels) {
+          grid.add(new Voxel(workhorse.clone(), vox.color));
+        } else {
+          grid.add(vox);
+        }
+      }
     }
   }
+
 
   @Override public void translate(Position offset) {
     // TODO should I translate from where I am, or just reset each time?
     translation.add(offset);
+    if (subGrid != null) subGrid.translate(offset);
   }
 
   @Override public int size() {

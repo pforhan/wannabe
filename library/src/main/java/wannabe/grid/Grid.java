@@ -17,22 +17,28 @@ public interface Grid extends Iterable<Voxel> {
   /** Implementations may reuse the same instance. */
   Grid subGrid(int x, int y, int width, int height);
 
-  /** Returns {@code true} if the specified voxel was added. */
-  boolean add(Voxel v);
+  /** Adds a single {@link Voxel}. */
+  void add(Voxel v);
 
   /** Returns {@code true} if the specified voxel was removed. */
   boolean remove(Voxel v);
 
   void clear();
 
-  /** Copies all {@link Voxel}s from the specified grid and places them in this one. */
-  void importGrid(Grid grid);
+  /**
+   * Copies all {@link Voxel}s from this grid to the specified grid.  Applies any translation to
+   * each copied {@link Voxel}.  Voxels filtered based on supplied parameters.
+   */
+  void exportTo(Grid grid, int x, int y, int width, int height);
 
   /** Number of Voxels this grid contains. */
   int size();
 
   /** Translates every {@link Voxel} in this grid by the specified offset. */
   void translate(Position offset);
+
+  /** Perform some operation (such as sort by painter's algorithm, etc) on the grid. */
+  void optimize();
 
   /**
    * Returns an immutable version of this grid that is optimized for rendering since

@@ -6,7 +6,11 @@ public class Voxel {
   public int color;
 
   public Voxel(int x, int y, int z, int color) {
-    position = new Position(x, y, z);
+    this(new Position(x, y, z), color);
+  }
+
+  public Voxel(Position position, int color) {
+    this.position = position;
     this.color = color;
   }
 }

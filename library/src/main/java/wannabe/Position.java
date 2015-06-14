@@ -1,7 +1,7 @@
 // Copyright 2013 Patrick Forhan.
 package wannabe;
 
-public class Position {
+public class Position implements Cloneable {
   public int x;
   public int y;
   public int z;
@@ -22,5 +22,13 @@ public class Position {
     x = position.x;
     y = position.y;
     z = position.z;
+  }
+
+  @Override public Position clone() {
+    try {
+      return (Position) super.clone();
+    } catch (CloneNotSupportedException ex) {
+      throw new IllegalStateException("Could not clone cloneable object");
+    }
   }
 }
