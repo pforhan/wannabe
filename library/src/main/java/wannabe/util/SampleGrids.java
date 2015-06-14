@@ -104,9 +104,19 @@ public class SampleGrids {
   public static Grid cloudySky() {
     Grid grid = heightMap("cloudy heightmap 256x256", false);
     Random r = new Random();
-    for (int row = 40; row < 70; row++) {
-      for (int col = 40; col < 70; col++) {
-        grid.add(new Voxel(col, row, 100 + r.nextInt(20) - 10, 0xFFFFFF));
+    for (int row = 20; row < 40; row++) {
+      for (int col = 20; col < 40; col++) {
+        // All clouds are about 50-60z in height. There are three for each x, y coordinate.
+        // The higher a cloud, the lighter its color.
+        int cloudHeight = r.nextInt(8); // 0-7
+        int cloudColorComponent = (cloudHeight << 3) + 199; // 199 - 255
+        int cloudColor = (cloudColorComponent << 16)
+            + (cloudColorComponent << 8)
+            + cloudColorComponent; // 0x888888 - 0xFFFFFF
+        grid.add(new Voxel(col, row, 50 + cloudHeight, cloudColor));
+        // TODO maybe randomize count and spacing of stacks, too.
+        grid.add(new Voxel(col, row, 51 + cloudHeight, cloudColor));
+        grid.add(new Voxel(col, row, 52 + cloudHeight, cloudColor));
       }
     }
     return grid;

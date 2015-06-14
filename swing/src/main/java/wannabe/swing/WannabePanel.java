@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.Rendered;
@@ -40,11 +42,12 @@ import wannabe.util.UIs;
   final SparseArray<Color> colorCache = new SparseArray<Color>(256);
 
   // Playfield paraphanellia:
-  private Grid grid = EMPTY_GRID;
+  private final List<Grid> grids = new ArrayList<Grid>();
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Isometric();
   private RenderType renderType = RenderType.filledCircle;
+  private boolean stats;
 
   public WannabePanel(final Camera camera) {
     this.camera = camera;
@@ -71,12 +74,12 @@ import wannabe.util.UIs;
     });
   }
 
-  @Override public void setGrid(Grid grid) {
-    this.grid = grid;
+  @Override public void addGrid(Grid grid) {
+    grids.add(grid);
   }
 
-  public Grid getGrid() {
-    return grid;
+  @Override public void removeGrid(Grid grid) {
+    grids.remove(grid);
   }
 
   @Override public void setCamera(Camera camera) {
@@ -89,6 +92,11 @@ import wannabe.util.UIs;
 
   public Projection getProjection() {
     return projection;
+  }
+
+  /** Shows advanced stats on the display. */
+  public void showStats() {
+    stats = true;
   }
 
   /** Updates timer, requests refresh. */
@@ -121,38 +129,49 @@ import wannabe.util.UIs;
     g.setColor(Color.BLACK);
     g.fillRect(0, 0, widthPx, heightPx);
 
-    // Determine the voxels we care about:
-    Grid paintGrid = grid.subGrid(camera.position.x - halfWidthCells, //
-        camera.position.y - halfHeightCells, widthCells, heightCells);
-    ((SimpleGrid) paintGrid).sortByPainters();
-    long afterGrid = System.currentTimeMillis();
+    for (Grid grid : grids) {
+      // Determine the voxels we care about:
+      Grid paintGrid = grid.subGrid(camera.position.x - halfWidthCells, //
+          camera.position.y - halfHeightCells, widthCells, heightCells);
+      ((SimpleGrid) paintGrid).sortByPainters();
+      long afterGrid = System.currentTimeMillis();
 
-    for (Voxel voxel : paintGrid) {
-      Rendered r = projection.render(camera, voxel.position, realPixelSize);
-      // If it's going to be fully off-screen, don't bother drawing.
-      if (r.left < -realPixelSize || r.left > widthPx //
-          || r.top < -realPixelSize || r.top > heightPx) {
-        continue;
+      for (Voxel voxel : paintGrid) {
+        Rendered r = projection.render(camera, voxel.position, realPixelSize);
+        // If it's going to be fully off-screen, don't bother drawing.
+        if (r.left < -realPixelSize || r.left > widthPx //
+            || r.top < -realPixelSize || r.top > heightPx) {
+          continue;
+        }
+        g.setColor(getSwingColor(voxel.color));
+        renderType.draw(g, r);
       }
-      g.setColor(getSwingColor(voxel.color));
-      renderType.draw(g, r);
+
+      // Timing info:
+      long end = System.currentTimeMillis() - start;
+      if (end > 100) {
+        long gridTime = afterGrid - start;
+        System.out.println(String.format("render took %s; %s was grid, %s was render", end,
+            gridTime, end - gridTime));
+      }
     }
 
-    // Timing info:
-    long end = System.currentTimeMillis() - start;
-    if (end > 100) {
-      long gridTime = afterGrid - start;
-      System.out.println(String.format("render took %s; %s was grid, %s was render", end, gridTime,
-          end - gridTime));
+    if (stats) {
+      g.setColor(Color.BLACK);
+      String statString = "voxels on screen: " + 0 + "; render time " + 0;
+      g.drawString(statString, 20, 20);
+      g.setColor(Color.WHITE);
+      g.drawString(statString, 19, 19);
     }
   }
 
-  private Color getSwingColor(int rgba) {
-    Color color = colorCache.get(rgba);
+  private Color getSwingColor(int rgb) {
+    Color color = colorCache.get(rgb);
     if (color == null) {
-      color = new Color(rgba);
-      colorCache.put(rgba, color);
+      color = new Color(rgb);
+      colorCache.put(rgb, color);
     }
     return color;
   }
+
 }

@@ -14,15 +14,22 @@ import wannabe.swing.SettingsPanel.Listener;
 import wannabe.util.SampleGrids;
 
 public class SwingWannabe {
+  private static Grid currentGrid = null;
+
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     JPanel mainLayout = new JPanel(new BorderLayout());
     frame.setContentPane(mainLayout);
 
-    final Camera camera = new Camera(0, 0, 0);
+    final Camera camera = new Camera(20, 20, 0);
     final WannabePanel panel = new WannabePanel(camera);
+    panel.showStats();
     final SettingsPanel settings = new SettingsPanel();
+    // TODO rather than have this class be the go-between of settings and WannabePanel, just
+    // have settings change it directly.  That way we shouldn't have to set things three times.
+    // *Maybe* I could even move the key listener code to there, too, so i don't have to edit
+    // two classes when bindings change
     settings.setListener(new Listener() {
       @Override public void onRenderTypeChanged(RenderType newType) {
         panel.setRenderType(newType);
@@ -33,15 +40,18 @@ public class SwingWannabe {
       }
 
       @Override public void onGridChanged(Grid newGrid) {
-        panel.setGrid(newGrid);
+        panel.removeGrid(currentGrid);
+        currentGrid = newGrid;
+        panel.addGrid(currentGrid);
       }
     });
 
     mainLayout.add(panel, BorderLayout.CENTER);
     mainLayout.add(settings, BorderLayout.EAST);
 
-    panel.setGrid(SampleGrids.GRIDS.get(0));
-    settings.gridSelected(SampleGrids.GRIDS.get(0));
+    currentGrid = SampleGrids.GRIDS.get(0);
+    panel.addGrid(currentGrid);
+    settings.gridSelected(currentGrid);
     panel.setProjection(Projections.PROJECTIONS.get(0));
     settings.projectionSelected(Projections.PROJECTIONS.get(0));
     settings.renderTypeSelected(panel.getRenderType());
@@ -71,9 +81,10 @@ public class SwingWannabe {
             camera.position.z++;
             break;
           case KeyEvent.VK_G:
-            Grid nextGrid = SampleGrids.next(panel.getGrid());
-            panel.setGrid(nextGrid);
-            settings.gridSelected(nextGrid);
+            panel.removeGrid(currentGrid);
+            currentGrid = SampleGrids.next(currentGrid);
+            panel.addGrid(currentGrid);
+            settings.gridSelected(currentGrid);
             break;
           case KeyEvent.VK_R:
             RenderType nextRenderType = panel.getRenderType().next();

@@ -9,6 +9,7 @@ import java.util.List;
 import wannabe.Position;
 import wannabe.Voxel;
 
+/** {@link Grid} implementation that has a simple list of {@link Voxel}s and a means to sort. */
 public class SimpleGrid implements Grid {
   private static final Comparator<Voxel> zIncreasing = new Comparator<Voxel>() {
     @Override public int compare(Voxel o1, Voxel o2) {
@@ -19,19 +20,38 @@ public class SimpleGrid implements Grid {
   private final List<Voxel> voxels = new ArrayList<Voxel>();
   private final String name;
   private SimpleGrid subGrid;
-
+  private final Position translation = new Position(0, 0, 0);
 
   public SimpleGrid(String name) {
     this.name = name;
   }
 
   @Override public Iterator<Voxel> iterator() {
-    return voxels.iterator();
+    final Iterator<Voxel> realIterator = voxels.iterator();
+    final Voxel workhorse = new Voxel(0, 0, 0, 0);
+    return new Iterator<Voxel>() {
+      @Override public boolean hasNext() {
+        return realIterator.hasNext();
+      }
+
+      @Override public Voxel next() {
+        Voxel real = realIterator.next();
+        workhorse.color = real.color;
+        workhorse.position.set(real.position);
+        workhorse.position.add(translation);
+        return workhorse;
+      }
+
+      @Override public void remove() {
+        // TODO should I support remove?
+        realIterator.remove();
+      }
+    };
   }
 
   @Override public Grid subGrid(int x, int y, int width, int height) {
     if (subGrid == null) subGrid = new SimpleGrid("sub of " + name);
-    subGrid.voxels.clear();
+    subGrid.clear();
 
     for (Voxel vox : voxels) {
       Position pos = vox.position;
@@ -56,6 +76,22 @@ public class SimpleGrid implements Grid {
     return voxels.remove(v);
   }
 
+  @Override public void clear() {
+    voxels.clear();
+  }
+
+  @Override public void importGrid(Grid grid) {
+    // TODO may be some nicer way here, pre-sorting or something...
+    for (Voxel foreignvVoxel : grid) {
+      voxels.add(foreignvVoxel);
+    }
+  }
+
+  @Override public void translate(Position offset) {
+    // TODO should I translate from where I am, or just reset each time?
+    translation.add(offset);
+  }
+
   @Override public int size() {
     return voxels.size();
   }
@@ -66,6 +102,6 @@ public class SimpleGrid implements Grid {
   }
 
   @Override public String toString() {
-    return name;
+    return name + "(size: " + size() + ")";
   }
 }
