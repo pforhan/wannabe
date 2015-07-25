@@ -14,9 +14,6 @@ public interface Grid extends Iterable<Voxel> {
    */
   @Override Iterator<Voxel> iterator();
 
-  /** Implementations may reuse the same instance. */
-  Grid subGrid(int x, int y, int width, int height);
-
   /** Adds a single {@link Voxel}. */
   void add(Voxel v);
 
@@ -39,10 +36,4 @@ public interface Grid extends Iterable<Voxel> {
 
   /** Perform some operation (such as sort by painter's algorithm, etc) on the grid. */
   void optimize();
-
-  /**
-   * Returns an immutable version of this grid that is optimized for rendering since
-   * it can assume it has no changing voxels.
-   */
-  Grid unmodifyableGrid();
 }

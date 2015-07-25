@@ -49,18 +49,6 @@ public class SimpleGrid implements Grid {
     };
   }
 
-  @Override public Grid subGrid(int x, int y, int width, int height) {
-    // TODO consider: how does a translation affect the above coordinates?
-    if (subGrid == null) {
-      subGrid = new SimpleGrid("sub of " + name);
-      // Don't forget to set a translation if there was one:
-      subGrid.translate(translation);
-    }
-    subGrid.clear();
-    addTranslated(subGrid, x, y, width, height, false);
-    return subGrid;
-  }
-
   /** Sorts the voxels by z order, from lowest to highest. */
   @Override public void optimize() {
     // TODO should I also order by x and y?
@@ -110,11 +98,6 @@ public class SimpleGrid implements Grid {
 
   @Override public int size() {
     return voxels.size();
-  }
-
-  @Override public Grid unmodifyableGrid() {
-    // TODO implement me!
-    return null;
   }
 
   @Override public String toString() {

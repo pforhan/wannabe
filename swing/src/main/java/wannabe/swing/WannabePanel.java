@@ -55,7 +55,6 @@ import wannabe.util.UIs;
     setOpaque(true);
     setFocusable(true);
     addComponentListener(new ComponentAdapter() {
-
       @Override public void componentResized(ComponentEvent e) {
         widthPx = getWidth();
         heightPx = getHeight();
