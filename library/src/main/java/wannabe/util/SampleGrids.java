@@ -7,10 +7,13 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
+import wannabe.Position;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.SimpleGrid;
@@ -170,8 +173,64 @@ public class SampleGrids {
     }
   }
 
+  public static Grid linkGrid() {
+    Map<Character, Integer> colorMap = new HashMap<>(3);
+    colorMap.put('G', 0xadfc14);
+    colorMap.put('S', 0xff8f2b);
+    colorMap.put('H', 0xdb450f);
+    return fromTextMap("link", ""
+        + ".....GGGGGG....\n"
+        + "....GGGGGGGG...\n"
+        + "..S.GHHHHHHG.S.\n"
+        + "..S.HHHHHHHH.S.\n"
+        + "..SSHSGSSGSHSS.\n"
+        + "..SSHSHSSHSHSS.\n"
+        + "...SSSSSSSSSSH.\n"
+        + "...GGSSHHSSGGH.\n"
+        + ".HHHHHSSSSGGHHH\n"
+        + "HHSHHHHGGGGGSHH\n"
+        + "HSSSHHSHHGGSSSH\n"
+        + "HHSHHHSGHHHHSSS\n"
+        + "HHSHHHSHHGGGGS.\n"
+        + "HHHHHHSGGGGG...\n"
+        + ".SSSSSH..HHH...\n"
+        + "....HHH........\n",
+        colorMap);
+  }
+
+  /**
+   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the color
+   * map will act as spacers (leaves empty space in the final grid).
+   *
+   * @param name Name of the grid
+   * @param textmap two-dimensional array of characters representing the desired output.
+   * @param charToColor map of character to color describing what colors to use.
+   */
+  public static Grid fromTextMap(String name, String textmap,
+      Map<Character, Integer> charToColor) {
+    SimpleGrid grid = new SimpleGrid(name);
+    Position workhorse = new Position(0, 0, 0);
+    for (int i = 0; i < textmap.length(); i++) {
+      char chr = textmap.charAt(i);
+      if (chr == '\n') {
+        // Found a new line, so increment y, reset x.
+        workhorse.x = 0;
+        workhorse.y++;
+        continue;
+      }
+      Character boxed = chr;
+      if (charToColor.containsKey(boxed)) {
+        int color = charToColor.get(boxed);
+        grid.add(new Voxel(workhorse.clone(), color));
+      }
+      workhorse.x++;
+    }
+    return grid;
+  }
+
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     heightMap("heightMap 256x256", false),
+    linkGrid(),
     heightMap("deep heightmap 256x256", true),
     cloudySky(),
     towers(),

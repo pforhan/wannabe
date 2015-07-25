@@ -38,7 +38,7 @@ public class SettingsPanel extends JPanel {
         + "Z - zoom in (move camera Z)\n"
         + "X - zoom out (move camera Z)\n"
         + "G - change Grid\n"
-        + "A - add a moving grid"
+        + "A - toggle a roving grid\n"
         + "R - change renderer\n"
         + "P - change projection\n"
         + "1 - set pixel size to 1\n"

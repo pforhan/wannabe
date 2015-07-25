@@ -4,9 +4,11 @@ package wannabe.swing;
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
+import wannabe.Position;
 import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
@@ -14,7 +16,8 @@ import wannabe.swing.SettingsPanel.Listener;
 import wannabe.util.SampleGrids;
 
 public class SwingWannabe {
-  private static Grid currentGrid = null;
+  private static Grid currentGrid;
+  private static Grid rovingGrid;
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
@@ -27,7 +30,7 @@ public class SwingWannabe {
     panel.showStats();
     final SettingsPanel settings = new SettingsPanel();
     // TODO rather than have this class be the go-between of settings and WannabePanel, just
-    // have settings change it directly.  That way we shouldn't have to set things three times.
+    // have settings change it directly. That way we shouldn't have to set things three times.
     // *Maybe* I could even move the key listener code to there, too, so i don't have to edit
     // two classes when bindings change
     settings.setListener(new Listener() {
@@ -80,6 +83,15 @@ public class SwingWannabe {
           case KeyEvent.VK_X:
             camera.position.z++;
             break;
+          case KeyEvent.VK_A:
+            if (rovingGrid != null) {
+              panel.removeGrid(rovingGrid);
+              rovingGrid = null;
+            } else {
+              rovingGrid = SampleGrids.linkGrid();
+              panel.addGrid(rovingGrid);
+            }
+            break;
           case KeyEvent.VK_G:
             panel.removeGrid(currentGrid);
             currentGrid = SampleGrids.next(currentGrid);
@@ -112,10 +124,17 @@ public class SwingWannabe {
       }
     });
 
-
+    Random r = new Random();
     while (true) {
+      moveLink(r);
       panel.render();
       Thread.sleep(200);
     }
+  }
+
+  private static void moveLink(Random r) {
+    if (rovingGrid == null) return;
+
+    rovingGrid.translate(new Position(r.nextInt(3) - 1, r.nextInt(3) - 1, r.nextInt(3) - 1));
   }
 }
