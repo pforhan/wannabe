@@ -15,13 +15,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
 import wannabe.Position;
 import wannabe.Voxel;
+import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
+import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
 
 public class SampleGrids {
   /** Grid stretching 30x30 with pixels every 10 along the edge, and 600 random pixels. */
   public static Grid randomGrid() {
-    Grid grid = new SimpleGrid("random sparse 30x30");
+    MutableGrid grid = new SimpleGrid("random sparse 30x30");
     grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
     grid.add(new Voxel(1, 0, 0, 0xEEDDFF));
     grid.add(new Voxel(0, 1, 0, 0xDDFFEE));
@@ -42,12 +44,12 @@ public class SampleGrids {
 
   /** 30x30 grid with all 900 voxels specified. */
   public static Grid fullRandomGrid() {
-    Grid grid = new SimpleGrid("random full 30x30");
+    MutableGrid grid = new SimpleGrid("random full 30x30");
 
     Random r = new Random();
     // Grab one randomly to animate:
     int which = r.nextInt(900);
-    final AtomicReference<Voxel> animated = new AtomicReference<Voxel>();
+    final AtomicReference<Voxel> animated = new AtomicReference<>();
     for (int i = 0; i < 900; i++) {
       int x = i / 30;
       int y = i % 30;
@@ -89,7 +91,7 @@ public class SampleGrids {
 
   /** Creates a grid with two hundred towers of up to 50 voxels in a 30x30 grid. */
   public static Grid towers() {
-    Grid grid = new SimpleGrid("200 towers 30x30");
+    MutableGrid grid = new SimpleGrid("200 towers 30x30");
     Random r = new Random();
     for (int i = 0; i < 200; i++) {
       int x = r.nextInt(30);
@@ -105,7 +107,7 @@ public class SampleGrids {
 
   /** Grid with the heightMap as a base, with "clouds" above and shadows below them. */
   public static Grid cloudySky() {
-    Grid grid = heightMap("cloudy heightmap 256x256", false);
+    MutableGrid grid = heightMap("cloudy heightmap 256x256", false);
     Random r = new Random();
     for (int row = 20; row < 40; row++) {
       for (int col = 20; col < 40; col++) {
@@ -131,16 +133,16 @@ public class SampleGrids {
   /**
    * Loads the sample-heightmap image into a Grid, with lighter pixels given a greater height
    * and a bluer color.
-   * @param name TODO
+   * TODO handle other platforms
    */
-  public static Grid heightMap(String name, boolean deep) {
+  public static MutableGrid heightMap(String name, boolean deep) {
     // TODO pick by platform
     return Swing.heightMap(name, deep);
   }
 
   public static class Swing {
-    public static Grid heightMap(String name, boolean deep) {
-      Grid grid = new SimpleGrid(name);
+    public static MutableGrid heightMap(String name, boolean deep) {
+      MutableGrid grid = new SimpleGrid(name);
       try {
         BufferedImage img = ImageIO.read(Swing.class.getResourceAsStream("/example-heightmap.png"));
         WritableRaster raster = img.getRaster();
@@ -175,9 +177,9 @@ public class SampleGrids {
 
   public static Grid linkGrid() {
     Map<Character, Integer> colorMap = new HashMap<>(3);
-    colorMap.put('G', 0xadfc14);
-    colorMap.put('S', 0xff8f2b);
-    colorMap.put('H', 0xdb450f);
+    colorMap.put('G', 0xadfc14); // Green
+    colorMap.put('S', 0xff8f2b); // Light brown
+    colorMap.put('H', 0xdb450f); // Dark brown
     return fromTextMap("link", ""
         + ".....GGGGGG....\n"
         + "....GGGGGGGG...\n"
@@ -208,7 +210,7 @@ public class SampleGrids {
    */
   public static Grid fromTextMap(String name, String textmap,
       Map<Character, Integer> charToColor) {
-    SimpleGrid grid = new SimpleGrid(name);
+    MutableGrid grid = new SimpleGrid(name);
     Position workhorse = new Position(0, 0, 0);
     for (int i = 0; i < textmap.length(); i++) {
       char chr = textmap.charAt(i);
@@ -228,6 +230,100 @@ public class SampleGrids {
     return grid;
   }
 
+  public static FrameAnimatedGrid megaManRunning() {
+    Map<Character, Integer> colorMap = new HashMap<>(3);
+    colorMap.put('*', 0x000000); // Black
+    colorMap.put('B', 0x0b59f4); // Dark blue
+    colorMap.put('t', 0x21ffff); // Turquoise
+    colorMap.put('O', 0xffffff); // White
+    colorMap.put('f', 0xfede9c); // Face
+    Grid frame1 = fromTextMap("mmr1", "" // Frame 2 is 2px taller, so 1 and 3 need spacer rows
+        + ".........................\n"
+        + ".........................\n"
+        + ".............***.........\n"
+        + "...........***tt*........\n"
+        + "..........*BBB*tt*.......\n"
+        + ".........*BBBBB****......\n"
+        + ".........*BBBBB*ttB*.....\n"
+        + "......***tBBBBBB**B*.....\n"
+        + "....**tt*tBBfOOOBBO*.....\n"
+        + "...*B*tt*tBfOO**f*O*.....\n"
+        + "..*BBB*tt*BfOO**f*O*.***.\n"
+        + ".*BBBB*tt*BffOOOfOf**BBB*\n"
+        + ".*BBB*.*tt*Bf****f*.*BBB*\n"
+        + ".*BBB*.*ttt*fffff*t**BBB*\n"
+        + "..***..*Bttt*****tttBBB*.\n"
+        + "....**.*BBBttttt*ttBBB*..\n"
+        + "...*BB**BBBBBBt*.*tBB*...\n"
+        + "..*BBBB**BBttt*...***....\n"
+        + ".*BBBBBt**Btttt*.........\n"
+        + ".*BB*BBttt**tttB*........\n"
+        + "..****Btt*.*BBBB*........\n"
+        + "......***..*BBB***.......\n"
+        + "..........*BBBBBBB*......\n"
+        + "..........*********......\n",
+        colorMap);
+    Grid frame2 = fromTextMap("mmr2", ""
+        + ".............***.........\n"
+        + "...........***tt*........\n"
+        + "..........*BBB*tt*.......\n"
+        + ".........*BBBBB****......\n"
+        + ".........*BBBBB*ttB*.....\n"
+        + "........*tBBBBBB**B*.....\n"
+        + "........*tBBfOOOBBO*.....\n"
+        + ".......**tBfOO**f*O*.....\n"
+        + "......*tt*BfOO**f*O*.....\n"
+        + ".....*ttt*BffOOOfOf*.....\n"
+        + "....*ttttt*Bf****f*......\n"
+        + "....*ttt*tt*fffff*.......\n"
+        + ".....*BBB*tt******.......\n"
+        + ".....*BBBB**tttt*B*......\n"
+        + "......*BB*BB*tt*BB*......\n"
+        + ".......*BBBB*B****.......\n"
+        + "........*BB*B*t*.........\n"
+        + ".........**tt*t*.........\n"
+        + "........**ttt**..........\n"
+        + ".......*BBBBB*...........\n"
+        + "......*BBBBB*............\n"
+        + "......*BBB***............\n"
+        + ".......*BBBBB*...........\n"
+        + "........******...........\n",
+        colorMap);
+    Grid frame3 = fromTextMap("mmr3", ""
+        + ".........................\n"
+        + ".........................\n"
+        + ".............***.........\n"
+        + "...........***tt*........\n"
+        + "..........*BBB*tt*.......\n"
+        + ".........*BBBBB****......\n"
+        + ".........*BBBBB*ttB*.....\n"
+        + "........*tBBBBBB**B*.....\n"
+        + "........*tBBfOOOBBO*.....\n"
+        + "......***tBfOO**f*O*.....\n"
+        + "....**ttt*BfOO**f*O*.....\n"
+        + "...*BBBttt*ffOOOfOf*.....\n"
+        + "..*BBBBtt*ttf****f*......\n"
+        + "..*BBB***ttttBfff***.....\n"
+        + "..*BBB*.*ttttt***BBB*....\n"
+        + "...***.*Bt*BttBBBBBB*....\n"
+        + "..*BB***BBt*BtBBBBBB*....\n"
+        + ".*BBBB*tBBBB********.....\n"
+        + "*BBBBBtttBBBBttt*........\n"
+        + "*BB*BBttt***tttBB*.......\n"
+        + ".****BBt*...*BBBB*.......\n"
+        + ".....***....*BBB***......\n"
+        + "...........*BBBBBBB*.....\n"
+        + "...........*********.....\n",
+        colorMap);
+
+    FrameAnimatedGrid grid = new FrameAnimatedGrid("megaman!");
+    grid.addFrame(frame1);
+    grid.addFrame(frame2);
+    grid.addFrame(frame3);
+    grid.addFrame(frame2);
+    return grid;
+  }
+
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     heightMap("heightMap 256x256", false),
     linkGrid(),
@@ -242,5 +338,6 @@ public class SampleGrids {
     int nextIdx = GRIDS.indexOf(current) + 1;
     return GRIDS.get(nextIdx < GRIDS.size() ? nextIdx : 0);
   }
+
 
 }

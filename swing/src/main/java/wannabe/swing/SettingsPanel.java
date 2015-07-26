@@ -34,16 +34,17 @@ public class SettingsPanel extends JPanel {
     setBorder(new EmptyBorder(5, 5, 5, 5));
 
     // Set up components:
-    JTextArea help = new JTextArea("Arrow keys - move camera\n"
-        + "Z - zoom in (move camera Z)\n"
-        + "X - zoom out (move camera Z)\n"
-        + "G - change Grid\n"
-        + "A - toggle a roving grid\n"
-        + "R - change renderer\n"
-        + "P - change projection\n"
-        + "1 - set pixel size to 1\n"
-        + "2 - set pixel size to 2\n"
-        + "` - set pixel size to default\n"
+    JTextArea help = new JTextArea("Arrow keys - move"
+        + "\nSpace - toggle move camera / \"player\""
+        + "\nZ - lower"
+        + "\nX - higher"
+        + "\nG - change Grid"
+        + "\nA - toggle a roving grid"
+        + "\nR - change renderer"
+        + "\nP - change projection"
+        + "\n1 - set pixel size to 1"
+        + "\n2 - set pixel size to 2"
+        + "\n` - set pixel size to default"
         );
     help.setFocusable(false);
     help.setEditable(false);

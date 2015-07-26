@@ -10,11 +10,13 @@ import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
+import wannabe.Bounds.XYBounds;
 import wannabe.Camera;
 import wannabe.Rendered;
 import wannabe.UI;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
+import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
 import wannabe.projection.Isometric;
 import wannabe.projection.Projection;
@@ -42,7 +44,7 @@ import wannabe.util.UIs;
 
   // Playfield paraphanellia:
   private final List<Grid> grids = new ArrayList<>();
-  private final SimpleGrid buffer = new SimpleGrid("buffer");
+  private final MutableGrid buffer = new SimpleGrid("buffer");
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Isometric();
@@ -129,9 +131,12 @@ import wannabe.util.UIs;
     g.fillRect(0, 0, widthPx, heightPx);
 
     buffer.clear();
+    XYBounds bounds = new XYBounds();
+    bounds.setWithWidthHeight(camera.position.x - halfWidthCells, //
+        camera.position.y - halfHeightCells, //
+        widthCells, heightCells);
     for (Grid grid : grids) {
-      grid.exportTo(buffer, camera.position.x - halfWidthCells, //
-          camera.position.y - halfHeightCells, widthCells, heightCells);
+      grid.exportTo(buffer, bounds);
     }
     buffer.optimize();
 
@@ -158,7 +163,7 @@ import wannabe.util.UIs;
     }
 
     if (stats) {
-      // TODO yeah, this line is duplicated, but I hate to run it every time when I may not use it...
+      // TODO see if we can eliminate this duplicate calculation
       long gridTime = afterGrid - start;
       String statistics = "voxels on screen: " + buffer.size() + "; time: grid " + gridTime
           + " render " + (total - gridTime);

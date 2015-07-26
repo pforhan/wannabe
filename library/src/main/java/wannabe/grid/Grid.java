@@ -2,6 +2,7 @@
 package wannabe.grid;
 
 import java.util.Iterator;
+import wannabe.Bounds;
 import wannabe.Position;
 import wannabe.Voxel;
 
@@ -14,19 +15,11 @@ public interface Grid extends Iterable<Voxel> {
    */
   @Override Iterator<Voxel> iterator();
 
-  /** Adds a single {@link Voxel}. */
-  void add(Voxel v);
-
-  /** Returns {@code true} if the specified voxel was removed. */
-  boolean remove(Voxel v);
-
-  void clear();
-
   /**
    * Copies all {@link Voxel}s from this grid to the specified grid.  Applies any translation to
    * each copied {@link Voxel}.  Voxels filtered based on supplied parameters.
    */
-  void exportTo(Grid grid, int x, int y, int width, int height);
+  void exportTo(MutableGrid grid, Bounds bounds);
 
   /** Number of Voxels this grid contains. */
   int size();
@@ -34,6 +27,7 @@ public interface Grid extends Iterable<Voxel> {
   /** Translates every {@link Voxel} in this grid by the specified offset. */
   void translate(Position offset);
 
-  /** Perform some operation (such as sort by painter's algorithm, etc) on the grid. */
-  void optimize();
+  /** Resets translation to zero. */
+  void clearTranslation();
+
 }

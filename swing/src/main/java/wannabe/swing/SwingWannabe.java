@@ -9,15 +9,26 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.Position;
+import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
 import wannabe.swing.SettingsPanel.Listener;
 import wannabe.util.SampleGrids;
 
+/** All the glue to make a sample swing Wannabe application. */
 public class SwingWannabe {
+  private static final Position TRANSLATE_UP = new Position(0, -1, 0);
+  private static final Position TRANSLATE_DOWN = new Position(0, 1, 0);
+  private static final Position TRANSLATE_LEFT = new Position(-1, 0, 0);
+  private static final Position TRANSLATE_RIGHT = new Position(1, 0, 0);
+  private static final Position TRANSLATE_HIGHER = new Position(0, 0, 1);
+  private static final Position TRANSLATE_LOWER = new Position(0, 0, -1);
+
   private static Grid currentGrid;
   private static Grid rovingGrid;
+  private static FrameAnimatedGrid playerGrid = SampleGrids.megaManRunning();
+  private static boolean movingPlayer;
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
@@ -54,6 +65,7 @@ public class SwingWannabe {
 
     currentGrid = SampleGrids.GRIDS.get(0);
     panel.addGrid(currentGrid);
+    panel.addGrid(playerGrid);
     settings.gridSelected(currentGrid);
     panel.setProjection(Projections.PROJECTIONS.get(0));
     settings.projectionSelected(Projections.PROJECTIONS.get(0));
@@ -66,22 +78,49 @@ public class SwingWannabe {
       @Override public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
           case KeyEvent.VK_UP:
-            camera.position.y--;
+            if (movingPlayer) {
+              playerGrid.translate(TRANSLATE_UP);
+            } else {
+              camera.position.y--;
+            }
             break;
           case KeyEvent.VK_DOWN:
-            camera.position.y++;
+            if (movingPlayer) {
+              playerGrid.translate(TRANSLATE_DOWN);
+            } else {
+              camera.position.y++;
+            }
             break;
           case KeyEvent.VK_LEFT:
-            camera.position.x--;
+            if (movingPlayer) {
+              playerGrid.translate(TRANSLATE_LEFT);
+            } else {
+              camera.position.x--;
+            }
             break;
           case KeyEvent.VK_RIGHT:
-            camera.position.x++;
+            if (movingPlayer) {
+              playerGrid.translate(TRANSLATE_RIGHT);
+            } else {
+              camera.position.x++;
+            }
             break;
           case KeyEvent.VK_Z:
-            camera.position.z--;
+            if (movingPlayer) {
+              playerGrid.translate(TRANSLATE_LOWER);
+            } else {
+              camera.position.z--;
+            }
             break;
           case KeyEvent.VK_X:
-            camera.position.z++;
+            if (movingPlayer) {
+              playerGrid.translate(TRANSLATE_HIGHER);
+            } else {
+              camera.position.z++;
+            }
+            break;
+          case KeyEvent.VK_SPACE:
+            movingPlayer = !movingPlayer;
             break;
           case KeyEvent.VK_A:
             if (rovingGrid != null) {
@@ -124,8 +163,10 @@ public class SwingWannabe {
       }
     });
 
+    // Sit in a loop and do stuff:
     Random r = new Random();
     while (true) {
+      playerGrid.nextFrame();
       moveLink(r);
       panel.render();
       Thread.sleep(200);
