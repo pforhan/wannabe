@@ -42,6 +42,117 @@ public class SampleGrids {
     return grid;
   }
 
+  public static Grid cube(int size, int color) {
+    MutableGrid grid = new SimpleGrid("cube of size " + size);
+
+    // Base is four lines, top, bottom, left, right:
+    Position tl = new Position(0, 0, 0);
+    Position tr = new Position(size, 0, 0);
+    Position bl = new Position(0, size, 0);
+    Position br = new Position(size, size, 0);
+    line(grid, tl, tr, color);
+    line(grid, bl, br, color);
+    // TODO this duplicates some voxels!
+    line(grid, tl, bl, color);
+    line(grid, tr, br, color);
+
+    // Risers:
+    for (int z = 1; z < size; z++) {
+      tl.z = z;
+      tr.z = z;
+      bl.z = z;
+      br.z = z;
+      grid.add(new Voxel(tl.clone(), color));
+      grid.add(new Voxel(tr.clone(), color));
+      grid.add(new Voxel(bl.clone(), color));
+      grid.add(new Voxel(br.clone(), color));
+    }
+
+    // TODO probably need to bump z once more...
+    // Top:
+    line(grid, tl, tr, color);
+    line(grid, bl, br, color);
+    // TODO this duplicates some voxels!
+    line(grid, tl, bl, color);
+    line(grid, tr, br, color);
+
+    return grid;
+  }
+
+  private static void line(MutableGrid grid, Position p1, Position p2, int color) {
+    // Adapted from: https://www.ict.griffith.edu.au/anthony/info/graphics/bresenham.procs
+
+    int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
+    Position pixel = new Position(p1);
+
+    dx = p2.x - p1.x;
+    dy = p2.y - p1.y;
+    dz = p2.z - p1.z;
+    x_inc = (dx < 0) ? -1 : 1;
+    l = Math.abs(dx);
+    y_inc = (dy < 0) ? -1 : 1;
+    m = Math.abs(dy);
+    z_inc = (dz < 0) ? -1 : 1;
+    n = Math.abs(dz);
+    dx2 = l << 1;
+    dy2 = m << 1;
+    dz2 = n << 1;
+
+    if ((l >= m) && (l >= n)) {
+      err_1 = dy2 - l;
+      err_2 = dz2 - l;
+      for (i = 0; i < l; i++) {
+        grid.add(new Voxel(pixel.clone(), color));
+        if (err_1 > 0) {
+          pixel.y += y_inc;
+          err_1 -= dx2;
+        }
+        if (err_2 > 0) {
+          pixel.z += z_inc;
+          err_2 -= dx2;
+        }
+        err_1 += dy2;
+        err_2 += dz2;
+        pixel.x += x_inc;
+      }
+    } else if ((m >= l) && (m >= n)) {
+      err_1 = dx2 - m;
+      err_2 = dz2 - m;
+      for (i = 0; i < m; i++) {
+        grid.add(new Voxel(pixel.clone(), color));
+        if (err_1 > 0) {
+          pixel.x += x_inc;
+          err_1 -= dy2;
+        }
+        if (err_2 > 0) {
+          pixel.z += z_inc;
+          err_2 -= dy2;
+        }
+        err_1 += dx2;
+        err_2 += dz2;
+        pixel.y += y_inc;
+      }
+    } else {
+      err_1 = dy2 - n;
+      err_2 = dx2 - n;
+      for (i = 0; i < n; i++) {
+        grid.add(new Voxel(pixel.clone(), color));
+        if (err_1 > 0) {
+          pixel.y += y_inc;
+          err_1 -= dz2;
+        }
+        if (err_2 > 0) {
+          pixel.x += x_inc;
+          err_2 -= dz2;
+        }
+        err_1 += dy2;
+        err_2 += dx2;
+        pixel.z += z_inc;
+      }
+    }
+    grid.add(new Voxel(pixel.clone(), color));
+  }
+
   /** 30x30 grid with all 900 voxels specified. */
   public static Grid fullRandomGrid() {
     MutableGrid grid = new SimpleGrid("random full 30x30");
@@ -365,7 +476,8 @@ public class SampleGrids {
     cloudySky(),
     towers(),
     fullRandomGrid(),
-    randomGrid()
+    randomGrid(),
+    cube(20, 0x21ffff)
   ));
 
   public static Grid next(Grid current) {
