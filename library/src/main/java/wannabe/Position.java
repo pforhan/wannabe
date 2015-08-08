@@ -12,6 +12,10 @@ public class Position implements Cloneable {
     this.z = z;
   }
 
+  public Position(Position position) {
+    set(position);
+  }
+
   public void add(Position offset) {
     x += offset.x;
     y += offset.y;

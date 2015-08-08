@@ -11,14 +11,14 @@ public interface Bounds {
     public int top;
     public int bottom;
 
-    public void setWithWidthHeight(int x, int y, int width, int height) {
+    public void setFromWidthHeight(int x, int y, int width, int height) {
       left = x;
       top = y;
       right = x + width;
       bottom = y + height;
     }
 
-    public void setWithAbsolute(int left, int top, int right, int bottom) {
+    public void setFromAbsolute(int left, int top, int right, int bottom) {
       this.left = left;
       this.top = top;
       this.right = right;

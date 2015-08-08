@@ -55,7 +55,9 @@ public class SimpleGrid implements MutableGrid {
       // We can skip cloning and translation.
       for (int i = 0; i < voxels.size(); i++) {
         Voxel voxel = voxels.get(i);
-        grid.add(voxel);
+        if (bounds.contains(voxel.position)) {
+          grid.add(voxel);
+        }
       }
       return;
     }

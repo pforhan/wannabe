@@ -132,7 +132,7 @@ import wannabe.util.UIs;
 
     buffer.clear();
     XYBounds bounds = new XYBounds();
-    bounds.setWithWidthHeight(camera.position.x - halfWidthCells, //
+    bounds.setFromWidthHeight(camera.position.x - halfWidthCells, //
         camera.position.y - halfHeightCells, //
         widthCells, heightCells);
     for (Grid grid : grids) {
