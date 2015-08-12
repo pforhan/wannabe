@@ -10,7 +10,7 @@ import wannabe.Voxel;
  * Renders {@link Voxel}s with a constant size, but with an offset to represent height.
  * Larger heights are placed up and to the left, lower values are down and to the right.
  */
-public class Isometric implements Projection {
+public class Cabinet implements Projection {
   private final Rendered rendered = new Rendered();
 
   @Override public Rendered render(Camera camera, Position position, int pixelSize) {

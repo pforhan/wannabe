@@ -18,7 +18,7 @@ import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
-import wannabe.projection.Isometric;
+import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
 import wannabe.util.UIs;
 
@@ -47,7 +47,7 @@ import wannabe.util.UIs;
   private final MutableGrid buffer = new SimpleGrid("buffer");
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
-  private Projection projection = new Isometric();
+  private Projection projection = new Cabinet();
   private RenderType renderType = RenderType.filledCircle;
   private boolean stats;
 
