@@ -35,4 +35,8 @@ public class PseudoPerspective implements Projection {
 
     return rendered;
   }
+
+  @Override public String toString() {
+    return getClass().getSimpleName();
+  }
 }

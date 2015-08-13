@@ -8,17 +8,36 @@ import wannabe.Voxel;
 
 /**
  * Renders {@link Voxel}s with a constant size, but with an offset to represent height.
- * Larger heights are placed up and to the left, lower values are down and to the right.
  */
 public class Cabinet implements Projection {
   private final Rendered rendered = new Rendered();
+  /** Horizontal offset to use for each unit of Z. */
+  final int hOffsetPerZ;
+  /** Vertical offset to use for each unit of Z. */
+  final int vOffsetPerZ;
+
+  /** Default constructor just has increasing Z values go up and left. */
+  public Cabinet() {
+    this(-1, -1);
+  }
+
+  public Cabinet(int hOffsetPerZ, int vOffsetPerZ) {
+    this.hOffsetPerZ = hOffsetPerZ;
+    this.vOffsetPerZ = vOffsetPerZ;
+  }
 
   @Override public Rendered render(Camera camera, Position position, int pixelSize) {
     position = camera.translate(position);
-    rendered.left = pixelSize * position.x - position.z + camera.uiPosition.left;
-    rendered.top = pixelSize * position.y - position.z + camera.uiPosition.top;
+    int horizOffset = hOffsetPerZ * position.z + pixelSize * position.x;
+    int vertOffset = vOffsetPerZ * position.z + pixelSize * position.y;
+    rendered.left = camera.uiPosition.left + horizOffset;
+    rendered.top = camera.uiPosition.top + vertOffset;
     rendered.size = pixelSize;
 
     return rendered;
+  }
+
+  @Override public String toString() {
+    return getClass().getSimpleName() + " " + hOffsetPerZ + ", " + vOffsetPerZ;
   }
 }
