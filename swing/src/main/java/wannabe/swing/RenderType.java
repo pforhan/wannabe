@@ -26,6 +26,20 @@ public enum RenderType {
       g.fill3DRect(r.left, r.top, r.size, r.size, true);
     }
   },
+  filledThreeDSquareWithCabinetSides {
+    @Override void draw(Graphics g, Rendered r) {
+      g.fill3DRect(r.left, r.top, r.size, r.size, true);
+      int bottom = r.top + r.size;
+      int right = r.left + r.size;
+      // TODO need to handle cases where I need to draw from any set of corners.
+      // From bottom-left:
+      g.drawLine(r.left, bottom, r.left + r.hDepth, bottom + r.vDepth);
+      // From bottom-right:
+      g.drawLine(right , bottom, right + r.hDepth, bottom + r.vDepth);
+      // From top-right
+      g.drawLine(right, r.top, right + r.hDepth, r.top + r.vDepth);
+    }
+  },
   pixel {
     @Override void draw(Graphics g, Rendered r) {
       g.drawLine(r.left, r.top, r.left, r.top);

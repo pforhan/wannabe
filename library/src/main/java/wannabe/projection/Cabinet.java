@@ -33,6 +33,8 @@ public class Cabinet implements Projection {
     rendered.left = camera.uiPosition.left + horizOffset;
     rendered.top = camera.uiPosition.top + vertOffset;
     rendered.size = pixelSize;
+    rendered.hDepth = hOffsetPerZ;
+    rendered.vDepth = vOffsetPerZ;
 
     return rendered;
   }
