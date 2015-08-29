@@ -261,7 +261,7 @@ public class SampleGrids {
         byte[] bytes = data.getData();
 
         int width = img.getWidth();
-        System.out.println(String.format("Width %s, height %s, w*h %s, len %s", width,
+        System.out.println(String.format("heightmap Width %s, height %s, w*h %s, len %s", width,
             img.getHeight(), width * img.getHeight(), bytes.length));
         for (int i = 0; i < bytes.length; i++) {
           byte b = bytes[i];

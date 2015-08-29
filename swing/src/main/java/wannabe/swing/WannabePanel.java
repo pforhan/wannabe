@@ -188,7 +188,7 @@ import wannabe.util.UIs;
   }
 
   private Color getDarkerColor(int rgb) {
-    Color color = colorCache.get(rgb);
+    Color color = darkerCache.get(rgb);
     if (color == null) {
       color = new Color(rgb).darker();
       darkerCache.put(rgb, color);
