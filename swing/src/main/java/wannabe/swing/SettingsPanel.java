@@ -33,11 +33,11 @@ public class SettingsPanel extends JPanel {
 
     // Set up components:
     JTextArea help = new JTextArea("Arrow keys - move"
-        + "\nSpace - toggle move camera / \"player\""
-        + "\nZ - lower"
-        + "\nX - higher"
+        + "\nSpace - toggle move camera / player"
+        + "\nZ - lower camera"
+        + "\nX - raise camera"
         + "\nG - change Grid"
-        + "\nA - toggle a roving grid"
+        + "\nA - toggle player grid"
         + "\nR - change renderer"
         + "\nP - change projection"
         + "\n1 - set pixel size to 1"

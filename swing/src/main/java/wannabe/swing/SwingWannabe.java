@@ -26,9 +26,9 @@ public class SwingWannabe {
   private static final Position TRANSLATE_LOWER = new Position(0, 0, -1);
 
   private static Grid currentGrid;
-  private static Grid rovingGrid;
   private static FrameAnimatedGrid playerGrid = SampleGrids.megaManRunning();
   private static boolean movingPlayer;
+  private static boolean playerVisible;
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
@@ -36,7 +36,7 @@ public class SwingWannabe {
     JPanel mainLayout = new JPanel(new BorderLayout());
     frame.setContentPane(mainLayout);
 
-    final Camera camera = new Camera(20, 20, 0);
+    final Camera camera = new Camera(18, 18, 0);
     final WannabePanel panel = new WannabePanel(camera);
     panel.showStats();
     final SettingsPanel settings = new SettingsPanel();
@@ -65,7 +65,6 @@ public class SwingWannabe {
 
     currentGrid = SampleGrids.GRIDS.get(0);
     panel.addGrid(currentGrid);
-    panel.addGrid(playerGrid);
     settings.gridSelected(currentGrid);
     panel.setProjection(Projections.PROJECTIONS.get(0));
     settings.projectionSelected(Projections.PROJECTIONS.get(0));
@@ -123,12 +122,12 @@ public class SwingWannabe {
             movingPlayer = !movingPlayer;
             break;
           case KeyEvent.VK_A:
-            if (rovingGrid != null) {
-              panel.removeGrid(rovingGrid);
-              rovingGrid = null;
+            if (playerVisible) {
+              panel.removeGrid(playerGrid);
+              playerVisible = false;
             } else {
-              rovingGrid = SampleGrids.linkGrid();
-              panel.addGrid(rovingGrid);
+              playerVisible = true;
+              panel.addGrid(playerGrid);
             }
             break;
           case KeyEvent.VK_G:
@@ -163,19 +162,11 @@ public class SwingWannabe {
       }
     });
 
-    // Sit in a loop and do stuff:
-    Random r = new Random();
+    new Random();
     while (true) {
       playerGrid.nextFrame();
-      moveLink(r);
       panel.render();
       Thread.sleep(200);
     }
-  }
-
-  private static void moveLink(Random r) {
-    if (rovingGrid == null) return;
-
-    rovingGrid.translate(new Position(r.nextInt(3) - 1, r.nextInt(3) - 1, r.nextInt(3) - 1));
   }
 }
