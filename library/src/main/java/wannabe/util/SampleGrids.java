@@ -273,7 +273,7 @@ public class SampleGrids {
           // Continue down to height 0 if deep:
           if (deep) {
             for (int d = 0; d < z; d++) {
-              // TODO will it look nicer to vary the color along with the height?
+              color = 0x888800 + d * 4;
               grid.add(new Voxel(x, y, d, color));
             }
           }

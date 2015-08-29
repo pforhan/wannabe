@@ -18,7 +18,7 @@ import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
-import wannabe.projection.Isometric;
+import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
 import wannabe.util.UIs;
 
@@ -41,13 +41,14 @@ import wannabe.util.UIs;
   int halfWidthCells;
   int halfHeightCells;
   final SparseArray<Color> colorCache = new SparseArray<>(256);
+  final SparseArray<Color> darkerCache = new SparseArray<>(256);
 
   // Playfield paraphanellia:
   private final List<Grid> grids = new ArrayList<>();
   private final MutableGrid buffer = new SimpleGrid("buffer");
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
-  private Projection projection = new Isometric();
+  private Projection projection = new Cabinet();
   private RenderType renderType = RenderType.filledCircle;
   private boolean stats;
 
@@ -150,7 +151,9 @@ import wannabe.util.UIs;
           || r.top < -realPixelSize || r.top > heightPx) {
         continue;
       }
-      g.setColor(getSwingColor(voxel.color));
+      r.color = getSwingColor(voxel.color);
+      r.darkerColor = getDarkerColor(voxel.color);
+      g.setColor(r.color);
       renderType.draw(g, r);
     }
 
@@ -180,6 +183,15 @@ import wannabe.util.UIs;
     if (color == null) {
       color = new Color(rgb);
       colorCache.put(rgb, color);
+    }
+    return color;
+  }
+
+  private Color getDarkerColor(int rgb) {
+    Color color = colorCache.get(rgb);
+    if (color == null) {
+      color = new Color(rgb).darker();
+      darkerCache.put(rgb, color);
     }
     return color;
   }

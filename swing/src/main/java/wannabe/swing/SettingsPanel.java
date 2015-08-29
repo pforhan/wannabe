@@ -2,9 +2,7 @@
 package wannabe.swing;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.GridLayout;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -52,7 +50,6 @@ public class SettingsPanel extends JPanel {
 
     projection = new JList<>(createProjectionModel());
     projection.setFocusable(false);
-    projection.setCellRenderer(new ClassNameRenderer());
     projection.setBorder(new TitledBorder("Projection"));
     renderType = new JList<>(createRenderTypeModel());
     renderType.setFocusable(false);
@@ -123,16 +120,6 @@ public class SettingsPanel extends JPanel {
     void onRenderTypeChanged(RenderType newType);
     void onProjectionChanged(Projection newProjection);
     void onGridChanged(Grid newGrid);
-  }
-
-  private static class ClassNameRenderer extends DefaultListCellRenderer {
-    private static final long serialVersionUID = 1L;
-
-    @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-        boolean isSelected, boolean cellHasFocus) {
-      return super.getListCellRendererComponent(list, value.getClass().getSimpleName(), index,
-          isSelected, cellHasFocus);
-    }
   }
 
   public void gridSelected(Grid grid) {
