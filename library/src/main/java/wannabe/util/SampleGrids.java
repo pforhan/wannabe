@@ -22,6 +22,25 @@ import wannabe.grid.SimpleGrid;
 
 public class SampleGrids {
 
+  /**
+   * TODO figure out if this is viable. Need some way of iteratively creating data.
+   * Can I clean up? Can I make an Iterable?
+   */
+  interface Path {
+    Position start();
+    Position drawAndMove(MutableGrid grid, Position pos);
+  }
+
+  /**
+   * TODO does it make sense to restrict to x, y inputs? And when I make it generic this way,
+   * I bet there's better function interfaces out there...
+   * It may be worth letting the plotter plot voxels directly, could make more accurate color
+   * decisions... or could plot multiple points.  This reduces capability to a single scalar.
+   */
+  interface Plotter {
+    int plot(int x, int y);
+  }
+
   public static final class ColumnColorStairs implements Path {
     private final int xIncrement;
     private final int yIncrement;
@@ -56,15 +75,6 @@ public class SampleGrids {
       if (offset >= colors.length) offset = colors.length - 1;
       return colors[offset];
     }
-  }
-
-  /**
-   * TODO figure out if this is viable. Need some way of iteratively creating data.
-   * Can I clean up? Can I make an Iterable?
-   */
-  interface Path {
-    Position start();
-    Position drawAndMove(MutableGrid grid, Position pos);
   }
 
   /** Simple stairs on x or y axis that may vary in color by height. */
@@ -170,6 +180,43 @@ public class SampleGrids {
       pos = path.drawAndMove(grid, pos);
     }
   }
+
+  /** Plot of an exaggerated sine. Note that for pleasing results, the origin is shifted. */
+  public static Grid plotSin(final int mulitplyer) {
+    // TODO at low multiplyers the colors aren't distinct enough.
+    MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40");
+    Plotter plotter = new Plotter() {
+      @Override public int plot(int x, int y) {
+        double distanceFromOrigin = Math.hypot(x, y);
+        return (int) (mulitplyer * (Math.sin(distanceFromOrigin)));
+      }
+    };
+    plot(grid, plotter);
+    return grid;
+  }
+
+  /** Plot of a flattened hyperbola. Note that for pleasing results, the origin is shifted. */
+  public static Grid plotHyperbola(final double d) {
+    MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40");
+    Plotter plotter = new Plotter() {
+      @Override public int plot(int x, int y) {
+        double distanceFromOrigin = Math.hypot(x, y);
+        return (int) (d * distanceFromOrigin * distanceFromOrigin);
+      }
+    };
+    plot(grid, plotter);
+    return grid;
+  }
+
+  private static void plot(MutableGrid grid, Plotter plotter) {
+    for (int x = 0; x < 40; x++) {
+      for (int y = 0; y < 40; y++) {
+        int height = plotter.plot(x - 20, y - 20);
+        grid.add(new Voxel(x,  y, height, 0x888888 + height * 10));
+      }
+    }
+  }
+
   public static Grid cube(int size, int color) {
     MutableGrid grid = new SimpleGrid("cube of size " + size);
 
@@ -180,11 +227,10 @@ public class SampleGrids {
     Position br = new Position(size, size, 0);
     line(grid, tl, tr, color);
     line(grid, bl, br, color);
-    // TODO this duplicates some voxels!
     line(grid, tl, bl, color);
     line(grid, tr, br, color);
 
-    // Risers:
+    // Risers: TODO just draw with line() method
     for (int z = 1; z < size; z++) {
       tl.z = z;
       tr.z = z;
@@ -600,6 +646,9 @@ public class SampleGrids {
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     heightMap("heightMap 256x256", false),
     testBed(),
+    plotSin(5),
+    plotSin(2),
+    plotHyperbola(.2),
     linkGrid(),
     heightMap("deep heightmap 256x256", true),
     cloudySky(),
