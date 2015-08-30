@@ -8,7 +8,9 @@ public class Rendered {
   public int left;
   public int top;
   public int size;
+  /** Horizontal space to use to indicate height. */
   public int hDepth;
+  /** Vertical space to use to indicate height. */
   public int vDepth;
   public Color color;
   public Color darkerColor;

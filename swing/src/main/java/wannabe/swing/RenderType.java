@@ -28,16 +28,60 @@ public enum RenderType {
   },
   filledThreeDSquareWithCabinetSides {
     @Override void draw(Graphics g, Rendered r) {
-      g.fill3DRect(r.left, r.top, r.size, r.size, true);
       int bottom = r.top + r.size;
       int right = r.left + r.size;
-      // TODO need to handle cases where I need to draw from any set of corners.
-      // From bottom-left:
-      g.drawLine(r.left, bottom, r.left + r.hDepth, bottom + r.vDepth);
-      // From bottom-right:
-      g.drawLine(right , bottom, right + r.hDepth, bottom + r.vDepth);
-      // From top-right
-      g.drawLine(right, r.top, right + r.hDepth, r.top + r.vDepth);
+      if (r.hDepth < 0) {
+        // Height indicated by drawing to the left of the face.
+        if (r.vDepth < 0) {
+          // Height indicated by drawing above-left the face. TODO finish
+        } else {
+          // Height indicated by drawing below-left the face. TODO finish
+        }
+      } else {
+        // Height indicated by drawing to the right of the face.
+        if (r.vDepth < 0) {
+          // Height indicated by drawing above-right the face. TODO finish
+        } else {
+          // Height indicated by drawing below-right the face.
+          // From bottom-left:
+          g.drawLine(r.left, bottom, r.left + r.hDepth, bottom + r.vDepth);
+          // From bottom-right:
+          g.drawLine(right , bottom, right + r.hDepth, bottom + r.vDepth);
+          // From top-right
+          g.drawLine(right, r.top, right + r.hDepth, r.top + r.vDepth);
+        }
+      }
+
+      g.fill3DRect(r.left, r.top, r.size, r.size, true);
+    }
+  },
+  filledSquareWithCabinetSides {
+    @Override void draw(Graphics g, Rendered r) {
+      int bottom = r.top + r.size;
+      int right = r.left + r.size;
+      if (r.hDepth < 0) {
+        // Height indicated by drawing to the left of the face.
+        if (r.vDepth < 0) {
+          // Height indicated by drawing above-left the face. TODO finish
+        } else {
+          // Height indicated by drawing below-left the face. TODO finish
+        }
+      } else {
+        // Height indicated by drawing to the right of the face.
+        if (r.vDepth < 0) {
+          // Height indicated by drawing above-right the face. TODO finish
+        } else {
+          // Height indicated by drawing below-right the face.
+          // From bottom-left:
+          g.drawLine(r.left, bottom, r.left + r.hDepth, bottom + r.vDepth);
+          // From bottom-right:
+          g.drawLine(right , bottom, right + r.hDepth, bottom + r.vDepth);
+          // From top-right
+          g.drawLine(right, r.top, right + r.hDepth, r.top + r.vDepth);
+        }
+      }
+
+      g.fillRect(r.left, r.top, r.size, r.size);
     }
   },
   pixel {

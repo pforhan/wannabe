@@ -21,7 +21,91 @@ import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
 
 public class SampleGrids {
-  /** Grid stretching 30x30 with pixels every 10 along the edge, and 600 random pixels. */
+
+  public static final class ColumnColorStairs implements Path {
+    private final int xIncrement;
+    private final int yIncrement;
+    private final Position start;
+    private final int[] colors;
+
+    public ColumnColorStairs(int xIncrement, int yIncrement, Position start, int... colors) {
+      this.xIncrement = xIncrement;
+      this.yIncrement = yIncrement;
+      this.start = start;
+      this.colors = colors;
+    }
+
+    @Override public Position start() {
+      return start.clone();
+    }
+
+    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+      Position lineEnd = new Position(pos.x, pos.y, 0);
+      line(grid, pos, lineEnd, getColor(pos));
+      pos.x += xIncrement;
+      pos.y += yIncrement;
+      pos.z++;
+      return pos.z == 6 ? null : pos;
+    }
+
+    private int getColor(Position pos) {
+      int offset = Math.abs(pos.x - start.x);
+      if (offset == 0) {
+        offset = Math.abs(pos.y - start.y);
+      }
+      if (offset >= colors.length) offset = colors.length - 1;
+      return colors[offset];
+    }
+  }
+
+  /**
+   * TODO figure out if this is viable. Need some way of iteratively creating data.
+   * Can I clean up? Can I make an Iterable?
+   */
+  interface Path {
+    Position start();
+    Position drawAndMove(MutableGrid grid, Position pos);
+  }
+
+  /** Simple stairs on x or y axis that may vary in color by height. */
+  public static final class HeightColorStairs implements Path {
+    private final int xIncrement;
+    private final int yIncrement;
+    private final int[] colors;
+    private final Position start;
+    private final Position endXY;
+
+    public HeightColorStairs(int xIncrement, int yIncrement, Position start, Position endXY,
+        int... colors) {
+      this.start = start;
+      this.endXY = endXY;
+      this.xIncrement = xIncrement;
+      this.yIncrement = yIncrement;
+      this.colors = colors;
+    }
+
+    @Override public Position start() {
+      return start.clone();
+    }
+
+    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+      Position lineEnd = new Position(endXY.x, endXY.y, pos.z);
+      line(grid, pos, lineEnd, getColor(pos));
+      pos.x += xIncrement;
+      pos.y += yIncrement;
+      pos.z++;
+      return pos.z == 6 ? null : pos;
+    }
+
+    private int getColor(Position pos) {
+      if (colors.length == 0) return 0x888888;
+      int offset = pos.z;
+      if (offset >= colors.length) offset = colors.length - 1;
+      return colors[offset];
+    }
+  }
+
+  /** Grid stretching 30x30 with voxels every 10 along the edge, and 600 random voxels. */
   public static Grid randomGrid() {
     MutableGrid grid = new SimpleGrid("random sparse 30x30");
     grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
@@ -42,6 +126,50 @@ public class SampleGrids {
     return grid;
   }
 
+  /** Grid stretching 30x30 with voxels in simple patterns like stairsteps, etc */
+  public static Grid testBed() {
+    MutableGrid grid = new SimpleGrid("testbed 30x30");
+
+    // First set of steps: single color stairs to floor.
+    Position start = new Position(5, 5, 0);
+    drawPath(grid,
+        new HeightColorStairs(1, 0,  start, new Position(10, 5, 0), 0xFFEEDD));
+    drawPath(grid,
+        new HeightColorStairs(0, 1,  start, new Position(5, 10, 0), 0xFFEEDD));
+    drawPath(grid,
+        new HeightColorStairs(-1, 0, start, new Position(0, 5, 0), 0xFFEEDD));
+    drawPath(grid,
+        new HeightColorStairs(0, -1, start, new Position(5, 0, 0), 0xFFEEDD));
+
+    // Second set of steps: color varies by height
+    int[] stairColors = {0xDFFEED, 0xDEEEED, 0xDDDEED, 0xDCCEED, 0xDBBEED, 0xDAAEED};
+    start = new Position(20, 5, 0);
+    drawPath(grid,
+        new HeightColorStairs(1, 0,  start, new Position(25, 5, 0), stairColors));
+    drawPath(grid,
+        new HeightColorStairs(0, 1,  start, new Position(20, 10, 0), stairColors));
+    drawPath(grid,
+        new HeightColorStairs(-1, 0, start, new Position(15, 5, 0), stairColors));
+    drawPath(grid,
+        new HeightColorStairs(0, -1, start, new Position(20, 0, 0), stairColors));
+
+    // Third set of steps: color varies by column
+    stairColors = new int[] {0xFEEDDF, 0xEEEDDE, 0xDEEDDD, 0xCEEDDC, 0xBEEDDB, 0xAEEDDA};
+    start = new Position(5, 20, 0);
+    drawPath(grid, new ColumnColorStairs(1, 0, start, stairColors));
+    drawPath(grid, new ColumnColorStairs(0, 1, start, stairColors));
+    drawPath(grid, new ColumnColorStairs(-1, 0, start, stairColors));
+    drawPath(grid, new ColumnColorStairs(0, -1, start, stairColors));
+
+    return grid;
+  }
+
+  private static void drawPath(MutableGrid grid, Path path) {
+    Position pos = path.start();
+    while (pos != null) {
+      pos = path.drawAndMove(grid, pos);
+    }
+  }
   public static Grid cube(int size, int color) {
     MutableGrid grid = new SimpleGrid("cube of size " + size);
 
@@ -471,6 +599,7 @@ public class SampleGrids {
 
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     heightMap("heightMap 256x256", false),
+    testBed(),
     linkGrid(),
     heightMap("deep heightmap 256x256", true),
     cloudySky(),
