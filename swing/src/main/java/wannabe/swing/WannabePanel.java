@@ -153,6 +153,8 @@ import wannabe.util.UIs;
       }
       r.color = getSwingColor(voxel.color);
       r.darkerColor = getDarkerColor(voxel.color);
+      // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
+      // awt colors in this case) and b) that it controls the context color
       g.setColor(r.color);
       renderType.draw(g, r);
     }

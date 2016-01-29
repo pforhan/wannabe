@@ -4,6 +4,7 @@ package wannabe;
 import java.awt.Color;
 
 /** Describes real pixel color, location, and size for a voxel. */
+// TODO do we want java.awt.Color here?
 public class Rendered {
   public int left;
   public int top;
