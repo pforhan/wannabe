@@ -5,7 +5,7 @@ import java.awt.Color;
 
 /** Describes real pixel color, location, and size for a voxel. */
 // TODO do we want java.awt.Color here?
-public class Rendered {
+public class Rendered implements Cloneable {
   public int left;
   public int top;
   public int size;
@@ -15,4 +15,12 @@ public class Rendered {
   public int vDepth;
   public Color color;
   public Color darkerColor;
+
+  @Override public Rendered clone() {
+    try {
+      return (Rendered) super.clone();
+    } catch (CloneNotSupportedException ex) {
+      throw new IllegalStateException("Unable to clone", ex);
+    }
+  }
 }
