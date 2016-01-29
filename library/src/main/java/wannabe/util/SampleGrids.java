@@ -41,6 +41,35 @@ public class SampleGrids {
     int plot(int x, int y);
   }
 
+  public static final class Stairs implements Path {
+    private final int xIncrement;
+    private final int yIncrement;
+    private final int color;
+    private final Position start;
+    private final int count;
+
+    public Stairs(int xIncrement, int yIncrement, Position start, int count, int color) {
+      this.start = start;
+      this.xIncrement = xIncrement;
+      this.yIncrement = yIncrement;
+      this.count = count;
+      this.color = color;
+    }
+
+    @Override public Position start() {
+      return start.clone();
+    }
+
+    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+      grid.add(new Voxel(pos.clone(), color));
+
+      pos.x += xIncrement;
+      pos.y += yIncrement;
+      pos.z++;
+      return pos.z - count == 0 ? null : pos;
+    }
+  }
+
   public static final class ColumnColorStairs implements Path {
     private final int xIncrement;
     private final int yIncrement;
@@ -152,6 +181,13 @@ public class SampleGrids {
         new HeightColorStairs(0, -1, start, new Position(5, 0, 0), 0xFFEEDD));
 
     // Second set of steps: color varies by height
+    start = new Position(20, 20, 0);
+    drawPath(grid, new Stairs(1, 0,  start, 6, 0xFFEEDD));
+    drawPath(grid, new Stairs(0, 1,  start, 6, 0xFFEEDD));
+    drawPath(grid, new Stairs(-1, 0, start, 6, 0xFFEEDD));
+    drawPath(grid, new Stairs(0, -1, start, 6, 0xFFEEDD));
+
+    // Third set of steps: color varies by height
     int[] stairColors = {0xDFFEED, 0xDEEEED, 0xDDDEED, 0xDCCEED, 0xDBBEED, 0xDAAEED};
     start = new Position(20, 5, 0);
     drawPath(grid,
@@ -163,7 +199,7 @@ public class SampleGrids {
     drawPath(grid,
         new HeightColorStairs(0, -1, start, new Position(20, 0, 0), stairColors));
 
-    // Third set of steps: color varies by column
+    // Fourth set of steps: color varies by column
     stairColors = new int[] {0xFEEDDF, 0xEEEDDE, 0xDEEDDD, 0xCEEDDC, 0xBEEDDB, 0xAEEDDA};
     start = new Position(5, 20, 0);
     drawPath(grid, new ColumnColorStairs(1, 0, start, stairColors));
@@ -644,8 +680,8 @@ public class SampleGrids {
   }
 
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
-    heightMap("heightMap 256x256", false),
     testBed(),
+    heightMap("heightMap 256x256", false),
     plotSin(5),
     plotSin(2),
     plotHyperbola(.2),
