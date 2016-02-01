@@ -74,11 +74,16 @@ public enum RenderType {
     }
   },
   solidWireSquare {
-    @Override void draw(Graphics g, Rendered r) {
-      // First erase what we're going to write on:
-      Rendered dark = r.clone();
+    final Rendered dark = new Rendered();
+    {
+      // Set up "background" color.
+      // TODO this should probably be configurable.
       dark.color = Color.BLACK;
       dark.darkerColor = Color.BLACK;
+    }
+    @Override void draw(Graphics g, Rendered r) {
+      // First erase what we're going to write on:
+      dark.copyFrom(r);
       // Populate manually so that we only calculate it once.
       populatePolygon(r);
       fillSides(g, dark, polygon);

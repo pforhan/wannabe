@@ -16,11 +16,12 @@ public class Rendered implements Cloneable {
   public Color color;
   public Color darkerColor;
 
-  @Override public Rendered clone() {
-    try {
-      return (Rendered) super.clone();
-    } catch (CloneNotSupportedException ex) {
-      throw new IllegalStateException("Unable to clone", ex);
-    }
+  /** Copies all values except color fields into this object. */
+  public void copyFrom(Rendered other) {
+    left = other.left;
+    top = other.top;
+    size = other.size;
+    hDepth = other.hDepth;
+    vDepth = other.vDepth;
   }
 }
