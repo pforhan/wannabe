@@ -8,7 +8,17 @@ import java.util.List;
 public class Projections {
 
   public static final List<Projection> PROJECTIONS =
-      Arrays.asList(new Cabinet(), new Cabinet(-5, -5), new Flat(), new PseudoPerspective());
+      Arrays.asList(
+          new Cabinet(-1, -1),
+          new Cabinet(-1, 1),
+          new Cabinet(1, 1),
+          new Cabinet(1, -1),
+          new Cabinet(-5, -5),
+          new Cabinet(-5, 5),
+          new Cabinet(5, 5),
+          new Cabinet(5, -5),
+          new Flat(),
+          new PseudoPerspective());
 
   public static Projection next(Projection current) {
     int nextIdx = PROJECTIONS.indexOf(current) + 1;

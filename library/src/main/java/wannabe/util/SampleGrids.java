@@ -21,7 +21,130 @@ import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
 
 public class SampleGrids {
-  /** Grid stretching 30x30 with pixels every 10 along the edge, and 600 random pixels. */
+
+  /**
+   * TODO figure out if this is viable. Need some way of iteratively creating data.
+   * Can I clean up? Can I make an Iterable?
+   */
+  interface Path {
+    Position start();
+    Position drawAndMove(MutableGrid grid, Position pos);
+  }
+
+  /**
+   * TODO does it make sense to restrict to x, y inputs? And when I make it generic this way,
+   * I bet there's better function interfaces out there...
+   * It may be worth letting the plotter plot voxels directly, could make more accurate color
+   * decisions... or could plot multiple points.  This reduces capability to a single scalar.
+   */
+  interface Plotter {
+    int plot(int x, int y);
+  }
+
+  public static final class Stairs implements Path {
+    private final int xIncrement;
+    private final int yIncrement;
+    private final int color;
+    private final Position start;
+    private final int count;
+
+    public Stairs(int xIncrement, int yIncrement, Position start, int count, int color) {
+      this.start = start;
+      this.xIncrement = xIncrement;
+      this.yIncrement = yIncrement;
+      this.count = count;
+      this.color = color;
+    }
+
+    @Override public Position start() {
+      return start.clone();
+    }
+
+    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+      grid.add(new Voxel(pos.clone(), color));
+
+      pos.x += xIncrement;
+      pos.y += yIncrement;
+      pos.z++;
+      return pos.z - count == 0 ? null : pos;
+    }
+  }
+
+  public static final class ColumnColorStairs implements Path {
+    private final int xIncrement;
+    private final int yIncrement;
+    private final Position start;
+    private final int[] colors;
+
+    public ColumnColorStairs(int xIncrement, int yIncrement, Position start, int... colors) {
+      this.xIncrement = xIncrement;
+      this.yIncrement = yIncrement;
+      this.start = start;
+      this.colors = colors;
+    }
+
+    @Override public Position start() {
+      return start.clone();
+    }
+
+    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+      Position lineEnd = new Position(pos.x, pos.y, 0);
+      line(grid, pos, lineEnd, getColor(pos));
+      pos.x += xIncrement;
+      pos.y += yIncrement;
+      pos.z++;
+      return pos.z == 6 ? null : pos;
+    }
+
+    private int getColor(Position pos) {
+      int offset = Math.abs(pos.x - start.x);
+      if (offset == 0) {
+        offset = Math.abs(pos.y - start.y);
+      }
+      if (offset >= colors.length) offset = colors.length - 1;
+      return colors[offset];
+    }
+  }
+
+  /** Simple stairs on x or y axis that may vary in color by height. */
+  public static final class HeightColorStairs implements Path {
+    private final int xIncrement;
+    private final int yIncrement;
+    private final int[] colors;
+    private final Position start;
+    private final Position endXY;
+
+    public HeightColorStairs(int xIncrement, int yIncrement, Position start, Position endXY,
+        int... colors) {
+      this.start = start;
+      this.endXY = endXY;
+      this.xIncrement = xIncrement;
+      this.yIncrement = yIncrement;
+      this.colors = colors;
+    }
+
+    @Override public Position start() {
+      return start.clone();
+    }
+
+    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+      Position lineEnd = new Position(endXY.x, endXY.y, pos.z);
+      line(grid, pos, lineEnd, getColor(pos));
+      pos.x += xIncrement;
+      pos.y += yIncrement;
+      pos.z++;
+      return pos.z == 6 ? null : pos;
+    }
+
+    private int getColor(Position pos) {
+      if (colors.length == 0) return 0x888888;
+      int offset = pos.z;
+      if (offset >= colors.length) offset = colors.length - 1;
+      return colors[offset];
+    }
+  }
+
+  /** Grid stretching 30x30 with voxels every 10 along the edge, and 600 random voxels. */
   public static Grid randomGrid() {
     MutableGrid grid = new SimpleGrid("random sparse 30x30");
     grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
@@ -42,6 +165,94 @@ public class SampleGrids {
     return grid;
   }
 
+  /** Grid stretching 30x30 with voxels in simple patterns like stairsteps, etc */
+  public static Grid testBed() {
+    MutableGrid grid = new SimpleGrid("testbed 30x30");
+
+    // First set of steps: single color stairs to floor.
+    Position start = new Position(5, 5, 0);
+    drawPath(grid,
+        new HeightColorStairs(1, 0,  start, new Position(10, 5, 0), 0xFFEEDD));
+    drawPath(grid,
+        new HeightColorStairs(0, 1,  start, new Position(5, 10, 0), 0xFFEEDD));
+    drawPath(grid,
+        new HeightColorStairs(-1, 0, start, new Position(0, 5, 0), 0xFFEEDD));
+    drawPath(grid,
+        new HeightColorStairs(0, -1, start, new Position(5, 0, 0), 0xFFEEDD));
+
+    // Second set of steps: color varies by height
+    start = new Position(20, 20, 0);
+    drawPath(grid, new Stairs(1, 0,  start, 6, 0xFFEEDD));
+    drawPath(grid, new Stairs(0, 1,  start, 6, 0xFFEEDD));
+    drawPath(grid, new Stairs(-1, 0, start, 6, 0xFFEEDD));
+    drawPath(grid, new Stairs(0, -1, start, 6, 0xFFEEDD));
+
+    // Third set of steps: color varies by height
+    int[] stairColors = {0xDFFEED, 0xDEEEED, 0xDDDEED, 0xDCCEED, 0xDBBEED, 0xDAAEED};
+    start = new Position(20, 5, 0);
+    drawPath(grid,
+        new HeightColorStairs(1, 0,  start, new Position(25, 5, 0), stairColors));
+    drawPath(grid,
+        new HeightColorStairs(0, 1,  start, new Position(20, 10, 0), stairColors));
+    drawPath(grid,
+        new HeightColorStairs(-1, 0, start, new Position(15, 5, 0), stairColors));
+    drawPath(grid,
+        new HeightColorStairs(0, -1, start, new Position(20, 0, 0), stairColors));
+
+    // Fourth set of steps: color varies by column
+    stairColors = new int[] {0xFEEDDF, 0xEEEDDE, 0xDEEDDD, 0xCEEDDC, 0xBEEDDB, 0xAEEDDA};
+    start = new Position(5, 20, 0);
+    drawPath(grid, new ColumnColorStairs(1, 0, start, stairColors));
+    drawPath(grid, new ColumnColorStairs(0, 1, start, stairColors));
+    drawPath(grid, new ColumnColorStairs(-1, 0, start, stairColors));
+    drawPath(grid, new ColumnColorStairs(0, -1, start, stairColors));
+
+    return grid;
+  }
+
+  private static void drawPath(MutableGrid grid, Path path) {
+    Position pos = path.start();
+    while (pos != null) {
+      pos = path.drawAndMove(grid, pos);
+    }
+  }
+
+  /** Plot of an exaggerated sine. Note that for pleasing results, the origin is shifted. */
+  public static Grid plotSin(final int mulitplyer) {
+    // TODO at low multiplyers the colors aren't distinct enough.
+    MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40");
+    Plotter plotter = new Plotter() {
+      @Override public int plot(int x, int y) {
+        double distanceFromOrigin = Math.hypot(x, y);
+        return (int) (mulitplyer * (Math.sin(distanceFromOrigin)));
+      }
+    };
+    plot(grid, plotter);
+    return grid;
+  }
+
+  /** Plot of a flattened hyperbola. Note that for pleasing results, the origin is shifted. */
+  public static Grid plotHyperbola(final double d) {
+    MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40");
+    Plotter plotter = new Plotter() {
+      @Override public int plot(int x, int y) {
+        double distanceFromOrigin = Math.hypot(x, y);
+        return (int) (d * distanceFromOrigin * distanceFromOrigin);
+      }
+    };
+    plot(grid, plotter);
+    return grid;
+  }
+
+  private static void plot(MutableGrid grid, Plotter plotter) {
+    for (int x = 0; x < 40; x++) {
+      for (int y = 0; y < 40; y++) {
+        int height = plotter.plot(x - 20, y - 20);
+        grid.add(new Voxel(x,  y, height, 0x888888 + height * 10));
+      }
+    }
+  }
+
   public static Grid cube(int size, int color) {
     MutableGrid grid = new SimpleGrid("cube of size " + size);
 
@@ -52,11 +263,10 @@ public class SampleGrids {
     Position br = new Position(size, size, 0);
     line(grid, tl, tr, color);
     line(grid, bl, br, color);
-    // TODO this duplicates some voxels!
     line(grid, tl, bl, color);
     line(grid, tr, br, color);
 
-    // Risers:
+    // Risers: TODO just draw with line() method
     for (int z = 1; z < size; z++) {
       tl.z = z;
       tr.z = z;
@@ -470,7 +680,11 @@ public class SampleGrids {
   }
 
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
+    testBed(),
     heightMap("heightMap 256x256", false),
+    plotSin(5),
+    plotSin(2),
+    plotHyperbola(.2),
     linkGrid(),
     heightMap("deep heightmap 256x256", true),
     cloudySky(),

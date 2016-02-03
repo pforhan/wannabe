@@ -32,6 +32,9 @@ public class PseudoPerspective implements Projection {
     int halfSize = rendered.size >> 1;
     rendered.left = pixelSize * onScreen.x - onScreen.z * xDiff + camera.uiPosition.left - halfSize;
     rendered.top = pixelSize * onScreen.y - onScreen.z * yDiff + camera.uiPosition.top - halfSize;
+    // TODO come up with better depth calcs... though this works decently
+    rendered.hDepth = xDiff;
+    rendered.vDepth = yDiff;
 
     return rendered;
   }
