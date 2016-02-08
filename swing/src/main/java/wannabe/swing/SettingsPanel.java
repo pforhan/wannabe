@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListModel;
 import javax.swing.border.EmptyBorder;
@@ -82,10 +83,10 @@ public class SettingsPanel extends JPanel {
     });
 
     // Add all components together:
-    add(help);
-    add(projection);
-    add(renderType);
-    add(grid);
+    add(new JScrollPane(help));
+    add(new JScrollPane(projection));
+    add(new JScrollPane(renderType));
+    add(new JScrollPane(grid));
   }
 
   public void setListener(Listener listener) {
