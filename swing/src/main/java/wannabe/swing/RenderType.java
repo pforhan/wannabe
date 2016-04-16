@@ -83,7 +83,8 @@ public enum RenderType {
     }
     @Override void draw(Graphics g, Rendered r) {
       // First erase what we're going to write on:
-      dark.copyFrom(r);
+      // TODO we probably don't need this method, we could just pass colors to the populate methods.
+      dark.duplicateWithoutColor(r);
       // Populate manually so that we only calculate it once.
       populatePolygon(r);
       fillSides(g, dark, polygon);
@@ -136,6 +137,8 @@ public enum RenderType {
 
   /** Populates a polygon representing the sides of a cube. Does no drawing. */
   void populatePolygon(Rendered r) {
+    if (r.isSurrounded()) return;
+
     // The sides of the cube are described by a filled six-sided polygon with points
     // 1, 2, and 3 at the edge of the square and 4, 5, 6 offset by hDepth, vDepth
     // The first three points are based on which direction we indicate height.

@@ -22,6 +22,7 @@ public class Position implements Cloneable {
     z += offset.z;
   }
 
+  // TODO need to eliminate the mutability of x,y,z, at least for voxels. Pull x,y,z into Voxel?
   public void set(Position position) {
     x = position.x;
     y = position.y;

@@ -3,7 +3,8 @@ package wannabe.grid;
 
 import wannabe.Voxel;
 
-/** A grid that supports changes to its voxels. */
+// TODO this may not need to be an interface, it could just be part of SimpleGrid.
+/** A grid that supports adding or removing voxels. */
 public interface MutableGrid extends Grid {
   /** Adds a single {@link Voxel}. */
   void add(Voxel v);

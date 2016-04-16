@@ -45,7 +45,7 @@ import wannabe.util.UIs;
 
   // Playfield paraphanellia:
   private final List<Grid> grids = new ArrayList<>();
-  private final MutableGrid buffer = new SimpleGrid("buffer");
+  private final MutableGrid buffer = new SimpleGrid("buffer", true);
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Cabinet();
@@ -153,6 +153,8 @@ import wannabe.util.UIs;
       }
       r.color = getSwingColor(voxel.color);
       r.darkerColor = getDarkerColor(voxel.color);
+// todo get from grid.  Or store neighbors in Voxel?     r.neighborsFrom();
+
       // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
       // awt colors in this case) and b) that it controls the context color
       g.setColor(r.color);

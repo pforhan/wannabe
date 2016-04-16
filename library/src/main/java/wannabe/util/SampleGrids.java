@@ -146,7 +146,7 @@ public class SampleGrids {
 
   /** Grid stretching 30x30 with voxels every 10 along the edge, and 600 random voxels. */
   public static Grid randomGrid() {
-    MutableGrid grid = new SimpleGrid("random sparse 30x30");
+    MutableGrid grid = new SimpleGrid("random sparse 30x30", true);
     grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
     grid.add(new Voxel(1, 0, 0, 0xEEDDFF));
     grid.add(new Voxel(0, 1, 0, 0xDDFFEE));
@@ -167,7 +167,7 @@ public class SampleGrids {
 
   /** Grid stretching 30x30 with voxels in simple patterns like stairsteps, etc */
   public static Grid testBed() {
-    MutableGrid grid = new SimpleGrid("testbed 30x30");
+    MutableGrid grid = new SimpleGrid("testbed 30x30", true);
 
     // First set of steps: single color stairs to floor.
     Position start = new Position(5, 5, 0);
@@ -254,7 +254,7 @@ public class SampleGrids {
   }
 
   public static Grid cube(int size, int color) {
-    MutableGrid grid = new SimpleGrid("cube of size " + size);
+    MutableGrid grid = new SimpleGrid("cube of size " + size, true);
 
     // Base is four lines, top, bottom, left, right:
     Position tl = new Position(0, 0, 0);
@@ -412,7 +412,7 @@ public class SampleGrids {
 
   /** Creates a grid with two hundred towers of up to 50 voxels in a 30x30 grid. */
   public static Grid towers() {
-    MutableGrid grid = new SimpleGrid("200 towers 30x30");
+    MutableGrid grid = new SimpleGrid("200 towers 30x30", true);
     Random r = new Random();
     for (int i = 0; i < 200; i++) {
       int x = r.nextInt(30);

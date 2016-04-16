@@ -6,7 +6,11 @@ import wannabe.Bounds;
 import wannabe.Position;
 import wannabe.Voxel;
 
-/** A collection of {@link Voxel}s. */
+/**
+ * A collection of {@link Voxel}s. Voxels do not move relative to the grid, although the grid's
+ * set of voxels may change (see {@link MutableGrid}) or the translation of the grid itself
+ * may change.
+ */
 public interface Grid extends Iterable<Voxel> {
   /**
    * Returns an iterator over all {@link Voxel}s in this grid. Note that optimized implementations

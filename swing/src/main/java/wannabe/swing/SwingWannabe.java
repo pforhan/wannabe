@@ -4,7 +4,6 @@ package wannabe.swing;
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
@@ -162,7 +161,6 @@ public class SwingWannabe {
       }
     });
 
-    new Random();
     while (true) {
       playerGrid.nextFrame();
       panel.render();

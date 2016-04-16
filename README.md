@@ -14,12 +14,12 @@ Right now, this is simply a collection of little classes.
 Then there's how to display these:
 
 * A `Camera` keeps track of where we're looking.
-* A `Projection` converts a Position to a pixel location, given a Camera and a pixel size.  There's `Flat`, `Isometric`, and (still-in-progress) `PseudoPerspective` Projections.
+* A `Projection` converts a Position to a pixel location, given a Camera and a pixel size.  There's `Flat`, `Isometric`, and `PseudoPerspective` Projections.
 * A `UI` keeps track of the Grid, the Camera, and the Projection, and actually renders the result.
 
 Samples
 -------
-You can run SwingWannabe, a java-AWT and Swing implementation that I'm using as my testbed.  It loads a [heightmap](http://en.wikipedia.org/wiki/Heightmap) and displays the resulting Grid.  I went ahead and implemented 8 different render modes (shown here with the Isometric projection).
+You can run SwingWannabe, a java-AWT and Swing implementation that I'm using as my testbed.  It has a number of sample Grids, including a [heightmap](http://en.wikipedia.org/wiki/Heightmap) and displays the resulting Grid.  I went ahead and implemented 8 different render modes (shown here with the Isometric projection).
 
 Original heightmap:
 
@@ -37,6 +37,8 @@ Limitations
 -----------
 
 As you can see from the samples, this isn't really meant to be a photorealistic engine.  It's geared more for pixel-art and retro-style games, but allows for some nifty things.
+
+Grids should be considered the smallest practical unit of animation.  Voxels inside a grid shouldn't move relative to one another.  Some grids can support adding and removing voxels, but a voxel should only be in a single Grid.
 
 My expectation is that the camera will always be looking down the z-axis.  The position of the camera may change, but not the direction.
 

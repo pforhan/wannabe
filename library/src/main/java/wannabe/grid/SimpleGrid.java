@@ -4,8 +4,10 @@ package wannabe.grid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import wannabe.Bounds;
 import wannabe.Position;
 import wannabe.Voxel;
@@ -19,12 +21,20 @@ public class SimpleGrid implements MutableGrid {
     }
   };
 
+  private final Map<Position, Neighbors> positionToNeighbors = new HashMap<>();
+  // TODO can I drop the list and just use the map? Could use a TreeMap with the same comparator
   private final List<Voxel> voxels = new ArrayList<>();
-  private final String name;
   private final Position translation = new Position(0, 0, 0);
+  private final String name;
+  private final boolean ignoreDuplicatePositions;
 
   public SimpleGrid(String name) {
+    this(name, false);
+  }
+
+  public SimpleGrid(String name, boolean ignoreDuplicatePositions) {
     this.name = name;
+    this.ignoreDuplicatePositions = ignoreDuplicatePositions;
   }
 
   @Override public Iterator<Voxel> iterator() {
@@ -39,14 +49,21 @@ public class SimpleGrid implements MutableGrid {
   }
 
   @Override public void add(Voxel v) {
+    if (positionToNeighbors.containsKey(v.position)) {
+      if (ignoreDuplicatePositions) return;
+      throw new IllegalArgumentException("Duplicate voxel at " + v.position);
+    }
     voxels.add(v);
+    populateNeighbors(v);
   }
 
   @Override public boolean remove(Voxel v) {
+    positionToNeighbors.remove(v.position);
     return voxels.remove(v);
   }
 
   @Override public void clear() {
+    positionToNeighbors.clear();
     voxels.clear();
   }
 
@@ -55,7 +72,8 @@ public class SimpleGrid implements MutableGrid {
       // We can skip cloning and translation.
       for (int i = 0; i < voxels.size(); i++) {
         Voxel voxel = voxels.get(i);
-        if (bounds.contains(voxel.position)) {
+        if (bounds.contains(voxel.position)
+            && notSurroundedInBounds(voxel)) {
           grid.add(voxel);
         }
       }
@@ -75,6 +93,10 @@ public class SimpleGrid implements MutableGrid {
     }
   }
 
+  private boolean notSurroundedInBounds(Voxel voxel) {
+    return positionToNeighbors.get(voxel.position).isNotSurrounded();
+  }
+
   @Override public void translate(Position offset) {
     translation.add(offset);
   }
@@ -89,5 +111,61 @@ public class SimpleGrid implements MutableGrid {
 
   @Override public String toString() {
     return name + "(size: " + size() + ")";
+  }
+
+  private void populateNeighbors(Voxel v) {
+    Neighbors myNeighbors = new Neighbors(v);
+    positionToNeighbors.put(v.position, myNeighbors);
+
+    Position workhorse = v.position.clone();
+    // Above:
+    workhorse.z++;
+    Neighbors otherNeighbors = positionToNeighbors.get(workhorse);
+    if (otherNeighbors != null) {
+      myNeighbors.above = otherNeighbors.voxel;
+      otherNeighbors.below = v;
+    }
+
+    // Below:
+    workhorse.z -= 2;
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    if (otherNeighbors != null) {
+      myNeighbors.below = otherNeighbors.voxel;
+      otherNeighbors.above = v;
+    }
+
+    // North:
+    workhorse.z++;
+    workhorse.y--;
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    if (otherNeighbors != null) {
+      myNeighbors.south = otherNeighbors.voxel;
+      otherNeighbors.north = v;
+    }
+
+    // South:
+    workhorse.y += 2;
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    if (otherNeighbors != null) {
+      myNeighbors.north = otherNeighbors.voxel;
+      otherNeighbors.south = v;
+    }
+
+    // East:
+    workhorse.y--;
+    workhorse.x++;
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    if (otherNeighbors != null) {
+      myNeighbors.east = otherNeighbors.voxel;
+      otherNeighbors.west = v;
+    }
+
+    // West:
+    workhorse.x -= 2;
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    if (otherNeighbors != null) {
+      myNeighbors.west = otherNeighbors.voxel;
+      otherNeighbors.east = v;
+    }
   }
 }
