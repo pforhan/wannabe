@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.grid;
 
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import wannabe.Bounds;
 import wannabe.Position;
+import wannabe.Translation;
 import wannabe.Voxel;
 
 /** {@link Grid} implementation that has a simple list of {@link Voxel}s and a means to sort. */
@@ -21,10 +21,10 @@ public class SimpleGrid implements MutableGrid {
     }
   };
 
-  private final Map<Position, Neighbors> positionToNeighbors = new HashMap<>();
+  private final Map<Position, Voxel> positionToVoxel = new HashMap<>();
   // TODO can I drop the list and just use the map? Could use a TreeMap with the same comparator
   private final List<Voxel> voxels = new ArrayList<>();
-  private final Position translation = new Position(0, 0, 0);
+  private final Translation translation = new Translation(0, 0, 0);
   private final String name;
   private final boolean ignoreDuplicatePositions;
 
@@ -49,31 +49,33 @@ public class SimpleGrid implements MutableGrid {
   }
 
   @Override public void add(Voxel v) {
-    if (positionToNeighbors.containsKey(v.position)) {
+    if (positionToVoxel.containsKey(v.position)) {
       if (ignoreDuplicatePositions) return;
       throw new IllegalArgumentException("Duplicate voxel at " + v.position);
     }
+    positionToVoxel.put(v.position, v);
     voxels.add(v);
     populateNeighbors(v);
   }
 
-  @Override public boolean remove(Voxel v) {
-    positionToNeighbors.remove(v.position);
-    return voxels.remove(v);
+  @Override public void remove(Voxel v) {
+    positionToVoxel.remove(v.position);
+    // TODO need to unset all neighbors both on v and any neighbors
+    voxels.remove(v);
   }
 
   @Override public void clear() {
-    positionToNeighbors.clear();
+    // TODO need to unset all neighbors
+    positionToVoxel.clear();
     voxels.clear();
   }
 
   @Override public void exportTo(MutableGrid grid, Bounds bounds) {
     if (translation.isZero()) {
-      // We can skip cloning and translation.
-      for (int i = 0; i < voxels.size(); i++) {
-        Voxel voxel = voxels.get(i);
+      // We can skip cloning and translation. // TODO probably not any more with neighbors, sigh
+      for (Voxel voxel : voxels) {
         if (bounds.contains(voxel.position)
-            && notSurroundedInBounds(voxel)) {
+            && notSurroundedInBounds(bounds, voxel)) {
           grid.add(voxel);
         }
       }
@@ -81,23 +83,23 @@ public class SimpleGrid implements MutableGrid {
     }
 
     // Otherwise, we have to translate all the things.
-    Position workhorse = new Position(0, 0, 0);
-    for (int i = 0; i < voxels.size(); i++) {
-      Voxel vox = voxels.get(i);
-      Position pos = vox.position;
-      workhorse.set(pos);
-      workhorse.add(translation);
+    Translation workhorse = new Translation(0, 0, 0);
+    for (Voxel voxel : voxels) {
+      workhorse.set(voxel.position).add(translation);
       if (bounds.contains(workhorse)) {
-        grid.add(new Voxel(workhorse.clone(), vox.color));
+        // TODO should check surrounded too
+        grid.add(new Voxel(workhorse.asPosition(), voxel.color));
       }
     }
   }
 
-  private boolean notSurroundedInBounds(Voxel voxel) {
-    return positionToNeighbors.get(voxel.position).isNotSurrounded();
+  /** Returns {@code true} if a voxel is not surrounded, or if it has neighbors out of bounds. */
+  private boolean notSurroundedInBounds(Bounds bounds, Voxel voxel) {
+    Neighbors neighbors = positionToVoxel.get(voxel.position).neighbors;
+    return neighbors.isNotSurrounded() || !bounds.containsAll(neighbors);
   }
 
-  @Override public void translate(Position offset) {
+  @Override public void translate(Translation offset) {
     translation.add(offset);
   }
 
@@ -114,58 +116,37 @@ public class SimpleGrid implements MutableGrid {
   }
 
   private void populateNeighbors(Voxel v) {
-    Neighbors myNeighbors = new Neighbors(v);
-    positionToNeighbors.put(v.position, myNeighbors);
-
-    Position workhorse = v.position.clone();
+    Translation workhorse = new Translation(v.position);
     // Above:
     workhorse.z++;
-    Neighbors otherNeighbors = positionToNeighbors.get(workhorse);
-    if (otherNeighbors != null) {
-      myNeighbors.above = otherNeighbors.voxel;
-      otherNeighbors.below = v;
-    }
+    Voxel neighbor = positionToVoxel.get(workhorse);
+    v.neighborAbove(neighbor);
 
     // Below:
     workhorse.z -= 2;
-    otherNeighbors = positionToNeighbors.get(workhorse);
-    if (otherNeighbors != null) {
-      myNeighbors.below = otherNeighbors.voxel;
-      otherNeighbors.above = v;
-    }
+    neighbor = positionToVoxel.get(workhorse);
+    v.neighborBelow(neighbor);
 
     // North:
     workhorse.z++;
     workhorse.y--;
-    otherNeighbors = positionToNeighbors.get(workhorse);
-    if (otherNeighbors != null) {
-      myNeighbors.south = otherNeighbors.voxel;
-      otherNeighbors.north = v;
-    }
+    neighbor = positionToVoxel.get(workhorse);
+    v.neighborNorth(neighbor);
 
     // South:
     workhorse.y += 2;
-    otherNeighbors = positionToNeighbors.get(workhorse);
-    if (otherNeighbors != null) {
-      myNeighbors.north = otherNeighbors.voxel;
-      otherNeighbors.south = v;
-    }
+    neighbor = positionToVoxel.get(workhorse);
+    v.neighborSouth(neighbor);
 
     // East:
     workhorse.y--;
     workhorse.x++;
-    otherNeighbors = positionToNeighbors.get(workhorse);
-    if (otherNeighbors != null) {
-      myNeighbors.east = otherNeighbors.voxel;
-      otherNeighbors.west = v;
-    }
+    neighbor = positionToVoxel.get(workhorse);
+    v.neighborEast(neighbor);
 
     // West:
     workhorse.x -= 2;
-    otherNeighbors = positionToNeighbors.get(workhorse);
-    if (otherNeighbors != null) {
-      myNeighbors.west = otherNeighbors.voxel;
-      otherNeighbors.east = v;
-    }
+    neighbor = positionToVoxel.get(workhorse);
+    v.neighborWest(neighbor);
   }
 }

@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.swing;
 
 import java.awt.Color;

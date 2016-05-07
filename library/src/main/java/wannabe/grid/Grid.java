@@ -1,13 +1,12 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.grid;
 
 import java.util.Iterator;
 import wannabe.Bounds;
-import wannabe.Position;
+import wannabe.Translation;
 import wannabe.Voxel;
 
 /**
- * A collection of {@link Voxel}s. Voxels do not move relative to the grid, although the grid's
+ * A collection of {@link Voxel}s. Voxels do not move within to the grid, although the grid's
  * set of voxels may change (see {@link MutableGrid}) or the translation of the grid itself
  * may change.
  */
@@ -28,8 +27,8 @@ public interface Grid extends Iterable<Voxel> {
   /** Number of Voxels this grid contains. */
   int size();
 
-  /** Translates every {@link Voxel} in this grid by the specified offset. */
-  void translate(Position offset);
+  /** Translates every {@link Voxel} in this grid by the specified offset. Additive. */
+  void translate(Translation offset);
 
   /** Resets translation to zero. */
   void clearTranslation();

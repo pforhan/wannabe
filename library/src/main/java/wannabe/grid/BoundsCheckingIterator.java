@@ -1,17 +1,16 @@
 package wannabe.grid;
 
 import java.util.Iterator;
-import wannabe.Translation;
+import wannabe.Bounds;
 import wannabe.Voxel;
 
-public final class TranslatingIterator implements Iterator<Voxel> {
+public final class BoundsCheckingIterator implements Iterator<Voxel> {
   private final Iterator<Voxel> realIterator;
-  private final Translation translation;
-  private final Translation workhorse = new Translation(0, 0, 0);
+  private final Bounds bounds;
 
-  public TranslatingIterator(Iterator<Voxel> realIterator, Translation translation) {
+  public BoundsCheckingIterator(Iterator<Voxel> realIterator, Bounds bounds) {
     this.realIterator = realIterator;
-    this.translation = translation;
+    this.bounds = bounds;
   }
 
   @Override public boolean hasNext() {
@@ -20,6 +19,11 @@ public final class TranslatingIterator implements Iterator<Voxel> {
 
   @Override public Voxel next() {
     Voxel real = realIterator.next();
+
+    if (bounds.contains(real.position)) {
+      return real
+    }
+
     if (translation.isZero()) return real;
     Voxel newVox = new Voxel(workhorse.set(real.position).add(translation).asPosition(), real.color);
     return newVox;

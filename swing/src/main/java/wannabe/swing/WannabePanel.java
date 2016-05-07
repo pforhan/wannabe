@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.swing;
 
 import android.util.SparseArray;
@@ -153,7 +152,7 @@ import wannabe.util.UIs;
       }
       r.color = getSwingColor(voxel.color);
       r.darkerColor = getDarkerColor(voxel.color);
-// todo get from grid.  Or store neighbors in Voxel?     r.neighborsFrom();
+      r.neighborsFrom(voxel.neighbors);
 
       // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
       // awt colors in this case) and b) that it controls the context color

@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe;
 
 import java.awt.Color;
@@ -6,7 +5,8 @@ import wannabe.grid.Neighbors;
 
 /** Describes real pixel color, location, and size for a voxel. */
 // TODO do we want java.awt.Color here?
-public class Rendered implements Cloneable {
+// TODO should I just put the Voxel in here?
+public class Rendered {
   public int left;
   public int top;
   public int size;

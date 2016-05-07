@@ -1,10 +1,11 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe;
 
-public class Position implements Cloneable {
-  public int x;
-  public int y;
-  public int z;
+public class Position implements Placed {
+  public static final Position ZERO = new Position(0, 0, 0);
+
+  public final int x;
+  public final int y;
+  public final int z;
 
   public Position(int x, int y, int z) {
     this.x = x;
@@ -12,27 +13,20 @@ public class Position implements Cloneable {
     this.z = z;
   }
 
-  public Position(Position position) {
-    set(position);
+  @Override public Position asPosition() {
+    return this;
   }
 
-  public void add(Position offset) {
-    x += offset.x;
-    y += offset.y;
-    z += offset.z;
+  @Override public int x() {
+    return x;
   }
 
-  // TODO need to eliminate the mutability of x,y,z, at least for voxels. Pull x,y,z into Voxel?
-  public void set(Position position) {
-    x = position.x;
-    y = position.y;
-    z = position.z;
+  @Override public int y() {
+    return y;
   }
 
-  public void zero() {
-    x = 0;
-    y = 0;
-    z = 0;
+  @Override public int z() {
+    return z;
   }
 
   public boolean isZero() {
@@ -57,15 +51,7 @@ public class Position implements Cloneable {
   }
 
   @Override public String toString() {
-    return "[x=" + x + ", y=" + y + ", z=" + z + "]";
-  }
-
-  @Override public Position clone() {
-    try {
-      return (Position) super.clone();
-    } catch (CloneNotSupportedException ex) {
-      throw new IllegalStateException("Could not clone cloneable object");
-    }
+    return "pos[x=" + x + ", y=" + y + ", z=" + z + "]";
   }
 
 }

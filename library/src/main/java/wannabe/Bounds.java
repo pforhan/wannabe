@@ -1,9 +1,13 @@
-// Copyright 2015 Patrick Forhan
 package wannabe;
 
+import wannabe.grid.Neighbors;
+
+// TODO make an XYZ bounds too, of course.
 public interface Bounds {
   public boolean contains(Position position);
-  // TODO make an XYZ bounds too, of course.
+  public boolean contains(Translation position);
+  /** Indicates whether all specified neighbors are within bounds. */
+  public boolean containsAll(Neighbors neighbors);
 
   public class XYBounds implements Bounds {
     public int left;
@@ -28,6 +32,24 @@ public interface Bounds {
     @Override public boolean contains(Position pos) {
       return pos.x >= left && pos.x < right
           && pos.y >= top && pos.y < bottom;
+    }
+
+    @Override public boolean contains(Translation pos) {
+      return pos.x >= left && pos.x < right
+          && pos.y >= top && pos.y < bottom;
+    }
+
+    /** As usual, excludes checking below. */
+    @Override public boolean containsAll(Neighbors neighbors) {
+      return containsOrNull(neighbors.above)
+          && containsOrNull(neighbors.north)
+          && containsOrNull(neighbors.south)
+          && containsOrNull(neighbors.east)
+          && containsOrNull(neighbors.west);
+    }
+
+    private boolean containsOrNull(Voxel voxel) {
+      return voxel == null || contains(voxel.position);
     }
   }
 }

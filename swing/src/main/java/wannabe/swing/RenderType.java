@@ -1,4 +1,3 @@
-// Copyright 2015 Patrick Forhan
 package wannabe.swing;
 
 import java.awt.Color;
@@ -31,7 +30,7 @@ public enum RenderType {
   filledThreeDSquareWithCabinetSides {
     @Override void draw(Graphics g, Rendered r) {
       fillSides(g, r);
-      g.fill3DRect(r.left, r.top, r.size, r.size, true);
+      if (!r.neighborAbove) g.fill3DRect(r.left, r.top, r.size, r.size, true);
     }
   },
   filledThreeDSquareWithCabinetWires {
@@ -43,7 +42,7 @@ public enum RenderType {
   filledSquareWithCabinetSides {
     @Override void draw(Graphics g, Rendered r) {
       fillSides(g, r);
-      g.fillRect(r.left, r.top, r.size, r.size);
+      if (!r.neighborAbove) g.fillRect(r.left, r.top, r.size, r.size);
     }
   },
   filledSquareWithCabinetWires {
@@ -81,6 +80,7 @@ public enum RenderType {
       dark.color = Color.BLACK;
       dark.darkerColor = Color.BLACK;
     }
+
     @Override void draw(Graphics g, Rendered r) {
       // First erase what we're going to write on:
       // TODO we probably don't need this method, we could just pass colors to the populate methods.
@@ -88,10 +88,10 @@ public enum RenderType {
       // Populate manually so that we only calculate it once.
       populatePolygon(r);
       fillSides(g, dark, polygon);
-      g.fillRect(r.left, r.top, r.size, r.size);
+      if (!r.neighborAbove) g.fillRect(r.left, r.top, r.size, r.size);
       // Now draw the cube:
       wireSides(g, r, polygon);
-      g.drawRect(r.left, r.top, r.size, r.size);
+      if (!r.neighborAbove) g.drawRect(r.left, r.top, r.size, r.size);
     }
   },
   roundedSquare {
@@ -137,7 +137,7 @@ public enum RenderType {
 
   /** Populates a polygon representing the sides of a cube. Does no drawing. */
   void populatePolygon(Rendered r) {
-    if (r.isSurrounded()) return;
+//    if (r.isSurrounded()) return; // TODO eval if this is needed, or works right.
 
     // The sides of the cube are described by a filled six-sided polygon with points
     // 1, 2, and 3 at the edge of the square and 4, 5, 6 offset by hDepth, vDepth

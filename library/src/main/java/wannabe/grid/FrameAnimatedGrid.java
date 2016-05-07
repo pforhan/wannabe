@@ -1,17 +1,16 @@
-// Copyright 2015 Patrick Forhan
 package wannabe.grid;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import wannabe.Bounds;
-import wannabe.Position;
+import wannabe.Translation;
 import wannabe.Voxel;
 
 /** A Grid that implements animation by selecting one of its child grids at a time. */
 public class FrameAnimatedGrid implements Grid {
   private final List<Grid> frames = new ArrayList<>();
-  private final Position translation = new Position(0, 0, 0);
+  private final Translation translation = new Translation(0, 0, 0);
   private final String name;
   private int current;
 
@@ -44,7 +43,7 @@ public class FrameAnimatedGrid implements Grid {
     return frames.get(current).size();
   }
 
-  @Override public void translate(Position offset) {
+  @Override public void translate(Translation offset) {
     translation.add(offset);
   }
 

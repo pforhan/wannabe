@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.util;
 
 import java.awt.image.BufferedImage;
@@ -11,9 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
+import wannabe.Placed;
 import wannabe.Position;
+import wannabe.Translation;
 import wannabe.Voxel;
 import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
@@ -23,12 +23,18 @@ import wannabe.grid.SimpleGrid;
 public class SampleGrids {
 
   /**
-   * TODO figure out if this is viable. Need some way of iteratively creating data.
-   * Can I clean up? Can I make an Iterable?
+   * Simple mechanism to iteratively add a set of voxels. See {@link #drawPath}.
+   * TODO Can I make an Iterable? Would that gain anything?
    */
   interface Path {
+    /** Set up the path and return its starting Position. */
     Position start();
-    Position drawAndMove(MutableGrid grid, Position pos);
+
+    /**
+     * Adds voxel(s) at the specified location, and returns the next location, or {@code null} if
+     * complete.
+     */
+    Translation drawAndMove(MutableGrid grid, Translation pos);
   }
 
   /**
@@ -57,11 +63,11 @@ public class SampleGrids {
     }
 
     @Override public Position start() {
-      return start.clone();
+      return start;
     }
 
-    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
-      grid.add(new Voxel(pos.clone(), color));
+    @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
+      grid.add(new Voxel(pos.asPosition(), color));
 
       pos.x += xIncrement;
       pos.y += yIncrement;
@@ -84,10 +90,10 @@ public class SampleGrids {
     }
 
     @Override public Position start() {
-      return start.clone();
+      return start;
     }
 
-    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+    @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
       Position lineEnd = new Position(pos.x, pos.y, 0);
       line(grid, pos, lineEnd, getColor(pos));
       pos.x += xIncrement;
@@ -96,7 +102,7 @@ public class SampleGrids {
       return pos.z == 6 ? null : pos;
     }
 
-    private int getColor(Position pos) {
+    private int getColor(Translation pos) {
       int offset = Math.abs(pos.x - start.x);
       if (offset == 0) {
         offset = Math.abs(pos.y - start.y);
@@ -124,10 +130,10 @@ public class SampleGrids {
     }
 
     @Override public Position start() {
-      return start.clone();
+      return start;
     }
 
-    @Override public Position drawAndMove(MutableGrid grid, Position pos) {
+    @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
       Position lineEnd = new Position(endXY.x, endXY.y, pos.z);
       line(grid, pos, lineEnd, getColor(pos));
       pos.x += xIncrement;
@@ -136,7 +142,7 @@ public class SampleGrids {
       return pos.z == 6 ? null : pos;
     }
 
-    private int getColor(Position pos) {
+    private int getColor(Translation pos) {
       if (colors.length == 0) return 0x888888;
       int offset = pos.z;
       if (offset >= colors.length) offset = colors.length - 1;
@@ -211,7 +217,7 @@ public class SampleGrids {
   }
 
   private static void drawPath(MutableGrid grid, Path path) {
-    Position pos = path.start();
+    Translation pos = new Translation(path.start());
     while (pos != null) {
       pos = path.drawAndMove(grid, pos);
     }
@@ -257,10 +263,10 @@ public class SampleGrids {
     MutableGrid grid = new SimpleGrid("cube of size " + size, true);
 
     // Base is four lines, top, bottom, left, right:
-    Position tl = new Position(0, 0, 0);
-    Position tr = new Position(size, 0, 0);
-    Position bl = new Position(0, size, 0);
-    Position br = new Position(size, size, 0);
+    Translation tl = new Translation(0, 0, 0);
+    Translation tr = new Translation(size, 0, 0);
+    Translation bl = new Translation(0, size, 0);
+    Translation br = new Translation(size, size, 0);
     line(grid, tl, tr, color);
     line(grid, bl, br, color);
     line(grid, tl, bl, color);
@@ -272,10 +278,10 @@ public class SampleGrids {
       tr.z = z;
       bl.z = z;
       br.z = z;
-      grid.add(new Voxel(tl.clone(), color));
-      grid.add(new Voxel(tr.clone(), color));
-      grid.add(new Voxel(bl.clone(), color));
-      grid.add(new Voxel(br.clone(), color));
+      grid.add(new Voxel(tl.asPosition(), color));
+      grid.add(new Voxel(tr.asPosition(), color));
+      grid.add(new Voxel(bl.asPosition(), color));
+      grid.add(new Voxel(br.asPosition(), color));
     }
 
     // TODO probably need to bump z once more...
@@ -289,15 +295,15 @@ public class SampleGrids {
     return grid;
   }
 
-  private static void line(MutableGrid grid, Position p1, Position p2, int color) {
+  private static void line(MutableGrid grid, Placed p1, Placed p2, int color) {
     // Adapted from: https://www.ict.griffith.edu.au/anthony/info/graphics/bresenham.procs
 
     int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
-    Position pixel = new Position(p1);
+    Translation pixel = new Translation(p1);
 
-    dx = p2.x - p1.x;
-    dy = p2.y - p1.y;
-    dz = p2.z - p1.z;
+    dx = p2.x() - p1.x();
+    dy = p2.y() - p1.y();
+    dz = p2.z() - p1.z();
     x_inc = (dx < 0) ? -1 : 1;
     l = Math.abs(dx);
     y_inc = (dy < 0) ? -1 : 1;
@@ -312,7 +318,7 @@ public class SampleGrids {
       err_1 = dy2 - l;
       err_2 = dz2 - l;
       for (i = 0; i < l; i++) {
-        grid.add(new Voxel(pixel.clone(), color));
+        grid.add(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.y += y_inc;
           err_1 -= dx2;
@@ -329,7 +335,7 @@ public class SampleGrids {
       err_1 = dx2 - m;
       err_2 = dz2 - m;
       for (i = 0; i < m; i++) {
-        grid.add(new Voxel(pixel.clone(), color));
+        grid.add(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.x += x_inc;
           err_1 -= dy2;
@@ -346,7 +352,7 @@ public class SampleGrids {
       err_1 = dy2 - n;
       err_2 = dx2 - n;
       for (i = 0; i < n; i++) {
-        grid.add(new Voxel(pixel.clone(), color));
+        grid.add(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.y += y_inc;
           err_1 -= dz2;
@@ -360,7 +366,7 @@ public class SampleGrids {
         pixel.z += z_inc;
       }
     }
-    grid.add(new Voxel(pixel.clone(), color));
+    grid.add(new Voxel(pixel.asPosition(), color));
   }
 
   /** 30x30 grid with all 900 voxels specified. */
@@ -368,9 +374,6 @@ public class SampleGrids {
     MutableGrid grid = new SimpleGrid("random full 30x30");
 
     Random r = new Random();
-    // Grab one randomly to animate:
-    int which = r.nextInt(900);
-    final AtomicReference<Voxel> animated = new AtomicReference<>();
     for (int i = 0; i < 900; i++) {
       int x = i / 30;
       int y = i % 30;
@@ -380,32 +383,11 @@ public class SampleGrids {
       Voxel vox = new Voxel(x, y, z, color);
       grid.add(vox);
 
-      if (i == which) {
-        animated.set(vox);
-        vox.color = 0xFFFFFF;
-      } else if (z > 0) {
-        // If not animated, and if positive z, make into a cylinder.
-        for (int j = 0; j < z; j++) {
-          grid.add(new Voxel(x, y, j, color));
-        }
+      // If not animated, and if positive z, make into a column.
+      for (int j = 0; j < z; j++) {
+        grid.add(new Voxel(x, y, j, color));
       }
     }
-
-    Thread t = new Thread(new Runnable() {
-      final Voxel myAnimated = animated.get();
-
-      @Override public void run() {
-        while (true) {
-          myAnimated.position.z++;
-          if (myAnimated.position.z > 10) myAnimated.position.z = -10;
-          try {
-            Thread.sleep(200);
-          } catch (InterruptedException ex) {
-          }
-        }
-      }
-    });
-    t.start();
 
     return grid;
   }
@@ -532,7 +514,7 @@ public class SampleGrids {
   public static Grid fromTextMap(String name, String textmap,
       Map<Character, Integer> charToColor) {
     MutableGrid grid = new SimpleGrid(name);
-    Position workhorse = new Position(0, 0, 40);
+    Translation workhorse = new Translation(0, 0, 40);
     for (int i = 0; i < textmap.length(); i++) {
       char chr = textmap.charAt(i);
       if (chr == '\n') {
@@ -544,7 +526,7 @@ public class SampleGrids {
       Character boxed = chr;
       if (charToColor.containsKey(boxed)) {
         int color = charToColor.get(boxed);
-        grid.add(new Voxel(workhorse.clone(), color));
+        grid.add(new Voxel(workhorse.asPosition(), color));
       }
       workhorse.x++;
     }

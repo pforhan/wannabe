@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.projection;
 
 import wannabe.Camera;

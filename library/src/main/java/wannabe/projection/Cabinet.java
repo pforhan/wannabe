@@ -1,9 +1,9 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.projection;
 
 import wannabe.Camera;
 import wannabe.Position;
 import wannabe.Rendered;
+import wannabe.Translation;
 import wannabe.Voxel;
 
 /**
@@ -27,9 +27,9 @@ public class Cabinet implements Projection {
   }
 
   @Override public Rendered render(Camera camera, Position position, int pixelSize) {
-    position = camera.translate(position);
-    int horizOffset = hOffsetPerZ * position.z + pixelSize * position.x;
-    int vertOffset = vOffsetPerZ * position.z + pixelSize * position.y;
+    Translation address = camera.translate(position);
+    int horizOffset = hOffsetPerZ * address.z + pixelSize * address.x;
+    int vertOffset = vOffsetPerZ * address.z + pixelSize * address.y;
     rendered.left = camera.uiPosition.left + horizOffset;
     rendered.top = camera.uiPosition.top + vertOffset;
     rendered.size = pixelSize;
