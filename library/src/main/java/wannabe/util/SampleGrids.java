@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.imageio.ImageIO;
-import wannabe.Placed;
 import wannabe.Position;
 import wannabe.Translation;
 import wannabe.Voxel;
@@ -94,7 +93,7 @@ public class SampleGrids {
     }
 
     @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
-      Position lineEnd = new Position(pos.x, pos.y, 0);
+      Translation lineEnd = new Translation(pos.x, pos.y, 0);
       line(grid, pos, lineEnd, getColor(pos));
       pos.x += xIncrement;
       pos.y += yIncrement;
@@ -134,7 +133,7 @@ public class SampleGrids {
     }
 
     @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
-      Position lineEnd = new Position(endXY.x, endXY.y, pos.z);
+      Translation lineEnd = new Translation(endXY.x, endXY.y, pos.z);
       line(grid, pos, lineEnd, getColor(pos));
       pos.x += xIncrement;
       pos.y += yIncrement;
@@ -295,15 +294,15 @@ public class SampleGrids {
     return grid;
   }
 
-  private static void line(MutableGrid grid, Placed p1, Placed p2, int color) {
+  private static void line(MutableGrid grid, Translation p1, Translation p2, int color) {
     // Adapted from: https://www.ict.griffith.edu.au/anthony/info/graphics/bresenham.procs
 
     int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
     Translation pixel = new Translation(p1);
 
-    dx = p2.x() - p1.x();
-    dy = p2.y() - p1.y();
-    dz = p2.z() - p1.z();
+    dx = p2.x - p1.x;
+    dy = p2.y - p1.y;
+    dz = p2.z - p1.z;
     x_inc = (dx < 0) ? -1 : 1;
     l = Math.abs(dx);
     y_inc = (dy < 0) ? -1 : 1;
@@ -661,15 +660,33 @@ public class SampleGrids {
     return grid;
   }
 
+  /** Builds a solid cube 10 x 10 x 10. */
+  public static Grid neighborTest() {
+    SimpleGrid grid = new SimpleGrid("Neighbor test");
+    Translation start = new Translation(10, 10, 0);
+    Translation end = new Translation(10, 19, 0);
+    for (int z = 0; z < 10; z++) {
+      start.z = z;
+      end.z = z;
+      for (int x = 10; x < 20; x++) {
+        start.x = x;
+        end.x = x;
+        line(grid, start, end, 0x888800 + z * 4);
+      }
+    }
+    return grid;
+  }
+
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     testBed(),
+    neighborTest(),
     heightMap("heightMap 256x256", false),
+    heightMap("deep heightmap 256x256", true),
+    cloudySky(),
     plotSin(5),
     plotSin(2),
     plotHyperbola(.2),
     linkGrid(),
-    heightMap("deep heightmap 256x256", true),
-    cloudySky(),
     towers(),
     fullRandomGrid(),
     randomGrid(),

@@ -11,7 +11,7 @@ public class Neighbors {
   public Voxel above;
   public Voxel below;
 
-  /** Returns {@code true} if the voxel could be visible. */
+  /** Returns {@code true} if the voxel could be visible. Ignores "below" in this calculation. */
   public boolean isNotSurrounded() {
     return above == null || north == null || south == null || east == null || west == null;
   }

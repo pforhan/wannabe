@@ -1,7 +1,7 @@
 package wannabe;
 
 /** Effectively the same as a {@link Position} but mutable. */
-public class Translation implements Placed {
+public class Translation {
   public int x;
   public int y;
   public int z;
@@ -20,10 +20,6 @@ public class Translation implements Placed {
     set(position);
   }
 
-  public Translation(Placed placed) {
-    set(placed);
-  }
-
   public Translation add(Translation offset) {
     x += offset.x;
     y += offset.y;
@@ -31,19 +27,7 @@ public class Translation implements Placed {
     return this;
   }
 
-  @Override public int x() {
-    return x;
-  }
-
-  @Override public int y() {
-    return y;
-  }
-
-  @Override public int z() {
-    return z;
-  }
-
-  @Override public Position asPosition() {
+  public Position asPosition() {
     return new Position(x, y, z);
   }
 
@@ -58,13 +42,6 @@ public class Translation implements Placed {
     x = position.x;
     y = position.y;
     z = position.z;
-    return this;
-  }
-
-  public Translation set(Placed placed) {
-    x = placed.x();
-    y = placed.y();
-    z = placed.z();
     return this;
   }
 
@@ -90,10 +67,14 @@ public class Translation implements Placed {
 
   @Override public boolean equals(Object obj) {
     if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    Translation other = (Translation) obj;
-    return x == other.x && y == other.y && z == other.z;
+    if (obj instanceof Translation) {
+      Translation other = (Translation) obj;
+      return x == other.x && y == other.y && z == other.z;
+    } else if (obj instanceof Position) {
+      Position other = (Position) obj;
+      return x == other.x && y == other.y && z == other.z;
+    }
+    return false;
   }
 
   @Override public String toString() {

@@ -1,6 +1,6 @@
 package wannabe;
 
-public class Position implements Placed {
+public class Position {
   public static final Position ZERO = new Position(0, 0, 0);
 
   public final int x;
@@ -11,22 +11,6 @@ public class Position implements Placed {
     this.x = x;
     this.y = y;
     this.z = z;
-  }
-
-  @Override public Position asPosition() {
-    return this;
-  }
-
-  @Override public int x() {
-    return x;
-  }
-
-  @Override public int y() {
-    return y;
-  }
-
-  @Override public int z() {
-    return z;
   }
 
   public boolean isZero() {
@@ -44,10 +28,14 @@ public class Position implements Placed {
 
   @Override public boolean equals(Object obj) {
     if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    Position other = (Position) obj;
-    return x == other.x && y == other.y && z == other.z;
+    if (obj instanceof Position) {
+      Position other = (Position) obj;
+      return x == other.x && y == other.y && z == other.z;
+    } else if (obj instanceof Translation) {
+      Translation other = (Translation) obj;
+      return x == other.x && y == other.y && z == other.z;
+    }
+    return false;
   }
 
   @Override public String toString() {

@@ -39,10 +39,9 @@ public interface Bounds {
           && pos.y >= top && pos.y < bottom;
     }
 
-    /** As usual, excludes checking below. */
+    /** Ignores above and below. */
     @Override public boolean containsAll(Neighbors neighbors) {
-      return containsOrNull(neighbors.above)
-          && containsOrNull(neighbors.north)
+      return containsOrNull(neighbors.north)
           && containsOrNull(neighbors.south)
           && containsOrNull(neighbors.east)
           && containsOrNull(neighbors.west);

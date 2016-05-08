@@ -86,8 +86,9 @@ public class SimpleGrid implements MutableGrid {
     Translation workhorse = new Translation(0, 0, 0);
     for (Voxel voxel : voxels) {
       workhorse.set(voxel.position).add(translation);
-      if (bounds.contains(workhorse)) {
-        // TODO should check surrounded too
+      if (bounds.contains(workhorse)
+          && notSurroundedInBounds(bounds, voxel)) {
+        // TODO double check if we need to handle translation with bounds
         grid.add(new Voxel(workhorse.asPosition(), voxel.color));
       }
     }
