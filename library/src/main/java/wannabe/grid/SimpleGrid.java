@@ -21,7 +21,7 @@ public class SimpleGrid implements MutableGrid {
     }
   };
 
-  private final Map<Position, Voxel> positionToVoxel = new HashMap<>();
+  private final Map<Position, Neighbors> positionToNeighbors = new HashMap<>();
   // TODO can I drop the list and just use the map? Could use a TreeMap with the same comparator
   private final List<Voxel> voxels = new ArrayList<>();
   private final Translation translation = new Translation(0, 0, 0);
@@ -49,30 +49,66 @@ public class SimpleGrid implements MutableGrid {
   }
 
   @Override public void add(Voxel v) {
-    if (positionToVoxel.containsKey(v.position)) {
+    if (positionToNeighbors.containsKey(v.position)) {
       if (ignoreDuplicatePositions) return;
       throw new IllegalArgumentException("Duplicate voxel at " + v.position);
     }
-    positionToVoxel.put(v.position, v);
+    Neighbors neighbors = new Neighbors(v);
+    positionToNeighbors.put(v.position, neighbors);
     voxels.add(v);
-    populateNeighbors(v);
+    populateNeighbors(neighbors);
   }
 
   @Override public void remove(Voxel v) {
-    positionToVoxel.remove(v.position);
+    positionToNeighbors.remove(v.position);
     // TODO need to unset all neighbors both on v and any neighbors
     voxels.remove(v);
   }
 
   @Override public void clear() {
-    // TODO need to unset all neighbors
-    positionToVoxel.clear();
+    // TODO need to unset all neighbors?
+    positionToNeighbors.clear();
     voxels.clear();
   }
 
-  @Override public void exportTo(MutableGrid grid, Bounds bounds) {
+  @Override public void exportTo(MutableGrid grid, Bounds bounds, boolean includeHidden) {
+    if (includeHidden) {
+      exportWithHidden(grid, bounds);
+      return;
+    }
+
+    exportNoHidden(grid, bounds);
+  }
+
+  @Override public Neighbors neighbors(Voxel voxel) {
+    return positionToNeighbors.get(voxel.position);
+  }
+
+  @Override public void translate(Translation offset) {
+    translation.add(offset);
+  }
+
+  @Override public void clearTranslation() {
+    translation.zero();
+  }
+
+  @Override public int size() {
+    return voxels.size();
+  }
+
+  @Override public String toString() {
+    return name + "(size: " + size() + ")";
+  }
+
+  /** Returns {@code true} if a voxel is not surrounded, or if it has neighbors out of bounds. */
+  private boolean notSurroundedInBounds(Bounds bounds, Voxel voxel) {
+    Neighbors neighbors = positionToNeighbors.get(voxel.position);
+    return neighbors.isNotSurrounded() || !bounds.containsAll(neighbors);
+  }
+
+  private void exportNoHidden(MutableGrid grid, Bounds bounds) {
     if (translation.isZero()) {
-      // We can skip cloning and translation. // TODO probably not any more with neighbors, sigh
+      // We can skip cloning and translation.
       for (Voxel voxel : voxels) {
         if (bounds.contains(voxel.position)
             && notSurroundedInBounds(bounds, voxel)) {
@@ -94,60 +130,63 @@ public class SimpleGrid implements MutableGrid {
     }
   }
 
-  /** Returns {@code true} if a voxel is not surrounded, or if it has neighbors out of bounds. */
-  private boolean notSurroundedInBounds(Bounds bounds, Voxel voxel) {
-    Neighbors neighbors = positionToVoxel.get(voxel.position).neighbors;
-    return neighbors.isNotSurrounded() || !bounds.containsAll(neighbors);
+  // TODO this is a bit of an ugly near-duplication, but seems good for clarity and perf.
+  // TODO consider if this should just be the api instead of the bool param.
+  private void exportWithHidden(MutableGrid grid, Bounds bounds) {
+    if (translation.isZero()) {
+      // We can skip cloning and translation.
+      for (Voxel voxel : voxels) {
+        if (bounds.contains(voxel.position)) {
+          grid.add(voxel);
+        }
+      }
+      return;
+    }
+
+    // Otherwise, we have to translate all the things.
+    Translation workhorse = new Translation(0, 0, 0);
+    for (Voxel voxel : voxels) {
+      workhorse.set(voxel.position).add(translation);
+      if (bounds.contains(workhorse)) {
+        // TODO double check if we need to handle translation with bounds
+        grid.add(new Voxel(workhorse.asPosition(), voxel.color));
+      }
+    }
   }
 
-  @Override public void translate(Translation offset) {
-    translation.add(offset);
-  }
 
-  @Override public void clearTranslation() {
-    translation.zero();
-  }
-
-  @Override public int size() {
-    return voxels.size();
-  }
-
-  @Override public String toString() {
-    return name + "(size: " + size() + ")";
-  }
-
-  private void populateNeighbors(Voxel v) {
-    Translation workhorse = new Translation(v.position);
+  private void populateNeighbors(Neighbors neighbors) {
+    Translation workhorse = new Translation(neighbors.voxel.position);
     // Above:
     workhorse.z++;
-    Voxel neighbor = positionToVoxel.get(workhorse);
-    v.neighborAbove(neighbor);
+    Neighbors otherNeighbors = positionToNeighbors.get(workhorse);
+    neighbors.neighborAbove(otherNeighbors);
 
     // Below:
     workhorse.z -= 2;
-    neighbor = positionToVoxel.get(workhorse);
-    v.neighborBelow(neighbor);
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    neighbors.neighborBelow(otherNeighbors);
 
     // North:
     workhorse.z++;
     workhorse.y--;
-    neighbor = positionToVoxel.get(workhorse);
-    v.neighborNorth(neighbor);
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    neighbors.neighborNorth(otherNeighbors);
 
     // South:
     workhorse.y += 2;
-    neighbor = positionToVoxel.get(workhorse);
-    v.neighborSouth(neighbor);
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    neighbors.neighborSouth(otherNeighbors);
 
     // East:
     workhorse.y--;
     workhorse.x++;
-    neighbor = positionToVoxel.get(workhorse);
-    v.neighborEast(neighbor);
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    neighbors.neighborEast(otherNeighbors);
 
     // West:
     workhorse.x -= 2;
-    neighbor = positionToVoxel.get(workhorse);
-    v.neighborWest(neighbor);
+    otherNeighbors = positionToNeighbors.get(workhorse);
+    neighbors.neighborWest(otherNeighbors);
   }
 }

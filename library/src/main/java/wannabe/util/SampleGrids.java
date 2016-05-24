@@ -671,7 +671,7 @@ public class SampleGrids {
       for (int x = 10; x < 20; x++) {
         start.x = x;
         end.x = x;
-        line(grid, start, end, 0x888800 + z * 4);
+        line(grid, start, end, 0x1a1a1a * z);
       }
     }
     return grid;

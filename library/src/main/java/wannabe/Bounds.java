@@ -47,8 +47,8 @@ public interface Bounds {
           && containsOrNull(neighbors.west);
     }
 
-    private boolean containsOrNull(Voxel voxel) {
-      return voxel == null || contains(voxel.position);
+    private boolean containsOrNull(Neighbors neighbors) {
+      return neighbors == null || contains(neighbors.voxel.position);
     }
   }
 }

@@ -20,9 +20,10 @@ public interface Grid extends Iterable<Voxel> {
 
   /**
    * Copies all {@link Voxel}s from this grid to the specified grid.  Applies any translation to
-   * each copied {@link Voxel}.  Voxels filtered based on supplied parameters.
+   * each copied {@link Voxel}.  Voxels filtered based on supplied parameters.  If includeHidden
+   * is true, then even surrounded voxels will be included.
    */
-  void exportTo(MutableGrid grid, Bounds bounds);
+  void exportTo(MutableGrid grid, Bounds bounds, boolean includeHidden);
 
   /** Number of Voxels this grid contains. */
   int size();
@@ -32,5 +33,7 @@ public interface Grid extends Iterable<Voxel> {
 
   /** Resets translation to zero. */
   void clearTranslation();
+
+  Neighbors neighbors(Voxel voxel);
 
 }

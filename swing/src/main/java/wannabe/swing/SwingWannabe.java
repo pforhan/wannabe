@@ -27,6 +27,7 @@ public class SwingWannabe {
   private static FrameAnimatedGrid playerGrid = SampleGrids.megaManRunning();
   private static boolean movingPlayer;
   private static boolean playerVisible;
+  private static boolean exportHidden;
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
@@ -143,6 +144,10 @@ public class SwingWannabe {
             Projection next = Projections.next(panel.getProjection());
             panel.setProjection(next);
             settings.projectionSelected(next);
+            break;
+          case KeyEvent.VK_E:
+            exportHidden = !exportHidden;
+            panel.exportHidden(exportHidden);
             break;
           case KeyEvent.VK_1:
             panel.realPixelSize = 1;

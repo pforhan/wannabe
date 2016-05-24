@@ -50,6 +50,7 @@ import wannabe.util.UIs;
   private Projection projection = new Cabinet();
   private RenderType renderType = RenderType.filledCircle;
   private boolean stats;
+  private boolean exportHidden;
 
   public WannabePanel(final Camera camera) {
     this.camera = camera;
@@ -117,6 +118,10 @@ import wannabe.util.UIs;
     return renderType;
   }
 
+  public void exportHidden(boolean exportHidden) {
+    this.exportHidden = exportHidden;
+  }
+
   @Override protected void paintBorder(Graphics g) {
   }
 
@@ -136,7 +141,7 @@ import wannabe.util.UIs;
         camera.position.y - halfHeightCells, //
         widthCells, heightCells);
     for (Grid grid : grids) {
-      grid.exportTo(buffer, bounds);
+      grid.exportTo(buffer, bounds, exportHidden);
     }
     buffer.optimize();
 
@@ -152,7 +157,7 @@ import wannabe.util.UIs;
       }
       r.color = getSwingColor(voxel.color);
       r.darkerColor = getDarkerColor(voxel.color);
-      r.neighborsFrom(voxel.neighbors);
+      r.neighborsFrom(buffer.neighbors(voxel));
 
       // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
       // awt colors in this case) and b) that it controls the context color
