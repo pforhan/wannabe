@@ -8,14 +8,14 @@ public class Projections {
 
   public static final List<Projection> PROJECTIONS =
       Arrays.asList(
-          new Cabinet(-1, -1),
-          new Cabinet(-1, 1),
-          new Cabinet(1, 1),
-          new Cabinet(1, -1),
-          new Cabinet(-5, -5),
-          new Cabinet(-5, 5),
           new Cabinet(5, 5),
+          new Cabinet(-5, 5),
           new Cabinet(5, -5),
+          new Cabinet(-5, -5),
+          new Cabinet(1, 1),
+          new Cabinet(-1, 1),
+          new Cabinet(1, -1),
+          new Cabinet(-1, -1),
           new Flat(),
           new PseudoPerspective());
 

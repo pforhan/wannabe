@@ -48,7 +48,7 @@ import wannabe.util.UIs;
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Cabinet();
-  private RenderType renderType = RenderType.filledCircle;
+  private RenderType renderType = RenderType.filledThreeDSquareWithCabinetSides;
   private boolean stats;
   private boolean exportHidden;
 

@@ -435,7 +435,6 @@ public class SampleGrids {
   /**
    * Loads the sample-heightmap image into a Grid, with lighter pixels given a greater height
    * and a bluer color.
-   * TODO handle other platforms
    */
   public static MutableGrid heightMap(String name, boolean deep) {
     // TODO pick by platform
@@ -660,26 +659,54 @@ public class SampleGrids {
     return grid;
   }
 
-  /** Builds a solid cube 10 x 10 x 10. */
+  /** Builds a few different 10 x 10 shapes. */
   public static Grid neighborTest() {
     SimpleGrid grid = new SimpleGrid("Neighbor test");
-    Translation start = new Translation(10, 10, 0);
-    Translation end = new Translation(10, 19, 0);
-    for (int z = 0; z < 10; z++) {
+    Translation start = new Translation(5, 5, 0);
+    Translation end = new Translation(5, 14, 0);
+    // 10x10x10 cube
+    for (int z = 1; z < 11; z++) {
       start.z = z;
       end.z = z;
-      for (int x = 10; x < 20; x++) {
+      for (int x = 5; x < 15; x++) {
         start.x = x;
         end.x = x;
-        line(grid, start, end, 0x1a1a1a * z);
+        line(grid, start, end, 0x2a2a2a * z / 2);
       }
     }
+
+    // Draw a couple slightly-overlapping squares
+    start.y = 5;
+    start.z = 4;
+    end.y = 14;
+    end.z = 4;
+    Random r = new Random();
+
+    for (int x = 20; x < 30; x++) {
+      start.x = x;
+      end.x = x;
+      int color = 0x999999 + r.nextInt(0x666666);
+      // was 0x2a2a2a * start.z / 2
+      line(grid, start, end, color);
+    }
+
+    start.y = 13;
+    start.z = 5;
+    end.y = 22;
+    end.z = 5;
+    for (int x = 28; x < 38; x++) {
+      start.x = x;
+      end.x = x;
+      int color = 0x999999 + r.nextInt(0x666666);
+      line(grid, start, end, color);
+    }
+
     return grid;
   }
 
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
-    testBed(),
     neighborTest(),
+    testBed(),
     heightMap("heightMap 256x256", false),
     heightMap("deep heightmap 256x256", true),
     cloudySky(),
