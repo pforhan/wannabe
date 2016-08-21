@@ -68,7 +68,7 @@ public class Rendered {
   }
 
   public void neighborsFrom(Neighbors neighbors) {
-    // Boy, this sort of seems awful. What if neighbors are never null?
+    // Boy, this sort of seems awful.
     neighborNorth = neighbors.north != null;
     if (neighborNorth) {
       neighborNorthEast = neighbors.north.east != null;

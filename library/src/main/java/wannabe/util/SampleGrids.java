@@ -676,15 +676,15 @@ public class SampleGrids {
     }
 
     // Draw a couple slightly-overlapping squares
-    start.y = 5;
+    start.x = 20;
     start.z = 4;
-    end.y = 14;
+    end.x = 29;
     end.z = 4;
     Random r = new Random();
 
-    for (int x = 20; x < 30; x++) {
-      start.x = x;
-      end.x = x;
+    for (int y = 5; y < 15; y++) {
+      start.y = y;
+      end.y = y;
       int color = 0x999999 + r.nextInt(0x666666);
       // was 0x2a2a2a * start.z / 2
       line(grid, start, end, color);

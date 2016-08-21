@@ -239,6 +239,8 @@ public enum RenderType {
    *       \|
    *        * (3)
    * </pre>
+   *
+   * Note that there are only ever 8 different points in all these cases.
    */
   public void populateAboveLeft(Rendered r) {
     int bottom = r.top + r.size;
@@ -270,7 +272,7 @@ public enum RenderType {
         } else {
           // Case 3.
           polygon.addPoint(outLeft, outTop);
-          polygon.addPoint(right + r.hDepth, outTop);
+          polygon.addPoint(r.left, outTop);
         }
       }
 
@@ -308,19 +310,79 @@ public enum RenderType {
     }
   }
 
+  /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
   public void populateBelowRight(Rendered r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
-    polygon.addPoint(r.left, bottom);
-    polygon.addPoint(right, bottom);
-    polygon.addPoint(right, r.top);
     int outRight = right + r.hDepth;
     int outBottom = bottom + r.vDepth;
-    polygon.addPoint(outRight, r.top + r.vDepth);
-    polygon.addPoint(outRight, outBottom);
-    polygon.addPoint(r.left + r.hDepth, outBottom);
+
+    if (r.neighborSouth) {
+      if (r.neighborEast) {
+        if (!r.neighborSouthEast) {
+          // Case 4. Just a small square here.
+          polygon.addPoint(right, bottom);
+          polygon.addPoint(outRight, bottom);
+          polygon.addPoint(outRight, outBottom);
+          polygon.addPoint(right, outBottom);
+        } else {
+          // Case 5, fully blocked.  Do nothing.
+          // TODO ^ This isn't great if depths > pixelSize though.
+        }
+
+      } else {
+        // Blocked only vertically, draw horizontal part only.
+        polygon.addPoint(right, r.top);
+        polygon.addPoint(outRight, r.top + r.vDepth);
+        if (r.neighborSouthEast) {
+          // Case 7. Corner rectangle is blocked, shorten this. Point sequence per diagram
+          // is 2, 3, 4, 1 in order to use the first two common points.
+          polygon.addPoint(outRight, bottom);
+          polygon.addPoint(right, bottom);
+        } else {
+          // Case 3.
+          polygon.addPoint(outRight, outBottom);
+          polygon.addPoint(right, outBottom);
+        }
+      }
+
+    } else if (r.neighborEast) {
+      // Blocked only horizontally, draw vertical part only.
+      polygon.addPoint(r.left, bottom);
+      if (r.neighborSouthEast) {
+        // Case 6.
+        polygon.addPoint(right, bottom);
+        polygon.addPoint(right, outBottom);
+      } else {
+        // Case 2.
+        polygon.addPoint(outRight, bottom);
+        polygon.addPoint(outRight, outBottom);
+      }
+      polygon.addPoint(r.left + r.hDepth, outBottom);
+
+    } else {
+      // Draw both sides.
+
+
+      polygon.addPoint(r.left, bottom);
+      polygon.addPoint(right, bottom);
+      polygon.addPoint(right, r.top);
+      polygon.addPoint(outRight, r.top + r.vDepth);
+
+      if (r.neighborSouthEast) {
+        // Case 8. Cut out the obscured rectangle.
+        polygon.addPoint(outRight, bottom);
+        polygon.addPoint(right, bottom);
+        polygon.addPoint(right, outBottom);
+      } else {
+        // Case 1. The most normal of the cases, sigh.
+        polygon.addPoint(outRight, outBottom);
+      }
+      polygon.addPoint(r.left + r.hDepth, outBottom);
+    }
   }
 
+  /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
   public void populateAboveRight(Rendered r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
@@ -334,6 +396,7 @@ public enum RenderType {
     polygon.addPoint(outRight, bottom + r.vDepth);
   }
 
+  /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
   public void populateBelowLeft(Rendered r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
