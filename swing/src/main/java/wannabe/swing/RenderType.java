@@ -73,6 +73,7 @@ public enum RenderType {
     }
   },
   solidWireSquare {
+    // TODO this seems broken somehow... supposed to be just the borders lit up
     final Rendered dark = new Rendered();
     {
       // Set up "background" color.
@@ -192,27 +193,22 @@ public enum RenderType {
    *        * (3)
    * </pre>
    *
-   * Cases 2 and 3. With a single neighbor blocking, the polygon would instead share only one
-   * point (1) with the face. 2, 3, and 4 are determined by hdepth and vdepth.
+   * Cases 2 and 3. With a single neighbor blocking, the polygon would instead share two
+   * points (1, 2) with the face. 3, and 4 are determined by hdepth and vdepth.
+   * Note that the areas marked with x are omitted because the blocking neighbor will
+   * draw there.
    * <pre>
-   * (3) *--------* (4)    (3) *--* (4)
-   *     |         \           |  |
-   * (2) *----------* (1)      |  |
-   *                       (2) *  |
+   * (3) *--------* (4)    (4) *\ x
+   *     x\        \           | \
+   *   (2) *--------* (1)      |  * (1)
+   *                       (3) *  |
    *                            \ |
    *                             \|
-   *                              * (1)
+   *                              * (2)
    * </pre>
    *
-   * Case 4. With two adjacent blocking neighbors, the polygon remaining would be a small rectangle
-   * sharing only * one corner (1) with the face.
-   * <pre>
-   * (3) *--* (4)
-   *     |  |
-   * (2) *--* (1)
-   * </pre>
-   *
-   * Case 5. With three blocking neighbors (including the diagonal), draw nothing.
+   * Cases 4 and 5. With two adjacent blocking neighbors, each neighbor will draw its sides, leaving
+   * no space for this one. If there's a diagonal here, its face will cover the area anyway.
    * <p>
    * Cases 6 and 7. With an adjacent and a diagonal neighbor blocking, the polygon would share
    * 1 and 2 with the face. 3 and 4 are determined by hdepth and vdepth.  The small rectangle
@@ -249,43 +245,31 @@ public enum RenderType {
     int outLeft = r.left + r.hDepth;
     if (r.neighborNorth) {
       if (r.neighborWest) {
-        if (!r.neighborNorthWest) {
-          // Case 4. Just a small square here.
-          polygon.addPoint(r.left, r.top);
-          polygon.addPoint(outLeft, r.top);
-          polygon.addPoint(outLeft, outTop);
-          polygon.addPoint(r.left, outTop);
-        } else {
-          // Case 5, fully blocked.  Do nothing.
-          // TODO ^ This isn't great if depths > pixelSize though.
-        }
+        // Cases 4 & 5, blocked. Do nothing.
 
       } else {
         // Blocked only vertically, draw horizontal part only.
+        polygon.addPoint(r.left, r.top);
         polygon.addPoint(r.left, bottom);
         polygon.addPoint(outLeft, bottom + r.vDepth);
         if (r.neighborNorthWest) {
-          // Case 7. Corner rectangle is blocked, shorten this. Point sequence per diagram
-          // is 2, 3, 4, 1 in order to use the first two common points.
+          // Case 7. Corner rectangle is blocked, shorten this.
           polygon.addPoint(outLeft, r.top);
-          polygon.addPoint(r.left, r.top);
         } else {
           // Case 3.
           polygon.addPoint(outLeft, outTop);
-          polygon.addPoint(r.left, outTop);
         }
       }
 
     } else if (r.neighborWest) {
       // Blocked only horizontally, draw vertical part only.
       polygon.addPoint(right, r.top);
+      polygon.addPoint(r.left, r.top);
       if (r.neighborNorthWest) {
         // Case 6.
-        polygon.addPoint(r.left, r.top);
         polygon.addPoint(r.left, outTop);
       } else {
         // Case 2.
-        polygon.addPoint(outLeft, r.top);
         polygon.addPoint(outLeft, outTop);
       }
       polygon.addPoint(right + r.hDepth, outTop);
@@ -319,51 +303,37 @@ public enum RenderType {
 
     if (r.neighborSouth) {
       if (r.neighborEast) {
-        if (!r.neighborSouthEast) {
-          // Case 4. Just a small square here.
-          polygon.addPoint(right, bottom);
-          polygon.addPoint(outRight, bottom);
-          polygon.addPoint(outRight, outBottom);
-          polygon.addPoint(right, outBottom);
-        } else {
-          // Case 5, fully blocked.  Do nothing.
-          // TODO ^ This isn't great if depths > pixelSize though.
-        }
+        // Case 4 & 5, blocked. Do nothing.
 
       } else {
         // Blocked only vertically, draw horizontal part only.
+        polygon.addPoint(right, bottom);
         polygon.addPoint(right, r.top);
         polygon.addPoint(outRight, r.top + r.vDepth);
         if (r.neighborSouthEast) {
-          // Case 7. Corner rectangle is blocked, shorten this. Point sequence per diagram
-          // is 2, 3, 4, 1 in order to use the first two common points.
+          // Case 7. Corner rectangle is blocked, shorten this.
           polygon.addPoint(outRight, bottom);
-          polygon.addPoint(right, bottom);
         } else {
           // Case 3.
           polygon.addPoint(outRight, outBottom);
-          polygon.addPoint(right, outBottom);
         }
       }
 
     } else if (r.neighborEast) {
       // Blocked only horizontally, draw vertical part only.
       polygon.addPoint(r.left, bottom);
+      polygon.addPoint(right, bottom);
       if (r.neighborSouthEast) {
         // Case 6.
-        polygon.addPoint(right, bottom);
         polygon.addPoint(right, outBottom);
       } else {
         // Case 2.
-        polygon.addPoint(outRight, bottom);
         polygon.addPoint(outRight, outBottom);
       }
       polygon.addPoint(r.left + r.hDepth, outBottom);
 
     } else {
       // Draw both sides.
-
-
       polygon.addPoint(r.left, bottom);
       polygon.addPoint(right, bottom);
       polygon.addPoint(right, r.top);
@@ -386,18 +356,72 @@ public enum RenderType {
   public void populateAboveRight(Rendered r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
+    int outRight = right + r.hDepth;
+    int outTop = r.top + r.vDepth;
+
+    // TODO the good:
     polygon.addPoint(right, bottom);
     polygon.addPoint(right, r.top);
     polygon.addPoint(r.left, r.top);
-    int outRight = right + r.hDepth;
-    int outTop = r.top + r.vDepth;
     polygon.addPoint(r.left + r.hDepth, outTop);
     polygon.addPoint(outRight, outTop);
     polygon.addPoint(outRight, bottom + r.vDepth);
+
+
+    if (r.neighborNorth) {
+      if (r.neighborEast) {
+        // Case 4 & 5, blocked. Do nothing.
+
+      } else {
+        // Blocked only vertically, draw horizontal part only.
+        polygon.addPoint(right, bottom);
+        polygon.addPoint(right, r.top);
+        if (r.neighborNorthEast) {
+          // Case 7. Corner rectangle is blocked, shorten this.
+          polygon.addPoint(outRight, r.top);
+        } else {
+          // Case 3.
+          polygon.addPoint(outRight, outTop);
+        }
+        polygon.addPoint(outRight, bottom + r.vDepth);
+      }
+
+    } else if (r.neighborEast) {
+      // Blocked only horizontally, draw vertical part only.
+      polygon.addPoint(r.left, bottom);
+      polygon.addPoint(right, bottom);
+      if (r.neighborNorthEast) {
+        // Case 6.
+        polygon.addPoint(right, outBottom);
+      } else {
+        // Case 2.
+        polygon.addPoint(outRight, outBottom);
+      }
+      polygon.addPoint(r.left + r.hDepth, outBottom);
+
+    } else {
+      // Draw both sides.
+      polygon.addPoint(r.left, bottom);
+      polygon.addPoint(right, bottom);
+      polygon.addPoint(right, r.top);
+      polygon.addPoint(outRight, r.top + r.vDepth);
+
+      if (r.neighborNorthEast) {
+        // Case 8. Cut out the obscured rectangle.
+        polygon.addPoint(outRight, bottom);
+        polygon.addPoint(right, bottom);
+        polygon.addPoint(right, outBottom);
+      } else {
+        // Case 1. The most normal of the cases, sigh.
+        polygon.addPoint(outRight, outBottom);
+      }
+      polygon.addPoint(r.left + r.hDepth, outBottom);
+    }
   }
 
   /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
   public void populateBelowLeft(Rendered r) {
+    // TODO fix this up like the others
     int bottom = r.top + r.size;
     int right = r.left + r.size;
     polygon.addPoint(r.left, r.top);

@@ -676,11 +676,11 @@ public class SampleGrids {
     }
 
     // Draw a couple slightly-overlapping squares
+    Random r = new Random();
     start.x = 20;
     start.z = 4;
     end.x = 29;
     end.z = 4;
-    Random r = new Random();
 
     for (int y = 5; y < 15; y++) {
       start.y = y;
@@ -697,6 +697,18 @@ public class SampleGrids {
     for (int x = 28; x < 38; x++) {
       start.x = x;
       end.x = x;
+      int color = 0x999999 + r.nextInt(0x666666);
+      line(grid, start, end, color);
+    }
+
+    // Draw this one barely adjacent to the last, and in reverse order
+    start.x = 29;
+    start.z = 5;
+    end.x = 20;
+    end.z = 5;
+    for (int y = 32; y > 22; y--) {
+      start.y = y;
+      end.y = y;
       int color = 0x999999 + r.nextInt(0x666666);
       line(grid, start, end, color);
     }
