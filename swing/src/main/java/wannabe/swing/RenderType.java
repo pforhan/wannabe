@@ -73,26 +73,25 @@ public enum RenderType {
     }
   },
   solidWireSquare {
-    // TODO this seems broken somehow... supposed to be just the borders lit up
-    final Rendered dark = new Rendered();
-    {
-      // Set up "background" color.
-      // TODO this should probably be configurable.
-      dark.color = Color.BLACK;
-      dark.darkerColor = Color.BLACK;
-    }
+    /** Color to use inside the solid. TODO this should probably be configurable. */
+    final Color dark = Color.BLACK;
 
     @Override void draw(Graphics g, Rendered r) {
-      // First erase what we're going to write on:
-      // TODO we probably don't need this method, we could just pass colors to the populate methods.
-      dark.duplicateWithoutColor(r);
       // Populate manually so that we only calculate it once.
       populateCubeSidesPolygon(r);
-      fillSides(g, polygon, r.darkerColor, r.color);
-      if (!r.neighborAbove) g.fillRect(r.left, r.top, r.size, r.size);
-      // Now draw the cube:
+
+      // First erase what we're going to write on:
+      fillSides(g, polygon, dark, dark);
+      if (!r.neighborAbove) {
+        g.setColor(dark);
+        g.fillRect(r.left, r.top, r.size, r.size);
+      }
+      // Now draw the cube by wires:
       wireSides(g, polygon, r.darkerColor, r.color);
-      if (!r.neighborAbove) g.drawRect(r.left, r.top, r.size, r.size);
+      if (!r.neighborAbove) {
+        g.setColor(r.color);
+        g.drawRect(r.left, r.top, r.size, r.size);
+      }
     }
   },
   roundedSquare {
@@ -181,7 +180,25 @@ public enum RenderType {
 
   /**
    * The presence or absence of three neighbors dictate which of eight cases are used to draw:
+   * <ol>
+   * <li>No neighbors
+   * <li>Neighbor to the left
+   * <li>Neighbor above
+   * <li>Neighbor left and above
+   * <li>Neighbor left, above, and above-left
+   * <li>Neighbor left and above-left
+   * <li>Neighbor above and above-left
+   * <li>Neighbor above-left
+   * </ol>
+   * <pre>
+   *  1 22 3  4 55 6  77 8
+   *       3 44 55 66  7  8
+   * </pre>
+   *
+   * TODO might be nice to enumerate all possible points too, and use the same point #s in
+   * each case.
    * <p>
+   *
    * Case 1. No blocking neighbor case; 1, 2, and 3 all share points with the face:
    * <pre>
    * (5) *--------* (6)
@@ -209,14 +226,15 @@ public enum RenderType {
    *
    * Cases 4 and 5. With two adjacent blocking neighbors, each neighbor will draw its sides, leaving
    * no space for this one. If there's a diagonal here, its face will cover the area anyway.
+   *
    * <p>
    * Cases 6 and 7. With an adjacent and a diagonal neighbor blocking, the polygon would share
    * 1 and 2 with the face. 3 and 4 are determined by hdepth and vdepth.  The small rectangle
-   * shown (the only thing drawn in case 4) is elided.
+   * shown with xx is elided.
    * <pre>
    *    (3)
    *  *--*-----* (4)        *--*
-   *  |  |      \           |  |
+   *  |xx|      \           |xx|
    *  *--*-------* (1)  (4) *--* (1)
    *    (2)             (3) *  |
    *                         \ |
@@ -226,6 +244,7 @@ public enum RenderType {
    *
    * Case 8. Only diagonal blocking neighbor case; 1, 2, 3, and 6 (same as 2) all share points
    * with the face:
+   * TODO can this simplify to a 6-point polygon (1, 5, 4, 3, 7, 8, 1)?
    * <pre>
    *    (7) *-----* (8)
    *        |      \
@@ -236,7 +255,7 @@ public enum RenderType {
    *        * (3)
    * </pre>
    *
-   * Note that there are only ever 8 different points in all these cases.
+   * Note that there are at most 8 points in any cases.
    */
   public void populateAboveLeft(Rendered r) {
     int bottom = r.top + r.size;
@@ -353,20 +372,12 @@ public enum RenderType {
   }
 
   /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
+  // TODO on deep heightmap, I see minor flaws when exclude hidden toggled
   public void populateAboveRight(Rendered r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
     int outRight = right + r.hDepth;
     int outTop = r.top + r.vDepth;
-
-    // TODO the good:
-    polygon.addPoint(right, bottom);
-    polygon.addPoint(right, r.top);
-    polygon.addPoint(r.left, r.top);
-    polygon.addPoint(r.left + r.hDepth, outTop);
-    polygon.addPoint(outRight, outTop);
-    polygon.addPoint(outRight, bottom + r.vDepth);
-
 
     if (r.neighborNorth) {
       if (r.neighborEast) {
@@ -388,50 +399,95 @@ public enum RenderType {
 
     } else if (r.neighborEast) {
       // Blocked only horizontally, draw vertical part only.
-      polygon.addPoint(r.left, bottom);
-      polygon.addPoint(right, bottom);
+      polygon.addPoint(r.left, r.top);
+      polygon.addPoint(right, r.top);
       if (r.neighborNorthEast) {
         // Case 6.
-        polygon.addPoint(right, outBottom);
+        polygon.addPoint(right, outTop);
       } else {
         // Case 2.
-        polygon.addPoint(outRight, outBottom);
+        polygon.addPoint(outRight, outTop);
       }
-      polygon.addPoint(r.left + r.hDepth, outBottom);
+      polygon.addPoint(r.left + r.hDepth, outTop);
 
     } else {
       // Draw both sides.
-      polygon.addPoint(r.left, bottom);
       polygon.addPoint(right, bottom);
       polygon.addPoint(right, r.top);
-      polygon.addPoint(outRight, r.top + r.vDepth);
+      polygon.addPoint(r.left, r.top);
+      polygon.addPoint(r.left + r.hDepth, outTop);
 
       if (r.neighborNorthEast) {
         // Case 8. Cut out the obscured rectangle.
-        polygon.addPoint(outRight, bottom);
-        polygon.addPoint(right, bottom);
-        polygon.addPoint(right, outBottom);
+        polygon.addPoint(right, outTop);
+        polygon.addPoint(right, r.top);
+        polygon.addPoint(outRight, r.top);
       } else {
         // Case 1. The most normal of the cases, sigh.
-        polygon.addPoint(outRight, outBottom);
+        polygon.addPoint(outRight, outTop);
       }
-      polygon.addPoint(r.left + r.hDepth, outBottom);
+      polygon.addPoint(outRight, bottom + r.vDepth);
     }
   }
 
   /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
+  // TODO on deep heightmap, I see minor flaws when exclude hidden toggled
   public void populateBelowLeft(Rendered r) {
     // TODO fix this up like the others
     int bottom = r.top + r.size;
     int right = r.left + r.size;
-    polygon.addPoint(r.left, r.top);
-    polygon.addPoint(r.left, bottom);
-    polygon.addPoint(right, bottom);
     int outBottom = bottom + r.vDepth;
     int outLeft = r.left+ r.hDepth;
-    polygon.addPoint(right + r.hDepth, outBottom);
-    polygon.addPoint(outLeft, outBottom);
-    polygon.addPoint(outLeft, r.top + r.vDepth);
+
+    if (r.neighborSouth) {
+      if (r.neighborWest) {
+        // Case 4 & 5, blocked. Do nothing.
+
+      } else {
+        // Blocked only vertically, draw horizontal part only.
+        polygon.addPoint(r.left, bottom);
+        polygon.addPoint(r.left, r.top);
+        polygon.addPoint(outLeft, r.top + r.vDepth);
+        if (r.neighborSouthWest) {
+          // Case 7. Corner rectangle is blocked, shorten this.
+          polygon.addPoint(outLeft, bottom);
+        } else {
+          // Case 3.
+          polygon.addPoint(outLeft, outBottom);
+        }
+      }
+
+    } else if (r.neighborWest) {
+      // Blocked only horizontally, draw vertical part only.
+      polygon.addPoint(right, bottom);
+      polygon.addPoint(r.left, bottom);
+      if (r.neighborSouthWest) {
+        // Case 6.
+        polygon.addPoint(r.left, outBottom);
+      } else {
+        // Case 2.
+        polygon.addPoint(outLeft, outBottom);
+      }
+      polygon.addPoint(right + r.hDepth, outBottom);
+
+    } else {
+      // Draw both sides.
+      polygon.addPoint(r.left, r.top);
+      polygon.addPoint(r.left, bottom);
+      polygon.addPoint(right, bottom);
+      polygon.addPoint(right + r.hDepth, outBottom);
+
+      if (r.neighborSouthWest) {
+        // Case 8. Cut out the obscured rectangle.
+        polygon.addPoint(r.left, outBottom);
+        polygon.addPoint(r.left, bottom);
+        polygon.addPoint(outLeft, bottom);
+      } else {
+        // Case 1. The most normal of the cases, sigh.
+        polygon.addPoint(outLeft, outBottom);
+      }
+      polygon.addPoint(outLeft, r.top + r.vDepth);
+    }
   }
 
   abstract void draw(Graphics g, Rendered r);

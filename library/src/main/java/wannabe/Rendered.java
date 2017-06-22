@@ -43,31 +43,19 @@ public class Rendered {
   /** A voxel is present at x, y, z-1 */
   public boolean neighborBelow;
 
-  /** Copies all values except color fields into this object. */
-  public void duplicateWithoutColor(Rendered other) {
-    left = other.left;
-    top = other.top;
-    size = other.size;
-    hDepth = other.hDepth;
-    vDepth = other.vDepth;
-    neighborNorth = other.neighborNorth;
-    neighborNorthEast = other.neighborNorthEast;
-    neighborNorthWest = other.neighborNorthWest;
-    neighborSouth = other.neighborSouth;
-    neighborSouthEast = other.neighborSouthEast;
-    neighborSouthWest = other.neighborSouthWest;
-    neighborWest = other.neighborWest;
-    neighborEast = other.neighborEast;
-    neighborAbove = other.neighborAbove;
-    neighborBelow = other.neighborBelow;
-  }
-
   /** Returns {@code true} if this voxel has neighbor on north, south, east, west, and above. */
   public boolean isSurrounded() {
     return neighborNorth && neighborSouth && neighborWest && neighborEast && neighborAbove;
   }
 
   public void neighborsFrom(Neighbors neighbors) {
+    // Since they are calculated only when a nondiagonal neighbor is present, we must
+    // clear out all the diagonals:
+    neighborNorthEast = false;
+    neighborNorthWest = false;
+    neighborSouthEast = false;
+    neighborSouthWest = false;
+
     // Boy, this sort of seems awful.
     neighborNorth = neighbors.north != null;
     if (neighborNorth) {
