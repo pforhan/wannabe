@@ -37,7 +37,6 @@ public class Rendered {
   public boolean neighborEast;
   /** A voxel is present at x, y, z+1 */
   public boolean neighborAbove;
-  // TODO future micro-optimization: get all 26 neighbors
 
   // TODO do I care about below? Seems like it'd be nice to know if only as a reflexive of above.
   /** A voxel is present at x, y, z-1 */
@@ -51,6 +50,7 @@ public class Rendered {
   public void neighborsFrom(Neighbors neighbors) {
     // Since they are calculated only when a nondiagonal neighbor is present, we must
     // clear out all the diagonals:
+    // TODO Turns out, we need this data! pure diagonal neighbors should honor each other.
     neighborNorthEast = false;
     neighborNorthWest = false;
     neighborSouthEast = false;

@@ -54,19 +54,18 @@ public class SimpleGrid implements MutableGrid {
       throw new IllegalArgumentException("Duplicate voxel at " + v.position);
     }
     Neighbors neighbors = new Neighbors(v);
+    populateNeighbors(neighbors);
     positionToNeighbors.put(v.position, neighbors);
     voxels.add(v);
-    populateNeighbors(neighbors);
   }
 
   @Override public void remove(Voxel v) {
-    positionToNeighbors.remove(v.position);
-    // TODO need to unset all neighbors both on v and any neighbors
+    positionToNeighbors.remove(v.position).clearAndRemoveFromNeighborhood();
     voxels.remove(v);
   }
 
   @Override public void clear() {
-    // TODO need to unset all neighbors?
+    // TODO consider iterating all neighbors to clear, though they should be ready for GC together.
     positionToNeighbors.clear();
     voxels.clear();
   }
@@ -153,7 +152,6 @@ public class SimpleGrid implements MutableGrid {
       }
     }
   }
-
 
   private void populateNeighbors(Neighbors neighbors) {
     Translation workhorse = new Translation(neighbors.voxel.position);

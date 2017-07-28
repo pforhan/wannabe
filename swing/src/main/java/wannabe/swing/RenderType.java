@@ -120,9 +120,13 @@ public enum RenderType {
     g.fillPolygon(polygon);
     g.setColor(color);
     // Draw a line representing the edge of the side
-    // TODO restore.  Now the number of points can be 0-8, so we need to be smarter.
+    if (polygon.npoints == 6) {
+      // We only care about drawing this edge in case 1, which is the only case with 6 points.
+      // Connect point 2 to point 5.
+      g.drawLine(polygon.xpoints[1], polygon.ypoints[1], //
+          polygon.xpoints[4], polygon.ypoints[4]);
+    }
     // Kinda cool: if I connect other points it adds texture to the sides.
-//    g.drawLine(polygon.xpoints[1], polygon.ypoints[1], polygon.xpoints[4] - 1, polygon.ypoints[4] - 1);
   }
 
   void wireSides(Graphics g, Rendered r) {
@@ -134,8 +138,13 @@ public enum RenderType {
     if (polygon.npoints == 0) return;
     g.setColor(darkerColor);
     g.drawPolygon(polygon);
-    // TODO restore.  Now the number of points can be 0-8, so we need to be smarter.
-//    g.drawLine(polygon.xpoints[1], polygon.ypoints[1], polygon.xpoints[4] - 1, polygon.ypoints[4] - 1);
+    // Draw a line representing the edge of the side
+    if (polygon.npoints == 6) {
+      // We only care about drawing this edge in case 1, which is the only case with 6 points.
+      // Connect point 2 to point 5.
+      g.drawLine(polygon.xpoints[1], polygon.ypoints[1], //
+          polygon.xpoints[4], polygon.ypoints[4]);
+    }
     g.setColor(color);
   }
 
@@ -372,7 +381,6 @@ public enum RenderType {
   }
 
   /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
-  // TODO on deep heightmap, I see minor flaws when exclude hidden toggled
   public void populateAboveRight(Rendered r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
@@ -431,7 +439,6 @@ public enum RenderType {
   }
 
   /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
-  // TODO on deep heightmap, I see minor flaws when exclude hidden toggled
   public void populateBelowLeft(Rendered r) {
     // TODO fix this up like the others
     int bottom = r.top + r.size;

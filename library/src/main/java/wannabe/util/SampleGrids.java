@@ -18,33 +18,13 @@ import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
 import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
+import wannabe.util.Voxels.Path;
+import wannabe.util.Voxels.Plotter;
+
+import static wannabe.util.Voxels.drawPath;
+import static wannabe.util.Voxels.line;
 
 public class SampleGrids {
-
-  /**
-   * Simple mechanism to iteratively add a set of voxels. See {@link #drawPath}.
-   * TODO Can I make an Iterable? Would that gain anything?
-   */
-  interface Path {
-    /** Set up the path and return its starting Position. */
-    Position start();
-
-    /**
-     * Adds voxel(s) at the specified location, and returns the next location, or {@code null} if
-     * complete.
-     */
-    Translation drawAndMove(MutableGrid grid, Translation pos);
-  }
-
-  /**
-   * TODO does it make sense to restrict to x, y inputs? And when I make it generic this way,
-   * I bet there's better function interfaces out there...
-   * It may be worth letting the plotter plot voxels directly, could make more accurate color
-   * decisions... or could plot multiple points.  This reduces capability to a single scalar.
-   */
-  interface Plotter {
-    int plot(int x, int y);
-  }
 
   public static final class Stairs implements Path {
     private final int xIncrement;
@@ -93,8 +73,8 @@ public class SampleGrids {
     }
 
     @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
-      Translation lineEnd = new Translation(pos.x, pos.y, 0);
-      line(grid, pos, lineEnd, getColor(pos));
+      Position lineEnd = new Position(pos.x, pos.y, 0);
+      line(grid, pos.asPosition(), lineEnd, getColor(pos));
       pos.x += xIncrement;
       pos.y += yIncrement;
       pos.z++;
@@ -133,8 +113,8 @@ public class SampleGrids {
     }
 
     @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
-      Translation lineEnd = new Translation(endXY.x, endXY.y, pos.z);
-      line(grid, pos, lineEnd, getColor(pos));
+      Position lineEnd = new Position(endXY.x, endXY.y, pos.z);
+      line(grid, pos.asPosition(), lineEnd, getColor(pos));
       pos.x += xIncrement;
       pos.y += yIncrement;
       pos.z++;
@@ -212,19 +192,33 @@ public class SampleGrids {
     drawPath(grid, new ColumnColorStairs(-1, 0, start, stairColors));
     drawPath(grid, new ColumnColorStairs(0, -1, start, stairColors));
 
-    return grid;
-  }
+    // Fifth: flat cross-hatch, with order-of-adds different on each line
+    // TL to BR
+    start = new Position(30, 0, 0);
+    Position end = new Position(40, 10, 0);
+    line(grid, start, end, 0xFFEEDD);
 
-  private static void drawPath(MutableGrid grid, Path path) {
-    Translation pos = new Translation(path.start());
-    while (pos != null) {
-      pos = path.drawAndMove(grid, pos);
-    }
+    // TR to BL
+    start = new Position(40, 0, 0);
+    end = new Position(30, 10, 0);
+    line(grid, start, end, 0xFFEEDD);
+
+    // BR to TL
+    start = new Position(40, 8, 0);
+    end = new Position(32, 0, 0);
+    line(grid, start, end, 0xFFEEDD);
+
+    // BL to TR
+    start = new Position(30, 8, 0);
+    end = new Position(38, 0, 0);
+    line(grid, start, end, 0xFFEEDD);
+
+    return grid;
   }
 
   /** Plot of an exaggerated sine. Note that for pleasing results, the origin is shifted. */
   public static Grid plotSin(final int mulitplyer) {
-    // TODO at low multiplyers the colors aren't distinct enough.
+    // TODO at low multipliers the colors aren't distinct enough.
     MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40");
     Plotter plotter = new Plotter() {
       @Override public int plot(int x, int y) {
@@ -232,7 +226,7 @@ public class SampleGrids {
         return (int) (mulitplyer * (Math.sin(distanceFromOrigin)));
       }
     };
-    plot(grid, plotter);
+    Voxels.plot(grid, plotter);
     return grid;
   }
 
@@ -245,127 +239,38 @@ public class SampleGrids {
         return (int) (d * distanceFromOrigin * distanceFromOrigin);
       }
     };
-    plot(grid, plotter);
+    Voxels.plot(grid, plotter);
     return grid;
-  }
-
-  private static void plot(MutableGrid grid, Plotter plotter) {
-    for (int x = 0; x < 40; x++) {
-      for (int y = 0; y < 40; y++) {
-        int height = plotter.plot(x - 20, y - 20);
-        grid.add(new Voxel(x,  y, height, 0x888888 + height * 10));
-      }
-    }
   }
 
   public static Grid cube(int size, int color) {
     MutableGrid grid = new SimpleGrid("cube of size " + size, true);
 
-    // Base is four lines, top, bottom, left, right:
-    Translation tl = new Translation(0, 0, 0);
-    Translation tr = new Translation(size, 0, 0);
-    Translation bl = new Translation(0, size, 0);
-    Translation br = new Translation(size, size, 0);
-    line(grid, tl, tr, color);
-    line(grid, bl, br, color);
-    line(grid, tl, bl, color);
-    line(grid, tr, br, color);
-
-    // Risers: TODO just draw with line() method
-    for (int z = 1; z < size; z++) {
-      tl.z = z;
-      tr.z = z;
-      bl.z = z;
-      br.z = z;
-      grid.add(new Voxel(tl.asPosition(), color));
-      grid.add(new Voxel(tr.asPosition(), color));
-      grid.add(new Voxel(bl.asPosition(), color));
-      grid.add(new Voxel(br.asPosition(), color));
-    }
-
-    // TODO probably need to bump z once more...
+    Position bnw = new Position(0, 0, 0);
+    Position bne = new Position(size, 0, 0);
+    Position bsw = new Position(0, size, 0);
+    Position bse = new Position(size, size, 0);
+    Position tnw = new Position(0, 0, size);
+    Position tne = new Position(size, 0, size);
+    Position tsw = new Position(0, size, size);
+    Position tse = new Position(size, size, size);
+    // Base:
+    line(grid, bnw, bne, color);
+    line(grid, bsw, bse, color);
+    line(grid, bnw, bsw, color);
+    line(grid, bne, bse, color);
     // Top:
-    line(grid, tl, tr, color);
-    line(grid, bl, br, color);
-    // TODO this duplicates some voxels!
-    line(grid, tl, bl, color);
-    line(grid, tr, br, color);
+    line(grid, tnw, tne, color);
+    line(grid, tsw, tse, color);
+    line(grid, tnw, tsw, color);
+    line(grid, tne, tse, color);
+    // Risers (these actually introduce duplicate voxels, should clean that up sometime):
+    line(grid, bnw, tnw, color);
+    line(grid, bne, tne, color);
+    line(grid, bse, tse, color);
+    line(grid, bsw, tsw, color);
 
     return grid;
-  }
-
-  private static void line(MutableGrid grid, Translation p1, Translation p2, int color) {
-    // Adapted from: https://www.ict.griffith.edu.au/anthony/info/graphics/bresenham.procs
-
-    int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
-    Translation pixel = new Translation(p1);
-
-    dx = p2.x - p1.x;
-    dy = p2.y - p1.y;
-    dz = p2.z - p1.z;
-    x_inc = (dx < 0) ? -1 : 1;
-    l = Math.abs(dx);
-    y_inc = (dy < 0) ? -1 : 1;
-    m = Math.abs(dy);
-    z_inc = (dz < 0) ? -1 : 1;
-    n = Math.abs(dz);
-    dx2 = l << 1;
-    dy2 = m << 1;
-    dz2 = n << 1;
-
-    if ((l >= m) && (l >= n)) {
-      err_1 = dy2 - l;
-      err_2 = dz2 - l;
-      for (i = 0; i < l; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
-        if (err_1 > 0) {
-          pixel.y += y_inc;
-          err_1 -= dx2;
-        }
-        if (err_2 > 0) {
-          pixel.z += z_inc;
-          err_2 -= dx2;
-        }
-        err_1 += dy2;
-        err_2 += dz2;
-        pixel.x += x_inc;
-      }
-    } else if ((m >= l) && (m >= n)) {
-      err_1 = dx2 - m;
-      err_2 = dz2 - m;
-      for (i = 0; i < m; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
-        if (err_1 > 0) {
-          pixel.x += x_inc;
-          err_1 -= dy2;
-        }
-        if (err_2 > 0) {
-          pixel.z += z_inc;
-          err_2 -= dy2;
-        }
-        err_1 += dx2;
-        err_2 += dz2;
-        pixel.y += y_inc;
-      }
-    } else {
-      err_1 = dy2 - n;
-      err_2 = dx2 - n;
-      for (i = 0; i < n; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
-        if (err_1 > 0) {
-          pixel.y += y_inc;
-          err_1 -= dz2;
-        }
-        if (err_2 > 0) {
-          pixel.x += x_inc;
-          err_2 -= dz2;
-        }
-        err_1 += dy2;
-        err_2 += dx2;
-        pixel.z += z_inc;
-      }
-    }
-    grid.add(new Voxel(pixel.asPosition(), color));
   }
 
   /** 30x30 grid with all 900 voxels specified. */
@@ -421,7 +326,6 @@ public class SampleGrids {
             + (cloudColorComponent << 8)
             + cloudColorComponent; // 0x888888 - 0xFFFFFF
         grid.add(new Voxel(col, row, 50 + cloudHeight, cloudColor));
-        // TODO maybe randomize count and spacing of stacks, too.
         grid.add(new Voxel(col, row, 51 + cloudHeight, cloudColor));
         grid.add(new Voxel(col, row, 52 + cloudHeight, cloudColor));
       }
@@ -671,7 +575,7 @@ public class SampleGrids {
       for (int x = 5; x < 15; x++) {
         start.x = x;
         end.x = x;
-        line(grid, start, end, 0x2a2a2a * z / 2);
+        line(grid, start.asPosition(), end.asPosition(), 0x2a2a2a * z / 2);
       }
     }
 
@@ -687,7 +591,7 @@ public class SampleGrids {
       end.y = y;
       int color = 0x999999 + r.nextInt(0x666666);
       // was 0x2a2a2a * start.z / 2
-      line(grid, start, end, color);
+      line(grid, start.asPosition(), end.asPosition(), color);
     }
 
     start.y = 13;
@@ -698,7 +602,7 @@ public class SampleGrids {
       start.x = x;
       end.x = x;
       int color = 0x999999 + r.nextInt(0x666666);
-      line(grid, start, end, color);
+      line(grid, start.asPosition(), end.asPosition(), color);
     }
 
     // Draw this one barely adjacent to the last, and in reverse order
@@ -710,7 +614,7 @@ public class SampleGrids {
       start.y = y;
       end.y = y;
       int color = 0x999999 + r.nextInt(0x666666);
-      line(grid, start, end, color);
+      line(grid, start.asPosition(), end.asPosition(), color);
     }
 
     return grid;

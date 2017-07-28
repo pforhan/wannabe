@@ -17,6 +17,37 @@ public class Neighbors {
     voxel = v;
   }
 
+  /**
+   * Insures this Neighbors is eligible for GC by nulling out references to itself it knows of.
+   * Then it nulls out all its references to other Neighbors.
+   */
+  public void clearAndRemoveFromNeighborhood() {
+    if (north != null) {
+      north.south = null;
+      north = null;
+    }
+    if (south != null) {
+      south.north = null;
+      south = null;
+    }
+    if (east != null) {
+      east.west = null;
+      east = null;
+    }
+    if (west != null) {
+      west.east = null;
+      west = null;
+    }
+    if (above != null) {
+      above.below = null;
+      above = null;
+    }
+    if (below != null) {
+      below.above = null;
+      below = null;
+    }
+  }
+
   /** Returns {@code true} if the voxel could be visible. Ignores "below" in this calculation. */
   public boolean isNotSurrounded() {
     return above == null || north == null || south == null || east == null || west == null;
