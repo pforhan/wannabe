@@ -1,37 +1,16 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe;
 
-public class Position implements Cloneable {
-  public int x;
-  public int y;
-  public int z;
+public class Position {
+  public static final Position ZERO = new Position(0, 0, 0);
+
+  public final int x;
+  public final int y;
+  public final int z;
 
   public Position(int x, int y, int z) {
     this.x = x;
     this.y = y;
     this.z = z;
-  }
-
-  public Position(Position position) {
-    set(position);
-  }
-
-  public void add(Position offset) {
-    x += offset.x;
-    y += offset.y;
-    z += offset.z;
-  }
-
-  public void set(Position position) {
-    x = position.x;
-    y = position.y;
-    z = position.z;
-  }
-
-  public void zero() {
-    x = 0;
-    y = 0;
-    z = 0;
   }
 
   public boolean isZero() {
@@ -49,22 +28,18 @@ public class Position implements Cloneable {
 
   @Override public boolean equals(Object obj) {
     if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    Position other = (Position) obj;
-    return x == other.x && y == other.y && z == other.z;
+    if (obj instanceof Position) {
+      Position other = (Position) obj;
+      return x == other.x && y == other.y && z == other.z;
+    } else if (obj instanceof Translation) {
+      Translation other = (Translation) obj;
+      return x == other.x && y == other.y && z == other.z;
+    }
+    return false;
   }
 
   @Override public String toString() {
-    return "[x=" + x + ", y=" + y + ", z=" + z + "]";
-  }
-
-  @Override public Position clone() {
-    try {
-      return (Position) super.clone();
-    } catch (CloneNotSupportedException ex) {
-      throw new IllegalStateException("Could not clone cloneable object");
-    }
+    return "pos[x=" + x + ", y=" + y + ", z=" + z + "]";
   }
 
 }

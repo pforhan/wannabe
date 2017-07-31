@@ -1,14 +1,12 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.swing;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
-import wannabe.Position;
+import wannabe.Translation;
 import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
 import wannabe.projection.Projection;
@@ -18,17 +16,18 @@ import wannabe.util.SampleGrids;
 
 /** All the glue to make a sample swing Wannabe application. */
 public class SwingWannabe {
-  private static final Position TRANSLATE_UP = new Position(0, -1, 0);
-  private static final Position TRANSLATE_DOWN = new Position(0, 1, 0);
-  private static final Position TRANSLATE_LEFT = new Position(-1, 0, 0);
-  private static final Position TRANSLATE_RIGHT = new Position(1, 0, 0);
-  private static final Position TRANSLATE_HIGHER = new Position(0, 0, 1);
-  private static final Position TRANSLATE_LOWER = new Position(0, 0, -1);
+  private static final Translation TRANSLATE_UP = new Translation(0, -1, 0);
+  private static final Translation TRANSLATE_DOWN = new Translation(0, 1, 0);
+  private static final Translation TRANSLATE_LEFT = new Translation(-1, 0, 0);
+  private static final Translation TRANSLATE_RIGHT = new Translation(1, 0, 0);
+  private static final Translation TRANSLATE_HIGHER = new Translation(0, 0, 1);
+  private static final Translation TRANSLATE_LOWER = new Translation(0, 0, -1);
 
   private static Grid currentGrid;
   private static FrameAnimatedGrid playerGrid = SampleGrids.megaManRunning();
   private static boolean movingPlayer;
   private static boolean playerVisible;
+  private static boolean exportHidden;
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
@@ -146,6 +145,10 @@ public class SwingWannabe {
             panel.setProjection(next);
             settings.projectionSelected(next);
             break;
+          case KeyEvent.VK_E:
+            exportHidden = !exportHidden;
+            panel.exportHidden(exportHidden);
+            break;
           case KeyEvent.VK_1:
             panel.realPixelSize = 1;
             break;
@@ -162,7 +165,6 @@ public class SwingWannabe {
       }
     });
 
-    new Random();
     while (true) {
       playerGrid.nextFrame();
       panel.render();

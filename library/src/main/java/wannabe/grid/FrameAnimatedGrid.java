@@ -1,17 +1,16 @@
-// Copyright 2015 Patrick Forhan
 package wannabe.grid;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import wannabe.Bounds;
-import wannabe.Position;
+import wannabe.Translation;
 import wannabe.Voxel;
 
 /** A Grid that implements animation by selecting one of its child grids at a time. */
 public class FrameAnimatedGrid implements Grid {
   private final List<Grid> frames = new ArrayList<>();
-  private final Position translation = new Position(0, 0, 0);
+  private final Translation translation = new Translation(0, 0, 0);
   private final String name;
   private int current;
 
@@ -25,18 +24,18 @@ public class FrameAnimatedGrid implements Grid {
     return translation.isZero() ? realIterator : new TranslatingIterator(realIterator, translation);
   }
 
-  @Override public void exportTo(MutableGrid grid, Bounds bounds) {
+  @Override public void exportTo(MutableGrid grid, Bounds bounds, boolean exportHidden) {
     Grid currentGrid = frames.get(current);
     if (translation.isZero()) {
       // We can skip cloning and translation.
-      currentGrid.exportTo(grid, bounds);
+      currentGrid.exportTo(grid, bounds, exportHidden);
       return;
     }
 
     // Otherwise, we have to translate all the things.
     // TODO this is a bit of a dumb hack... maybe add an optional translation in exportTo?
     currentGrid.translate(translation);
-    currentGrid.exportTo(grid, bounds);
+    currentGrid.exportTo(grid, bounds, exportHidden);
     currentGrid.clearTranslation();
   }
 
@@ -44,7 +43,7 @@ public class FrameAnimatedGrid implements Grid {
     return frames.get(current).size();
   }
 
-  @Override public void translate(Position offset) {
+  @Override public void translate(Translation offset) {
     translation.add(offset);
   }
 
@@ -62,6 +61,10 @@ public class FrameAnimatedGrid implements Grid {
   public void addFrame(Grid frame) {
     if (frame == this) throw new IllegalArgumentException("Cannot have itself as a frame.");
     frames.add(frame);
+  }
+
+  @Override public Neighbors neighbors(Voxel voxel) {
+    return frames.get(current).neighbors(voxel);
   }
 
   @Override public String toString() {

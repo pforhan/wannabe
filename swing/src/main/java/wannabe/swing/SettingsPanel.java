@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.swing;
 
 import java.awt.Color;
@@ -41,6 +40,7 @@ public class SettingsPanel extends JPanel {
         + "\nA - toggle player grid"
         + "\nR - change renderer"
         + "\nP - change projection"
+        + "\nE - toggle export hidden"
         + "\n1 - set pixel size to 1"
         + "\n2 - set pixel size to 2"
         + "\n` - set pixel size to default"

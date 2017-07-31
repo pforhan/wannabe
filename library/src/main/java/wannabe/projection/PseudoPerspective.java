@@ -1,9 +1,9 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.projection;
 
 import wannabe.Camera;
 import wannabe.Position;
 import wannabe.Rendered;
+import wannabe.Translation;
 import wannabe.Voxel;
 
 /**
@@ -27,7 +27,7 @@ public class PseudoPerspective implements Projection {
     int zDiff = camera.position.z - position.z;
 
     // Get the rough location to draw from:
-    Position onScreen = camera.translate(position);
+    Translation onScreen = camera.translate(position);
     rendered.size = pixelSize - zDiff;
     int halfSize = rendered.size >> 1;
     rendered.left = pixelSize * onScreen.x - onScreen.z * xDiff + camera.uiPosition.left - halfSize;

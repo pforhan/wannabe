@@ -1,4 +1,3 @@
-// Copyright 2013 Patrick Forhan.
 package wannabe.util;
 
 public class UIs {
