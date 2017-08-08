@@ -1,120 +1,20 @@
-package wannabe.swing;
+package wannabe.swing.renderer;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import wannabe.Rendered;
 
-public enum RenderType {
-  filledCircle {
-    @Override void draw(Graphics g, Rendered r) {
-      g.fillOval(r.left, r.top, r.size, r.size);
-    }
-  },
-  filledRoundedSquare {
-    @Override void draw(Graphics g, Rendered r) {
-      int arc = r.size / 3;
-      g.fillRoundRect(r.left, r.top, r.size, r.size, arc, arc);
-    }
-  },
-  filledSquare {
-    @Override void draw(Graphics g, Rendered r) {
-      g.fillRect(r.left, r.top, r.size, r.size);
-    }
-  },
-  filledThreeDSquare {
-    @Override void draw(Graphics g, Rendered r) {
-      g.fill3DRect(r.left, r.top, r.size, r.size, true);
-    }
-  },
-  filledThreeDSquareWithCabinetSides {
-    @Override void draw(Graphics g, Rendered r) {
-      fillSides(g, r);
-      if (!r.neighborAbove) g.fill3DRect(r.left, r.top, r.size, r.size, true);
-    }
-  },
-  filledThreeDSquareWithCabinetWires {
-    @Override void draw(Graphics g, Rendered r) {
-      wireSides(g, r);
-      g.fill3DRect(r.left, r.top, r.size, r.size, true);
-    }
-  },
-  filledSquareWithCabinetSides {
-    @Override void draw(Graphics g, Rendered r) {
-      fillSides(g, r);
-      if (!r.neighborAbove) g.fillRect(r.left, r.top, r.size, r.size);
-    }
-  },
-  filledSquareWithCabinetWires {
-    @Override void draw(Graphics g, Rendered r) {
-      wireSides(g, r);
-      g.fillRect(r.left, r.top, r.size, r.size);
-    }
-  },
-  pixel {
-    @Override void draw(Graphics g, Rendered r) {
-      g.drawLine(r.left, r.top, r.left, r.top);
-    }
-  },
-  circle {
-    @Override void draw(Graphics g, Rendered r) {
-      g.drawOval(r.left, r.top, r.size, r.size);
-    }
-  },
-  square {
-    @Override void draw(Graphics g, Rendered r) {
-      g.drawRect(r.left, r.top, r.size, r.size);
-    }
-  },
-  squareWithWireSides {
-    @Override void draw(Graphics g, Rendered r) {
-      wireSides(g, r);
-      g.drawRect(r.left, r.top, r.size, r.size);
-    }
-  },
-  solidWireSquare {
-    /** Color to use inside the solid. TODO this should probably be configurable. */
-    final Color dark = Color.BLACK;
-
-    @Override void draw(Graphics g, Rendered r) {
-      // Populate manually so that we only calculate it once.
-      populateCubeSidesPolygon(r);
-
-      // First erase what we're going to write on:
-      fillSides(g, polygon, dark, dark);
-      if (!r.neighborAbove) {
-        g.setColor(dark);
-        g.fillRect(r.left, r.top, r.size, r.size);
-      }
-      // Now draw the cube by wires:
-      wireSides(g, polygon, r.darkerColor, r.color);
-      if (!r.neighborAbove) {
-        g.setColor(r.color);
-        g.drawRect(r.left, r.top, r.size, r.size);
-      }
-    }
-  },
-  roundedSquare {
-    @Override void draw(Graphics g, Rendered r) {
-      int arc = r.size / 3;
-      g.drawRoundRect(r.left, r.top, r.size, r.size, arc, arc);
-    }
-  },
-  threeDSquare {
-    @Override void draw(Graphics g, Rendered r) {
-      g.draw3DRect(r.left, r.top, r.size, r.size, true);
-    }
-  },
-  ;
-
-  final Polygon polygon = new Polygon();
+/** * Utility class for drawing sides of cubes. */
+class Sides {
+  private final Polygon polygon = new Polygon();
 
   void fillSides(Graphics g, Rendered r) {
     populateCubeSidesPolygon(r);
-    fillSides(g, polygon, r.darkerColor, r.color);
+    fillSides(g, r.darkerColor, r.color);
   }
 
-  void fillSides(Graphics g, Polygon polygon, Color darkerColor, Color color) {
+  void fillSides(Graphics g, Color darkerColor, Color color) {
     if (polygon.npoints == 0) return;
     g.setColor(darkerColor);
     g.fillPolygon(polygon);
@@ -131,10 +31,10 @@ public enum RenderType {
 
   void wireSides(Graphics g, Rendered r) {
     populateCubeSidesPolygon(r);
-    wireSides(g, polygon, r.darkerColor, r.color);
+    wireSides(g, r.darkerColor, r.color);
   }
 
-  void wireSides(Graphics g, Polygon polygon, Color darkerColor, Color color) {
+  void wireSides(Graphics g, Color darkerColor, Color color) {
     if (polygon.npoints == 0) return;
     g.setColor(darkerColor);
     g.drawPolygon(polygon);
@@ -495,13 +395,5 @@ public enum RenderType {
       }
       polygon.addPoint(outLeft, r.top + r.vDepth);
     }
-  }
-
-  abstract void draw(Graphics g, Rendered r);
-
-  public RenderType next() {
-    RenderType[] values = values();
-    int next = ordinal() + 1;
-    return next != values.length ? values[next] : values[0];
   }
 }
