@@ -1,4 +1,4 @@
-package wannabe.swing;
+package wannabe.swing.sample;
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -33,7 +33,6 @@ import wannabe.swing.renderer.Square;
 import wannabe.swing.renderer.SquareWithWireSides;
 import wannabe.swing.renderer.SwingRenderer;
 import wannabe.swing.renderer.ThreeDSquare;
-import wannabe.util.SampleGrids;
 
 public class SettingsPanel extends JPanel {
 
@@ -97,7 +96,7 @@ public class SettingsPanel extends JPanel {
     grid.addListSelectionListener(new ListSelectionListener() {
       @Override public void valueChanged(ListSelectionEvent e) {
         if (!reacting && listener != null) {
-          listener.onGridChanged(SampleGrids.GRIDS.get(grid.getSelectedIndex()));
+          listener.onGridChanged(SwingGrids.GRIDS.get(grid.getSelectedIndex()));
         }
       }
     });
@@ -115,7 +114,7 @@ public class SettingsPanel extends JPanel {
 
   private ListModel<Grid> createGridModel() {
     DefaultListModel<Grid> model = new DefaultListModel<>();
-    for (Grid grid : SampleGrids.GRIDS) {
+    for (Grid grid : SwingGrids.GRIDS) {
       model.addElement(grid);
     }
     return model;

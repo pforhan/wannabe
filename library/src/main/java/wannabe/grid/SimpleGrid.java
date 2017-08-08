@@ -44,7 +44,6 @@ public class SimpleGrid implements MutableGrid {
 
   /** Sorts the voxels by z order, from lowest to highest. */
   @Override public void optimize() {
-    // TODO should I also order by x and y?
     Collections.sort(voxels, zIncreasing);
   }
 

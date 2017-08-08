@@ -1,5 +1,6 @@
 package wannabe.util;
 
+import java.util.Map;
 import wannabe.Position;
 import wannabe.Translation;
 import wannabe.Voxel;
@@ -31,6 +32,36 @@ public class Voxels {
    */
   interface Plotter {
     int plot(int x, int y);
+  }
+
+
+  /**
+   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the color
+   * map will act as spacers (leaves empty space in the final grid).
+   *
+   * @param grid Grid to populate
+   * @param topLeft top-left position to start reading into.
+   * @param textmap two-dimensional array of characters representing the desired output.
+   * @param charToColor map of character to color describing what colors to use.
+   */
+  public static void fromTextMap(MutableGrid grid, Position topLeft, String textmap,
+      Map<Character, Integer> charToColor) {
+    Translation workhorse = new Translation(topLeft);
+    for (int i = 0; i < textmap.length(); i++) {
+      char chr = textmap.charAt(i);
+      if (chr == '\n') {
+        // Found a new line, so increment y, reset x.
+        workhorse.x = 0;
+        workhorse.y++;
+        continue;
+      }
+      Character boxed = chr;
+      if (charToColor.containsKey(boxed)) {
+        int color = charToColor.get(boxed);
+        grid.add(new Voxel(workhorse.asPosition(), color));
+      }
+      workhorse.x++;
+    }
   }
 
   /**

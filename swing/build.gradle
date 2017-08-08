@@ -1,7 +1,3 @@
-apply plugin: 'application'
-
-mainClassName = 'wannabe.swing.SwingWannabe'
-
 dependencies {
 	compile project(':library')
 }

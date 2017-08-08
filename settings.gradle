@@ -1,1 +1,3 @@
-include 'library', ':swing'
+include 'library'
+include 'swing'
+include 'swing-demo'
