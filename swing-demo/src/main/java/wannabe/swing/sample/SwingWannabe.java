@@ -1,4 +1,4 @@
-package wannabe.swing;
+package wannabe.swing.sample;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
@@ -11,9 +11,12 @@ import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
-import wannabe.swing.SettingsPanel.Listener;
+import wannabe.swing.WannabePanel;
 import wannabe.swing.renderer.SwingRenderer;
+import wannabe.swing.sample.SettingsPanel.Listener;
 import wannabe.util.SampleGrids;
+
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 /** All the glue to make a sample swing Wannabe application. */
 public class SwingWannabe {
@@ -32,7 +35,7 @@ public class SwingWannabe {
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
     JPanel mainLayout = new JPanel(new BorderLayout());
     frame.setContentPane(mainLayout);
 
@@ -63,7 +66,7 @@ public class SwingWannabe {
     mainLayout.add(panel, BorderLayout.CENTER);
     mainLayout.add(settings, BorderLayout.EAST);
 
-    currentGrid = SampleGrids.GRIDS.get(0);
+    currentGrid = SwingGrids.GRIDS.get(0);
     panel.addGrid(currentGrid);
     settings.gridSelected(currentGrid);
     panel.setProjection(Projections.PROJECTIONS.get(0));
@@ -132,7 +135,7 @@ public class SwingWannabe {
             break;
           case KeyEvent.VK_G:
             panel.removeGrid(currentGrid);
-            currentGrid = SampleGrids.next(currentGrid);
+            currentGrid = SwingGrids.next(currentGrid);
             panel.addGrid(currentGrid);
             settings.gridSelected(currentGrid);
             break;

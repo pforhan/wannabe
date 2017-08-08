@@ -25,14 +25,14 @@ import wannabe.util.UIs;
 
 /** Swing painting code to display a Wannabe {@link Grid}. */
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
-  static final int DEFAULT_PIXEL_SIZE = 20;
+  public static final int DEFAULT_PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
   private static final int MIN_PLAYFIELD_WIDTH = 50;
   private static final Dimension PREFERRED_SIZE
       = new Dimension(DEFAULT_PIXEL_SIZE * MIN_PLAYFIELD_WIDTH,
           DEFAULT_PIXEL_SIZE * MIN_PLAYFIELD_HEIGHT);
 
-  int realPixelSize = DEFAULT_PIXEL_SIZE;
+  public int realPixelSize = DEFAULT_PIXEL_SIZE;
   // Our dimensions:
   int widthPx;
   int heightPx;

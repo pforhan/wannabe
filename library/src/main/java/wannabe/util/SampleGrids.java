@@ -1,16 +1,11 @@
 package wannabe.util;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import javax.imageio.ImageIO;
 import wannabe.Position;
 import wannabe.Translation;
 import wannabe.Voxel;
@@ -22,6 +17,7 @@ import wannabe.util.Voxels.Path;
 import wannabe.util.Voxels.Plotter;
 
 import static wannabe.util.Voxels.drawPath;
+import static wannabe.util.Voxels.fromTextMap;
 import static wannabe.util.Voxels.line;
 
 public class SampleGrids {
@@ -312,80 +308,13 @@ public class SampleGrids {
     return grid;
   }
 
-  /** Grid with the heightMap as a base, with "clouds" above and shadows below them. */
-  public static Grid cloudySky() {
-    MutableGrid grid = heightMap("cloudy heightmap 256x256", false);
-    Random r = new Random();
-    for (int row = 20; row < 40; row++) {
-      for (int col = 20; col < 40; col++) {
-        // All clouds are about 50-60z in height. There are three for each x, y coordinate.
-        // The higher a cloud, the lighter its color.
-        int cloudHeight = r.nextInt(8); // 0-7
-        int cloudColorComponent = (cloudHeight << 3) + 199; // 199 - 255
-        int cloudColor = (cloudColorComponent << 16)
-            + (cloudColorComponent << 8)
-            + cloudColorComponent; // 0x888888 - 0xFFFFFF
-        grid.add(new Voxel(col, row, 50 + cloudHeight, cloudColor));
-        grid.add(new Voxel(col, row, 51 + cloudHeight, cloudColor));
-        grid.add(new Voxel(col, row, 52 + cloudHeight, cloudColor));
-      }
-    }
-    return grid;
-  }
-
-  public static Grid deepHeightMap() {
-    return heightMap("deep heightmap 256x256", true);
-  }
-  /**
-   * Loads the sample-heightmap image into a Grid, with lighter pixels given a greater height
-   * and a bluer color.
-   */
-  public static MutableGrid heightMap(String name, boolean deep) {
-    // TODO pick by platform
-    return Swing.heightMap(name, deep);
-  }
-
-  public static class Swing {
-    public static MutableGrid heightMap(String name, boolean deep) {
-      MutableGrid grid = new SimpleGrid(name);
-      try {
-        BufferedImage img = ImageIO.read(Swing.class.getResourceAsStream("/example-heightmap.png"));
-        WritableRaster raster = img.getRaster();
-        DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
-        byte[] bytes = data.getData();
-
-        int width = img.getWidth();
-        System.out.println(String.format("heightmap Width %s, height %s, w*h %s, len %s", width,
-            img.getHeight(), width * img.getHeight(), bytes.length));
-        for (int i = 0; i < bytes.length; i++) {
-          byte b = bytes[i];
-          int x = i % width;
-          int y = i / width;
-          int z = (0xFF & b) / 4;
-          int color = 0x888800 + b;
-          grid.add(new Voxel(x, y, z, color));
-          // Continue down to height 0 if deep:
-          if (deep) {
-            for (int d = 0; d < z; d++) {
-              color = 0x888800 + d * 4;
-              grid.add(new Voxel(x, y, d, color));
-            }
-          }
-        }
-
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
-      return grid;
-    }
-  }
-
   public static Grid linkGrid() {
     Map<Character, Integer> colorMap = new HashMap<>(3);
     colorMap.put('G', 0xadfc14); // Green
     colorMap.put('S', 0xff8f2b); // Light brown
     colorMap.put('H', 0xdb450f); // Dark brown
-    return fromTextMap("link", ""
+    SimpleGrid grid = new SimpleGrid("link");
+    fromTextMap(grid, new Position(0, 0, 40), ""
         + ".....GGGGGG....\n"
         + "....GGGGGGGG...\n"
         + "..S.GHHHHHHG.S.\n"
@@ -403,35 +332,6 @@ public class SampleGrids {
         + ".SSSSSH..HHH...\n"
         + "....HHH........\n",
         colorMap);
-  }
-
-  /**
-   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the color
-   * map will act as spacers (leaves empty space in the final grid).
-   *
-   * @param name Name of the grid
-   * @param textmap two-dimensional array of characters representing the desired output.
-   * @param charToColor map of character to color describing what colors to use.
-   */
-  public static Grid fromTextMap(String name, String textmap,
-      Map<Character, Integer> charToColor) {
-    MutableGrid grid = new SimpleGrid(name);
-    Translation workhorse = new Translation(0, 0, 40);
-    for (int i = 0; i < textmap.length(); i++) {
-      char chr = textmap.charAt(i);
-      if (chr == '\n') {
-        // Found a new line, so increment y, reset x.
-        workhorse.x = 0;
-        workhorse.y++;
-        continue;
-      }
-      Character boxed = chr;
-      if (charToColor.containsKey(boxed)) {
-        int color = charToColor.get(boxed);
-        grid.add(new Voxel(workhorse.asPosition(), color));
-      }
-      workhorse.x++;
-    }
     return grid;
   }
 
@@ -441,7 +341,8 @@ public class SampleGrids {
     colorMap.put('@', 0x444444); // Gray
     colorMap.put('@', 0xbbbbbb); // Gray
     colorMap.put('y', 0xaaaa00); // Yellow
-    Grid frame = fromTextMap("morbo", ""
+    SimpleGrid frame = new SimpleGrid("morbo");
+    fromTextMap(frame, new Position(0, 0, 40), ""
         + "...........................................................\n"
         + "......**...................................................\n"
         + ".....**.............................*.......*..............\n"
@@ -476,7 +377,10 @@ public class SampleGrids {
     colorMap.put('t', 0x21ffff); // Turquoise
     colorMap.put('O', 0xffffff); // White
     colorMap.put('f', 0xfede9c); // Face
-    Grid frame1 = fromTextMap("mmr1", "" // Frame 2 is 2px taller, so 1 and 3 need spacer rows
+    SimpleGrid frame1 = new SimpleGrid("mmr1");
+
+    Position topLeft = new Position(0, 0, 40);
+    fromTextMap(frame1, topLeft, "" // Frame 2 is 2px taller, so 1 and 3 need spacer rows
         + ".........................\n"
         + ".........................\n"
         + ".............***.........\n"
@@ -502,7 +406,8 @@ public class SampleGrids {
         + "..........*BBBBBBB*......\n"
         + "..........*********......\n",
         colorMap);
-    Grid frame2 = fromTextMap("mmr2", ""
+    SimpleGrid frame2 = new SimpleGrid("mmr2");
+    fromTextMap(frame2, topLeft, ""
         + ".............***.........\n"
         + "...........***tt*........\n"
         + "..........*BBB*tt*.......\n"
@@ -528,7 +433,8 @@ public class SampleGrids {
         + ".......*BBBBB*...........\n"
         + "........******...........\n",
         colorMap);
-    Grid frame3 = fromTextMap("mmr3", ""
+    SimpleGrid frame3 = new SimpleGrid("mmr3");
+    fromTextMap(frame3, topLeft, ""
         + ".........................\n"
         + ".........................\n"
         + ".............***.........\n"
@@ -623,9 +529,6 @@ public class SampleGrids {
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     neighborTest(),
     testBed(),
-    heightMap("heightMap 256x256", false),
-    heightMap("deep heightmap 256x256", true),
-    cloudySky(),
     plotSin(5),
     plotSin(2),
     plotHyperbola(.2),
@@ -640,6 +543,4 @@ public class SampleGrids {
     int nextIdx = GRIDS.indexOf(current) + 1;
     return GRIDS.get(nextIdx < GRIDS.size() ? nextIdx : 0);
   }
-
-
 }

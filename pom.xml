@@ -16,13 +16,14 @@
     <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
     <!-- Compilation -->
     <android-maven.version>3.7.0</android-maven.version>
-    <java.version>1.6</java.version>
+    <java.version>1.8</java.version>
   </properties>
 
   <modules>
     <module>library</module>
     <module>android</module>
     <module>swing</module>
+    <module>swing-example</module>
   </modules>
 
   <build>
