@@ -12,6 +12,7 @@ import wannabe.grid.Grid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
 import wannabe.swing.SettingsPanel.Listener;
+import wannabe.swing.renderer.SwingRenderer;
 import wannabe.util.SampleGrids;
 
 /** All the glue to make a sample swing Wannabe application. */
@@ -44,8 +45,8 @@ public class SwingWannabe {
     // *Maybe* I could even move the key listener code to there, too, so i don't have to edit
     // two classes when bindings change
     settings.setListener(new Listener() {
-      @Override public void onRenderTypeChanged(RenderType newType) {
-        panel.setRenderType(newType);
+      @Override public void onRendererChanged(SwingRenderer newType) {
+        panel.setRenderer(newType);
       }
 
       @Override public void onProjectionChanged(Projection newProjection) {
@@ -67,7 +68,7 @@ public class SwingWannabe {
     settings.gridSelected(currentGrid);
     panel.setProjection(Projections.PROJECTIONS.get(0));
     settings.projectionSelected(Projections.PROJECTIONS.get(0));
-    settings.renderTypeSelected(panel.getRenderType());
+    settings.renderTypeSelected(panel.getRenderer());
 
     frame.setSize(mainLayout.getPreferredSize());
     frame.setVisible(true);
@@ -136,8 +137,8 @@ public class SwingWannabe {
             settings.gridSelected(currentGrid);
             break;
           case KeyEvent.VK_R:
-            RenderType nextRenderType = panel.getRenderType().next();
-            panel.setRenderType(nextRenderType);
+            SwingRenderer nextRenderType = settings.nextRenderer();
+            panel.setRenderer(nextRenderType);
             settings.renderTypeSelected(nextRenderType);
             break;
           case KeyEvent.VK_P:

@@ -19,6 +19,8 @@ import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
 import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
+import wannabe.swing.renderer.FilledThreeDSquareWithCabinetSides;
+import wannabe.swing.renderer.SwingRenderer;
 import wannabe.util.UIs;
 
 /** Swing painting code to display a Wannabe {@link Grid}. */
@@ -48,7 +50,7 @@ import wannabe.util.UIs;
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Cabinet();
-  private RenderType renderType = RenderType.filledThreeDSquareWithCabinetSides;
+  private SwingRenderer renderer = new FilledThreeDSquareWithCabinetSides();
   private boolean stats;
   private boolean exportHidden;
 
@@ -110,12 +112,12 @@ import wannabe.util.UIs;
     return PREFERRED_SIZE;
   }
 
-  public void setRenderType(RenderType renderType) {
-    this.renderType = renderType;
+  public void setRenderer(SwingRenderer renderer) {
+    this.renderer = renderer;
   }
 
-  public RenderType getRenderType() {
-    return renderType;
+  public SwingRenderer getRenderer() {
+    return renderer;
   }
 
   public void exportHidden(boolean exportHidden) {
@@ -162,7 +164,7 @@ import wannabe.util.UIs;
       // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
       // awt colors in this case) and b) that it controls the context color
       g.setColor(r.color);
-      renderType.draw(g, r);
+      renderer.draw(g, r);
     }
 
     // Timing info:
@@ -174,7 +176,6 @@ import wannabe.util.UIs;
     }
 
     if (stats) {
-      // TODO see if we can eliminate this duplicate calculation
       long gridTime = afterGrid - start;
       String statistics = "voxels on screen: " + buffer.size() + "; time: grid " + gridTime
           + " render " + (total - gridTime);
@@ -198,7 +199,7 @@ import wannabe.util.UIs;
   private Color getDarkerColor(int rgb) {
     Color color = darkerCache.get(rgb);
     if (color == null) {
-      color = new Color(rgb).darker();
+      color = getSwingColor(rgb).darker();
       darkerCache.put(rgb, color);
     }
     return color;
