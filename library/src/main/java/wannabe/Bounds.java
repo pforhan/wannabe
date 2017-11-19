@@ -1,6 +1,12 @@
 package wannabe;
 
+import wannabe.grid.AllNeighbors;
 import wannabe.grid.Neighbors;
+
+import static wannabe.grid.AllNeighbors.RelativePosition.EAST;
+import static wannabe.grid.AllNeighbors.RelativePosition.NORTH;
+import static wannabe.grid.AllNeighbors.RelativePosition.SOUTH;
+import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 
 // TODO make an XYZ bounds too, of course.
 public interface Bounds {
@@ -8,6 +14,7 @@ public interface Bounds {
   public boolean contains(Translation position);
   /** Indicates whether all specified neighbors are within bounds. */
   public boolean containsAll(Neighbors neighbors);
+  public boolean containsAll(Position pos, AllNeighbors neighbors);
 
   public class XYBounds implements Bounds {
     public int left;
@@ -45,6 +52,16 @@ public interface Bounds {
           && containsOrNull(neighbors.south)
           && containsOrNull(neighbors.east)
           && containsOrNull(neighbors.west);
+    }
+
+    /** This XY bounds ignores above and below. */
+    @Override public boolean containsAll(Position pos, AllNeighbors neighbors) {
+      // Must contain the N,S,E,W neighbors, if they exist.
+      return contains(pos)
+          && (!neighbors.same.get(WEST)  || pos.x - 1 >= left)
+          && (!neighbors.same.get(EAST)  || pos.x + 1 <  right)
+          && (!neighbors.same.get(NORTH) || pos.y - 1 >= top)
+          && (!neighbors.same.get(SOUTH) || pos.y + 1 <  bottom);
     }
 
     private boolean containsOrNull(Neighbors neighbors) {

@@ -12,11 +12,13 @@ import javax.swing.JPanel;
 import wannabe.Bounds.XYBounds;
 import wannabe.Camera;
 import wannabe.Rendered;
+import wannabe.Translation;
 import wannabe.UI;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
+import wannabe.grid.SparseArrayGrid;
 import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
 import wannabe.swing.renderer.FilledThreeDSquareWithCabinetSides;
@@ -46,13 +48,20 @@ import wannabe.util.UIs;
 
   // Playfield paraphanellia:
   private final List<Grid> grids = new ArrayList<>();
-  private final MutableGrid buffer = new SimpleGrid("buffer", true);
+  private final MutableGrid[] buffers = {
+      new SimpleGrid("buffer", true),
+      new SparseArrayGrid("buffer", true),
+  };
+  private int bufferOffset = 0;
+
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Cabinet();
   private SwingRenderer renderer = new FilledThreeDSquareWithCabinetSides();
   private boolean stats;
   private boolean exportHidden;
+  private boolean dirty;
+  private final Translation lastCameraTranslation = new Translation(0,0,0);
 
   public WannabePanel(final Camera camera) {
     this.camera = camera;
@@ -79,10 +88,12 @@ import wannabe.util.UIs;
   }
 
   @Override public void addGrid(Grid grid) {
+    dirty = true;
     grids.add(grid);
   }
 
   @Override public void removeGrid(Grid grid) {
+    dirty = true;
     grids.remove(grid);
   }
 
@@ -120,7 +131,13 @@ import wannabe.util.UIs;
     return renderer;
   }
 
+  public void nextBuffer() {
+    dirty = true;
+    bufferOffset = (bufferOffset + 1) % buffers.length;
+  }
+
   public void exportHidden(boolean exportHidden) {
+    dirty = true;
     this.exportHidden = exportHidden;
   }
 
@@ -133,24 +150,37 @@ import wannabe.util.UIs;
   @Override public final void paintComponent(Graphics g) {
     long start = System.currentTimeMillis();
 
-    // Background:
-    g.setColor(Color.BLACK);
-    g.fillRect(0, 0, widthPx, heightPx);
-
-    buffer.clear();
     XYBounds bounds = new XYBounds();
     bounds.setFromWidthHeight(camera.position.x - halfWidthCells, //
         camera.position.y - halfHeightCells, //
         widthCells, heightCells);
-    for (Grid grid : grids) {
-      grid.exportTo(buffer, bounds, exportHidden);
-    }
-    buffer.optimize();
 
-    // Determine the voxels we care about:
+    MutableGrid activeBuffer = buffers[bufferOffset];
+    for (Grid grid : grids) {
+      if (grid.isDirty()) {
+        dirty = true;
+        break;
+      }
+    }
+    if (!lastCameraTranslation.equals(camera.position)) {
+      dirty = true;
+    }
+    if (dirty) {
+      activeBuffer.clear();
+      for (Grid grid : grids) {
+        grid.exportTo(activeBuffer, bounds, exportHidden);
+      }
+      activeBuffer.optimize();
+      dirty = false;
+    }
+
     long afterGrid = System.currentTimeMillis();
 
-    for (Voxel voxel : buffer) {
+    // Background:
+    g.setColor(Color.BLACK);
+    g.fillRect(0, 0, widthPx, heightPx);
+
+    for (Voxel voxel : activeBuffer) {
       Rendered r = projection.render(camera, voxel.position, realPixelSize);
       // If it's going to be fully off-screen, don't bother drawing.
       if (r.left < -realPixelSize || r.left > widthPx //
@@ -159,7 +189,7 @@ import wannabe.util.UIs;
       }
       r.color = getSwingColor(voxel.color);
       r.darkerColor = getDarkerColor(voxel.color);
-      r.neighborsFrom(buffer.neighbors(voxel));
+      r.neighborsFrom(activeBuffer.neighbors(voxel));
 
       // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
       // awt colors in this case) and b) that it controls the context color
@@ -177,14 +207,17 @@ import wannabe.util.UIs;
 
     if (stats) {
       long gridTime = afterGrid - start;
-      String statistics = "voxels on screen: " + buffer.size() + "; time: grid " + gridTime
-          + " render " + (total - gridTime);
+      String statistics = "voxels on screen: " + activeBuffer.size() + "; time: grid "
+          + gridTime + " render " + (total - gridTime) + " on "
+          + activeBuffer.getClass().getSimpleName();
       // Make a small shadow to help stand out:
       g.setColor(Color.BLACK);
       g.drawString(statistics, 20, 20);
       g.setColor(Color.WHITE);
       g.drawString(statistics, 19, 19);
     }
+
+    lastCameraTranslation.set(camera.position);
   }
 
   private Color getSwingColor(int rgb) {

@@ -133,6 +133,9 @@ public class SwingWannabe {
               panel.addGrid(playerGrid);
             }
             break;
+          case KeyEvent.VK_B:
+            panel.nextBuffer();
+            break;
           case KeyEvent.VK_G:
             panel.removeGrid(currentGrid);
             currentGrid = SwingGrids.next(currentGrid);

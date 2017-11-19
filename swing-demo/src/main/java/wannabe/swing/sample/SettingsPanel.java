@@ -55,6 +55,7 @@ public class SettingsPanel extends JPanel {
         + "\nSpace - toggle move camera / player"
         + "\nZ - lower camera"
         + "\nX - raise camera"
+        + "\nB - change buffer impl"
         + "\nG - change Grid"
         + "\nA - toggle player grid"
         + "\nR - change renderer"

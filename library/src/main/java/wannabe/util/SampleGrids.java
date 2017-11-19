@@ -215,7 +215,7 @@ public class SampleGrids {
   /** Plot of an exaggerated sine. Note that for pleasing results, the origin is shifted. */
   public static Grid plotSin(final int mulitplyer) {
     // TODO at low multipliers the colors aren't distinct enough.
-    MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40");
+    MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40", true);
     Plotter plotter = new Plotter() {
       @Override public int plot(int x, int y) {
         double distanceFromOrigin = Math.hypot(x, y);
@@ -228,7 +228,7 @@ public class SampleGrids {
 
   /** Plot of a flattened hyperbola. Note that for pleasing results, the origin is shifted. */
   public static Grid plotHyperbola(final double d) {
-    MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40");
+    MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40", true);
     Plotter plotter = new Plotter() {
       @Override public int plot(int x, int y) {
         double distanceFromOrigin = Math.hypot(x, y);

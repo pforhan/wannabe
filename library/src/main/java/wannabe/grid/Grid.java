@@ -28,12 +28,19 @@ public interface Grid extends Iterable<Voxel> {
   /** Number of Voxels this grid contains. */
   int size();
 
+  /**
+   * Returns {@code true} if anything about this grid has changed (such as voxels or translation)
+   * since the last time {@link #iterator()} or {@link #exportTo(MutableGrid, Bounds, boolean)}
+   * was called.
+   */
+  boolean isDirty();
+
   /** Translates every {@link Voxel} in this grid by the specified offset. Additive. */
   void translate(Translation offset);
 
   /** Resets translation to zero. */
   void clearTranslation();
 
-  Neighbors neighbors(Voxel voxel);
+  AllNeighbors neighbors(Voxel voxel);
 
 }

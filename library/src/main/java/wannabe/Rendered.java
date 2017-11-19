@@ -1,7 +1,17 @@
 package wannabe;
 
 import java.awt.Color;
-import wannabe.grid.Neighbors;
+import wannabe.grid.AllNeighbors;
+
+import static wannabe.grid.AllNeighbors.RelativePosition.CENTER;
+import static wannabe.grid.AllNeighbors.RelativePosition.EAST;
+import static wannabe.grid.AllNeighbors.RelativePosition.NORTH;
+import static wannabe.grid.AllNeighbors.RelativePosition.NORTHEAST;
+import static wannabe.grid.AllNeighbors.RelativePosition.NORTHWEST;
+import static wannabe.grid.AllNeighbors.RelativePosition.SOUTH;
+import static wannabe.grid.AllNeighbors.RelativePosition.SOUTHEAST;
+import static wannabe.grid.AllNeighbors.RelativePosition.SOUTHWEST;
+import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 
 /** Describes real pixel color, location, and size for a voxel. */
 // TODO do we want java.awt.Color here?
@@ -47,42 +57,16 @@ public class Rendered {
     return neighborNorth && neighborSouth && neighborWest && neighborEast && neighborAbove;
   }
 
-  public void neighborsFrom(Neighbors neighbors) {
-    // Since they are calculated only when a nondiagonal neighbor is present, we must
-    // clear out all the diagonals:
-    // TODO Turns out, we need this data! pure diagonal neighbors should honor each other.
-    neighborNorthEast = false;
-    neighborNorthWest = false;
-    neighborSouthEast = false;
-    neighborSouthWest = false;
-
-    // Boy, this sort of seems awful.
-    neighborNorth = neighbors.north != null;
-    if (neighborNorth) {
-      neighborNorthEast = neighbors.north.east != null;
-      neighborNorthWest = neighbors.north.west != null;
-    }
-
-    neighborSouth = neighbors.south != null;
-    if (neighborSouth) {
-      neighborSouthEast = neighbors.south.east != null;
-      neighborSouthWest = neighbors.south.west != null;
-    }
-
-    // Not sure if there's any way to avoid this duplication...
-    neighborWest  = neighbors.west  != null;
-    if (neighborWest) {
-      neighborNorthWest = neighbors.west.north != null;
-      neighborSouthWest = neighbors.west.south != null;
-    }
-
-    neighborEast  = neighbors.east  != null;
-    if (neighborEast) {
-      neighborNorthEast = neighbors.east.north != null;
-      neighborSouthEast = neighbors.east.south != null;
-    }
-
-    neighborAbove = neighbors.above != null;
-    neighborBelow = neighbors.below != null;
+  public void neighborsFrom(AllNeighbors neighbors) {
+    neighborNorth     = neighbors.same.get(NORTH);
+    neighborNorthEast = neighbors.same.get(NORTHEAST);
+    neighborEast      = neighbors.same.get(EAST);
+    neighborSouthEast = neighbors.same.get(SOUTHEAST);
+    neighborSouth     = neighbors.same.get(SOUTH);
+    neighborSouthWest = neighbors.same.get(SOUTHWEST);
+    neighborWest      = neighbors.same.get(WEST);
+    neighborNorthWest = neighbors.same.get(NORTHWEST);
+    neighborAbove = neighbors.above.get(CENTER);
+    neighborBelow = neighbors.below.get(CENTER);
   }
 }

@@ -7,6 +7,7 @@ public class Camera {
   /** This position of this camera in the UI (pixel) space. The size value is ignored. */
   public final Rendered uiPosition = new Rendered();
   private final Translation translated = new Translation(0, 0, 0);
+  public boolean isDirty;
 
   public Camera(int x, int y, int z) {
     position = new Translation(x, y, z);

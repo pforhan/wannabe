@@ -2,7 +2,7 @@ package wannabe;
 
 public class Voxel {
   public final Position position;
-  public int color;
+  public final int color;
 
   public Voxel(int x, int y, int z, int color) {
     this(new Position(x, y, z), color);

@@ -1,6 +1,10 @@
 package wannabe;
 
-public class Position {
+/**
+ * Non-mutable position in Cartesian space. For a mutable version, see {@link Translation}.
+ * Produces the same hashcode and equals results as a Translation for the same values of x, y, and z.
+ */
+public class Position implements Pos {
   public static final Position ZERO = new Position(0, 0, 0);
 
   public final int x;
@@ -13,7 +17,19 @@ public class Position {
     this.z = z;
   }
 
-  public boolean isZero() {
+  @Override public int x() {
+    return x;
+  }
+
+  @Override public int y() {
+    return y;
+  }
+
+  @Override public int z() {
+    return z;
+  }
+
+  @Override public boolean isZero() {
     return x == 0 && y == 0 && z == 0;
   }
 
