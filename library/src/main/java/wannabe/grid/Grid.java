@@ -43,4 +43,7 @@ public interface Grid extends Iterable<Voxel> {
 
   AllNeighbors neighbors(Voxel voxel);
 
+//  don't remember what I was doing here:
+//  // Painting methods.
+//  Voxel at(Translation translation);
 }

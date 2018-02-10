@@ -1,6 +1,7 @@
 package wannabe.grid;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,7 +14,11 @@ import wannabe.Voxel;
 import static wannabe.grid.AllNeighbors.RelativePosition.CENTER;
 import static wannabe.grid.AllNeighbors.RelativePosition.EAST;
 import static wannabe.grid.AllNeighbors.RelativePosition.NORTH;
+import static wannabe.grid.AllNeighbors.RelativePosition.NORTHEAST;
+import static wannabe.grid.AllNeighbors.RelativePosition.NORTHWEST;
 import static wannabe.grid.AllNeighbors.RelativePosition.SOUTH;
+import static wannabe.grid.AllNeighbors.RelativePosition.SOUTHEAST;
+import static wannabe.grid.AllNeighbors.RelativePosition.SOUTHWEST;
 import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 
 /** {@link Grid} implementation that has a simple list of {@link Voxel}s and a means to sort. */
@@ -38,9 +43,12 @@ public class SimpleGrid implements MutableGrid {
   };
 
   private final Map<Position, Voxel> positionToVoxels = new TreeMap<>(zxyIncreasing);
+  private final Map<Voxel, AllNeighbors> neighborCache = new HashMap<>();
   private final Translation translation = new Translation(0, 0, 0);
   private final String name;
   private final boolean ignoreDuplicatePositions;
+  final Translation workhorse = new Translation(0, 0, 0);
+
   private boolean dirty;
 
   public SimpleGrid(String name) {
@@ -67,7 +75,7 @@ public class SimpleGrid implements MutableGrid {
   }
 
   @Override public void add(Voxel v) {
-    dirty = true;
+    markDirty();
     if (positionToVoxels.containsKey(v.position)) {
       if (ignoreDuplicatePositions) return;
       throw new IllegalArgumentException("Duplicate voxel at " + v.position);
@@ -76,12 +84,12 @@ public class SimpleGrid implements MutableGrid {
   }
 
   @Override public void remove(Voxel v) {
-    dirty = true;
+    markDirty();
     positionToVoxels.remove(v.position);
   }
 
   @Override public void clear() {
-    dirty = true;
+    markDirty();
     positionToVoxels.clear();
   }
 
@@ -95,15 +103,23 @@ public class SimpleGrid implements MutableGrid {
     exportNoHidden(grid, bounds);
   }
 
-  final AllNeighbors theNeighbors = new AllNeighbors();
-  final Translation workhorse = new Translation(0, 0, 0);
-
   @Override public AllNeighbors neighbors(Voxel voxel) {
-    populateNeighbors(voxel);
+    AllNeighbors theNeighbors = neighborCache.get(voxel);
+    if (theNeighbors == null) {
+      theNeighbors = createAndPopulateNeighbors(voxel);
+      neighborCache.put(voxel, theNeighbors);
+    }
+
     return theNeighbors;
   }
 
-  void populateNeighbors(Voxel voxel) {
+  private void markDirty() {
+    dirty = true;
+    neighborCache.clear();
+  }
+
+  private AllNeighbors createAndPopulateNeighbors(Voxel voxel) {
+    AllNeighbors theNeighbors = new AllNeighbors();
     theNeighbors.clear();
     workhorse.set(voxel.position);
     // Above:
@@ -114,32 +130,35 @@ public class SimpleGrid implements MutableGrid {
     workhorse.z -= 2;
     theNeighbors.below.set(CENTER, positionToVoxels.get(workhorse) != null);
 
-    // North:
     workhorse.z++;
+    // Now scan 8 surrounding positions on the same plane, starting at north, going clockwise.
     workhorse.y--;
     theNeighbors.same.set(NORTH, positionToVoxels.get(workhorse) != null);
-
-    // South:
-    workhorse.y += 2;
-    theNeighbors.same.set(SOUTH, positionToVoxels.get(workhorse) != null);
-
-    // East:
-    workhorse.y--;
     workhorse.x++;
+    theNeighbors.same.set(NORTHEAST, positionToVoxels.get(workhorse) != null);
+    workhorse.y++;
     theNeighbors.same.set(EAST, positionToVoxels.get(workhorse) != null);
-
-    // West:
-    workhorse.x -= 2;
+    workhorse.y++;
+    theNeighbors.same.set(SOUTHEAST, positionToVoxels.get(workhorse) != null);
+    workhorse.x--;
+    theNeighbors.same.set(SOUTH, positionToVoxels.get(workhorse) != null);
+    workhorse.x--;
+    theNeighbors.same.set(SOUTHWEST, positionToVoxels.get(workhorse) != null);
+    workhorse.y--;
     theNeighbors.same.set(WEST, positionToVoxels.get(workhorse) != null);
+    workhorse.y--;
+    theNeighbors.same.set(NORTHWEST, positionToVoxels.get(workhorse) != null);
+
+    return theNeighbors;
   }
 
   @Override public void translate(Translation offset) {
-    dirty = true;
+    markDirty();
     translation.add(offset);
   }
 
   @Override public void clearTranslation() {
-    dirty = true;
+    markDirty();
     translation.zero();
   }
 
@@ -153,8 +172,7 @@ public class SimpleGrid implements MutableGrid {
 
   /** Returns {@code true} if a voxel is not surrounded, or if it has neighbors out of bounds. */
   private boolean notSurroundedInBounds(Bounds bounds, Voxel voxel) {
-    populateNeighbors(voxel);
-
+    AllNeighbors theNeighbors = neighbors(voxel);
     return !theNeighbors.isSurrounded() || !bounds.containsAll(voxel.position, theNeighbors);
   }
 

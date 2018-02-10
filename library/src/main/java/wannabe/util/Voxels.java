@@ -13,7 +13,7 @@ public class Voxels {
    * Simple mechanism to iteratively add a set of voxels. See {@link #drawPath}.
    * TODO Can I make an Iterable? Would that gain anything?
    */
-  interface Path {
+  public interface Path {
     /** Set up the path and return its starting Position. */
     Position start();
 
@@ -21,19 +21,13 @@ public class Voxels {
      * Adds voxel(s) at the specified location, and returns the next location, or {@code null} if
      * complete.
      */
-    Translation drawAndMove(MutableGrid grid, Translation pos);
+    Translation drawAndMove(MutableGrid grid, Translation current);
   }
 
-  /**
-   * TODO does it make sense to restrict to x, y inputs? And when I make it generic this way,
-   * I bet there's better function interfaces out there...
-   * It may be worth letting the plotter plot voxels directly, could make more accurate color
-   * decisions... or could plot multiple points.  This reduces capability to a single scalar.
-   */
-  interface Plotter {
-    int plot(int x, int y);
+  /** Constructs a voxel with position x, y, and a calculated z. */
+  public interface ZPlotter {
+    Voxel plot(int x, int y);
   }
-
 
   /**
    * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the color
@@ -146,14 +140,4 @@ public class Voxels {
       pos = path.drawAndMove(grid, pos);
     }
   }
-
-  static void plot(MutableGrid grid, Plotter plotter) {
-    for (int x = 0; x < 40; x++) {
-      for (int y = 0; y < 40; y++) {
-        int height = plotter.plot(x - 20, y - 20);
-        grid.add(new Voxel(x,  y, height, 0x888888 + height * 10));
-      }
-    }
-  }
-
 }

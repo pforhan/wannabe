@@ -211,6 +211,7 @@ public class SparseArrayGrid implements MutableGrid {
   final Translation workhorse = new Translation(0, 0, 0);
 
   void populateNeighbors(Voxel voxel) {
+    // TODO convert to neighbor cache style used in simpleGrid, and populate more directions
     theNeighbors.clear();
     workhorse.set(voxel.position);
     // Above:

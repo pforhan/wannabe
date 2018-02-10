@@ -10,7 +10,7 @@ import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 
 /** References to neighboring voxels. */
 public class AllNeighbors {
-  /** Positions in a 3x3 grid. */
+  /** Positions in a 3x3 grid. Not an enum to save us having to call the ordinal method. */
   public interface RelativePosition {
     static final int NORTH = 0;
     static final int NORTHEAST = 1;

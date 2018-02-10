@@ -53,6 +53,7 @@ import wannabe.util.UIs;
       new SparseArrayGrid("buffer", true),
   };
   private int bufferOffset = 0;
+  private final XYBounds bounds = new XYBounds();
 
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
@@ -150,7 +151,6 @@ import wannabe.util.UIs;
   @Override public final void paintComponent(Graphics g) {
     long start = System.currentTimeMillis();
 
-    XYBounds bounds = new XYBounds();
     bounds.setFromWidthHeight(camera.position.x - halfWidthCells, //
         camera.position.y - halfHeightCells, //
         widthCells, heightCells);
@@ -187,6 +187,10 @@ import wannabe.util.UIs;
           || r.top < -realPixelSize || r.top > heightPx) {
         continue;
       }
+      // If it's too small don't draw:
+      // TODO probably should put a specific bounds on when PsPerspective used, but anyway...
+      // TODO and of course this affects pixel-sized rendering if we want to try that
+      if (r.size <= 1) continue;
       r.color = getSwingColor(voxel.color);
       r.darkerColor = getDarkerColor(voxel.color);
       r.neighborsFrom(activeBuffer.neighbors(voxel));

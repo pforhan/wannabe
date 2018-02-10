@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import wannabe.Bounds.XYBounds;
 import wannabe.Position;
 import wannabe.Translation;
 import wannabe.Voxel;
@@ -14,7 +15,7 @@ import wannabe.grid.Grid;
 import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
 import wannabe.util.Voxels.Path;
-import wannabe.util.Voxels.Plotter;
+import wannabe.util.Voxels.ZPlotter;
 
 import static wannabe.util.Voxels.drawPath;
 import static wannabe.util.Voxels.fromTextMap;
@@ -216,30 +217,37 @@ public class SampleGrids {
   public static Grid plotSin(final int mulitplyer) {
     // TODO at low multipliers the colors aren't distinct enough.
     MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40", true);
-    Plotter plotter = new Plotter() {
-      @Override public int plot(int x, int y) {
+    ZPlotter plotter = new ZPlotter() {
+      @Override public Voxel plot(int x, int y) {
         double distanceFromOrigin = Math.hypot(x, y);
-        return (int) (mulitplyer * (Math.sin(distanceFromOrigin)));
+        int z = (int) (mulitplyer * (Math.sin(distanceFromOrigin)));
+        return new Voxel(x, y, z, 0x888888 + z * 10);
       }
     };
-    Voxels.plot(grid, plotter);
+
+    XYBounds bounds = new XYBounds();
+    bounds.setFromWidthHeight(-20, -20, 40, 40);
+    bounds.plot(grid, plotter);
     return grid;
   }
 
   /** Plot of a flattened hyperbola. Note that for pleasing results, the origin is shifted. */
   public static Grid plotHyperbola(final double d) {
     MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40", true);
-    Plotter plotter = new Plotter() {
-      @Override public int plot(int x, int y) {
+    ZPlotter plotter = new ZPlotter() {
+      @Override public Voxel plot(int x, int y) {
         double distanceFromOrigin = Math.hypot(x, y);
-        return (int) (d * distanceFromOrigin * distanceFromOrigin);
+        int z = (int) (d * distanceFromOrigin * distanceFromOrigin);
+        return new Voxel(x, y, z, 0x888888 + z * 10);
       }
     };
-    Voxels.plot(grid, plotter);
+    XYBounds bounds = new XYBounds();
+    bounds.setFromWidthHeight(-20, -20, 40, 40);
+    bounds.plot(grid, plotter);
     return grid;
   }
 
-  public static Grid cube(int size, int color) {
+  public static Grid hollowCube(int size, int color) {
     MutableGrid grid = new SimpleGrid("cube of size " + size, true);
 
     Position bnw = new Position(0, 0, 0);
@@ -529,6 +537,7 @@ public class SampleGrids {
   public static final List<Grid> GRIDS = Collections.unmodifiableList(Arrays.asList(
     neighborTest(),
     testBed(),
+    new HouseVignette().buildHouse(),
     plotSin(5),
     plotSin(2),
     plotHyperbola(.2),
@@ -536,7 +545,7 @@ public class SampleGrids {
     towers(),
     fullRandomGrid(),
     randomGrid(),
-    cube(20, 0x21ffff)
+    hollowCube(20, 0x21ffff)
   ));
 
   public static Grid next(Grid current) {
