@@ -1,14 +1,16 @@
 package wannabe.util;
 
 import wannabe.Bounds.XYBounds;
+import wannabe.Position;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.SimpleGrid;
-import wannabe.util.Voxels.ZPlotter;
+
+import static wannabe.util.Voxels.line;
 
 /**
- * An attempt to make a scene with realistic elements.  Should be "real" positioning as much
- * as possible without fakes.
+ * An attempt to make a scene with realistic elements. Should be "real" positioning as much as
+ * possible without fakes or facades.
  * <br>
  * Scene:
  * <ul>
@@ -20,22 +22,119 @@ import wannabe.util.Voxels.ZPlotter;
  * </ul>
  */
 public class HouseVignette {
-  /** 30x30x30 base cube */
   public Grid buildHouse() {
-    SimpleGrid house = new SimpleGrid("House");
+    SimpleGrid scene = new SimpleGrid("House");
 
-    // Flood-fill a cube:
+    // House
+    house(scene);
+    roof(scene);
+    door(scene);
+    windows(scene);
+
+    // Yard
+    yard(scene);
+    path(scene);
+
+    // Background
+    hills(scene);
+    clouds(scene);
+    rain(scene);
+
+    return scene;
+  }
+
+  private void house(SimpleGrid scene) {
+    // Flood-fill a 20x20x15 base house from -8,10,-5 to 12,30,10
     XYBounds bounds = new XYBounds();
-    bounds.setFromWidthHeight(-20, 0, 30, 30);
-    final int[] ugh = {0};
-    for (int z = -10; z < 20; z++) {
+    bounds.setFromWidthHeight(-8, 10, 20, 20);
+    final int[] ugh = { 0 };
+    for (int z = -5; z < 10; z++) {
       ugh[0] = z;
-      bounds.plot(house, new ZPlotter() {
-        @Override public Voxel plot(int x, int y) {
-          return new Voxel(x, y, ugh[0], 0xFFAA9988);
-        }
-      });
+      bounds.plot(scene, (x, y) -> new Voxel(x, y, ugh[0], 0xFFAA9988));
     }
-    return house;
+  }
+
+  private void roof(SimpleGrid scene) {
+    // Add a roof. Extends 2 over the sides of the house. Spine runs along the x axis.
+    // In practice, a triangular prism, just made out of lines stacked together.
+    // TODO: eaves should be hollow, ie just the edges hang over
+    // First level: full depth
+    int y = 9;
+    for (int z = -7; z < 12; z++) {
+      Position left  = new Position(-10, y, z);
+      Position right = new Position(13, y, z);
+      line(scene, left, right, 0xFFAA4444);
+    }
+    // Next level: -2 depth on each side
+    y = 8;
+    for (int z = -5; z < 10; z++) {
+      Position left  = new Position(-10, y, z);
+      Position right = new Position(13, y, z);
+      line(scene, left, right, 0xFFAA4444);
+    }
+    // Next level: -4 depth on each side
+    y = 7;
+    for (int z = -3; z < 8; z++) {
+      Position left  = new Position(-10, y, z);
+      Position right = new Position(13, y, z);
+      line(scene, left, right, 0xFFAA4444);
+    }
+    // Next level: -6 depth on each side
+    y = 6;
+    for (int z = -1; z < 6; z++) {
+      Position left  = new Position(-10, y, z);
+      Position right = new Position(13, y, z);
+      line(scene, left, right, 0xFFAA4444);
+    }
+    // Next level: -8 depth on each side
+    y = 5;
+    for (int z = 1; z < 4; z++) {
+      Position left  = new Position(-10, y, z);
+      Position right = new Position(13, y, z);
+      line(scene, left, right, 0xFFAA4444);
+    }
+  }
+
+  private void door(SimpleGrid scene) {
+    Position topLeft  = new Position(11, 13, 7);
+    Position topRight = new Position(11, 13, 2);
+    Position botLeft  = new Position(11, 29, 7);
+    Position botRight = new Position(11, 29, 2);
+    line(scene, topLeft,  topRight, 0xFFFFFFFF);
+    line(scene, topLeft,  botLeft,  0xFFFFFFFF);
+    line(scene, topRight, botRight, 0xFFFFFFFF);
+
+    // Doorknob
+    RGB is a good gold color 254 205 80
+    scene.put(new Voxel(12, 23, 6, 0xFFFFFFFf));
+  }
+
+  private void windows(SimpleGrid scene) {
+
+  }
+
+  private void yard(SimpleGrid scene) {
+    // TODO Auto-generated method stub
+
+  }
+
+  private void path(SimpleGrid scene) {
+    // TODO Auto-generated method stub
+
+  }
+
+  private void hills(SimpleGrid scene) {
+    // TODO Auto-generated method stub
+
+  }
+
+  private void clouds(SimpleGrid scene) {
+    // TODO Auto-generated method stub
+
+  }
+
+  private void rain(SimpleGrid scene) {
+    // TODO Auto-generated method stub
+
   }
 }

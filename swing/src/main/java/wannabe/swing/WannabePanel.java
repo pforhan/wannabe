@@ -49,7 +49,7 @@ import wannabe.util.UIs;
   // Playfield paraphanellia:
   private final List<Grid> grids = new ArrayList<>();
   private final MutableGrid[] buffers = {
-      new SimpleGrid("buffer", true),
+      new SimpleGrid("buffer"),
       new SparseArrayGrid("buffer", true),
   };
   private int bufferOffset = 0;

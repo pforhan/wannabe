@@ -43,7 +43,7 @@ public class SampleGrids {
     }
 
     @Override public Translation drawAndMove(MutableGrid grid, Translation pos) {
-      grid.add(new Voxel(pos.asPosition(), color));
+      grid.put(new Voxel(pos.asPosition(), color));
 
       pos.x += xIncrement;
       pos.y += yIncrement;
@@ -128,20 +128,20 @@ public class SampleGrids {
 
   /** Grid stretching 30x30 with voxels every 10 along the edge, and 600 random voxels. */
   public static Grid randomGrid() {
-    MutableGrid grid = new SimpleGrid("random sparse 30x30", true);
-    grid.add(new Voxel(0, 0, 0, 0xFFEEDD));
-    grid.add(new Voxel(1, 0, 0, 0xEEDDFF));
-    grid.add(new Voxel(0, 1, 0, 0xDDFFEE));
-    grid.add(new Voxel(10, 0, 0, 0xDFFEED));
-    grid.add(new Voxel(0, 10, 0, 0xDFFEED));
-    grid.add(new Voxel(20, 0, 0, 0xFEEDDF));
-    grid.add(new Voxel(0, 20, 0, 0xEDDFFE));
-    grid.add(new Voxel(30, 0, 0, 0xFEDFED));
-    grid.add(new Voxel(0, 30, 0, 0xDEFDEF));
+    MutableGrid grid = new SimpleGrid("random sparse 30x30");
+    grid.put(new Voxel(0, 0, 0, 0xFFEEDD));
+    grid.put(new Voxel(1, 0, 0, 0xEEDDFF));
+    grid.put(new Voxel(0, 1, 0, 0xDDFFEE));
+    grid.put(new Voxel(10, 0, 0, 0xDFFEED));
+    grid.put(new Voxel(0, 10, 0, 0xDFFEED));
+    grid.put(new Voxel(20, 0, 0, 0xFEEDDF));
+    grid.put(new Voxel(0, 20, 0, 0xEDDFFE));
+    grid.put(new Voxel(30, 0, 0, 0xFEDFED));
+    grid.put(new Voxel(0, 30, 0, 0xDEFDEF));
 
     Random r = new Random();
     for (int i = 0; i < 600; i++) {
-      grid.add(new Voxel(r.nextInt(30), r.nextInt(30), r.nextInt(21) - 10, 0xAAAAAA + r
+      grid.put(new Voxel(r.nextInt(30), r.nextInt(30), r.nextInt(21) - 10, 0xAAAAAA + r
           .nextInt(0x555555)));
     }
     return grid;
@@ -149,7 +149,7 @@ public class SampleGrids {
 
   /** Grid stretching 30x30 with voxels in simple patterns like stairsteps, etc */
   public static Grid testBed() {
-    MutableGrid grid = new SimpleGrid("testbed 30x30", true);
+    MutableGrid grid = new SimpleGrid("testbed 30x30");
 
     // First set of steps: single color stairs to floor.
     Position start = new Position(5, 5, 0);
@@ -216,7 +216,7 @@ public class SampleGrids {
   /** Plot of an exaggerated sine. Note that for pleasing results, the origin is shifted. */
   public static Grid plotSin(final int mulitplyer) {
     // TODO at low multipliers the colors aren't distinct enough.
-    MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40", true);
+    MutableGrid grid = new SimpleGrid("Sine plot x" + mulitplyer + " 40x40");
     ZPlotter plotter = new ZPlotter() {
       @Override public Voxel plot(int x, int y) {
         double distanceFromOrigin = Math.hypot(x, y);
@@ -233,7 +233,7 @@ public class SampleGrids {
 
   /** Plot of a flattened hyperbola. Note that for pleasing results, the origin is shifted. */
   public static Grid plotHyperbola(final double d) {
-    MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40", true);
+    MutableGrid grid = new SimpleGrid("Hyperbola x" + d + " 40x40");
     ZPlotter plotter = new ZPlotter() {
       @Override public Voxel plot(int x, int y) {
         double distanceFromOrigin = Math.hypot(x, y);
@@ -248,7 +248,7 @@ public class SampleGrids {
   }
 
   public static Grid hollowCube(int size, int color) {
-    MutableGrid grid = new SimpleGrid("cube of size " + size, true);
+    MutableGrid grid = new SimpleGrid("cube of size " + size);
 
     Position bnw = new Position(0, 0, 0);
     Position bne = new Position(size, 0, 0);
@@ -289,11 +289,11 @@ public class SampleGrids {
       int z = hasHeight ? r.nextInt(21) - 10 : 0;
       int color = 0x999999 + r.nextInt(0x666666);
       Voxel vox = new Voxel(x, y, z, color);
-      grid.add(vox);
+      grid.put(vox);
 
       // If not animated, and if positive z, make into a column.
       for (int j = 0; j < z; j++) {
-        grid.add(new Voxel(x, y, j, color));
+        grid.put(new Voxel(x, y, j, color));
       }
     }
 
@@ -302,7 +302,7 @@ public class SampleGrids {
 
   /** Creates a grid with two hundred towers of up to 50 voxels in a 30x30 grid. */
   public static Grid towers() {
-    MutableGrid grid = new SimpleGrid("200 towers 30x30", true);
+    MutableGrid grid = new SimpleGrid("200 towers 30x30");
     Random r = new Random();
     for (int i = 0; i < 200; i++) {
       int x = r.nextInt(30);
@@ -310,7 +310,7 @@ public class SampleGrids {
       int height = r.nextInt(50);
       for (int z = 0; z < height; z++) {
         int color = 0x999999 + r.nextInt(0x666666);
-        grid.add(new Voxel(x, y, z, color));
+        grid.put(new Voxel(x, y, z, color));
       }
     }
     return grid;

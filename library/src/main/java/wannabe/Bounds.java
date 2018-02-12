@@ -91,7 +91,7 @@ public interface Bounds {
     public void plot(MutableGrid grid, ZPlotter plotter) {
       for (int row = top; row < bottom; row++) {
         for (int col = left; col < right; col++) {
-          grid.add(plotter.plot(col, row));
+          grid.put(plotter.plot(col, row));
         }
       }
     }

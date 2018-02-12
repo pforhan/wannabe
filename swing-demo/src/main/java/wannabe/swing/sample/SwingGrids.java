@@ -32,9 +32,9 @@ public class SwingGrids {
         int cloudColor = (cloudColorComponent << 16)
             + (cloudColorComponent << 8)
             + cloudColorComponent; // 0x888888 - 0xFFFFFF
-        grid.add(new Voxel(col, row, 50 + cloudHeight, cloudColor));
-        grid.add(new Voxel(col, row, 51 + cloudHeight, cloudColor));
-        grid.add(new Voxel(col, row, 52 + cloudHeight, cloudColor));
+        grid.put(new Voxel(col, row, 50 + cloudHeight, cloudColor));
+        grid.put(new Voxel(col, row, 51 + cloudHeight, cloudColor));
+        grid.put(new Voxel(col, row, 52 + cloudHeight, cloudColor));
       }
     }
     return grid;
@@ -63,12 +63,12 @@ public class SwingGrids {
         int y = i / width;
         int z = (0xFF & b) / 4;
         int color = 0x888800 + b;
-        grid.add(new Voxel(x, y, z, color));
+        grid.put(new Voxel(x, y, z, color));
         // Continue down to height 0 if deep:
         if (deep) {
           for (int d = 0; d < z; d++) {
             color = 0x888800 + d * 4;
-            grid.add(new Voxel(x, y, d, color));
+            grid.put(new Voxel(x, y, d, color));
           }
         }
       }

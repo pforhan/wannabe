@@ -46,18 +46,12 @@ public class SimpleGrid implements MutableGrid {
   private final Map<Voxel, AllNeighbors> neighborCache = new HashMap<>();
   private final Translation translation = new Translation(0, 0, 0);
   private final String name;
-  private final boolean ignoreDuplicatePositions;
   final Translation workhorse = new Translation(0, 0, 0);
 
   private boolean dirty;
 
   public SimpleGrid(String name) {
-    this(name, false);
-  }
-
-  public SimpleGrid(String name, boolean ignoreDuplicatePositions) {
     this.name = name;
-    this.ignoreDuplicatePositions = ignoreDuplicatePositions;
   }
 
   @Override public Iterator<Voxel> iterator() {
@@ -74,12 +68,9 @@ public class SimpleGrid implements MutableGrid {
   @Override public void optimize() {
   }
 
-  @Override public void add(Voxel v) {
+  @Override public void put(Voxel v) {
+    if (v == null) throw new IllegalArgumentException("Voxel may not be null.");
     markDirty();
-    if (positionToVoxels.containsKey(v.position)) {
-      if (ignoreDuplicatePositions) return;
-      throw new IllegalArgumentException("Duplicate voxel at " + v.position);
-    }
     positionToVoxels.put(v.position, v);
   }
 
@@ -182,7 +173,7 @@ public class SimpleGrid implements MutableGrid {
       for (Voxel voxel : positionToVoxels.values()) {
         if (bounds.contains(voxel.position)
             && notSurroundedInBounds(bounds, voxel)) {
-          grid.add(voxel);
+          grid.put(voxel);
         }
       }
       return;
@@ -195,7 +186,7 @@ public class SimpleGrid implements MutableGrid {
       if (bounds.contains(workhorse)
           && notSurroundedInBounds(bounds, voxel)) {
         // TODO double check if we need to handle translation with bounds
-        grid.add(new Voxel(workhorse.asPosition(), voxel.color));
+        grid.put(new Voxel(workhorse.asPosition(), voxel.color));
       }
     }
   }
@@ -207,7 +198,7 @@ public class SimpleGrid implements MutableGrid {
       // We can skip cloning and translation.
       for (Voxel voxel : positionToVoxels.values()) {
         if (bounds.contains(voxel.position)) {
-          grid.add(voxel);
+          grid.put(voxel);
         }
       }
       return;
@@ -219,7 +210,7 @@ public class SimpleGrid implements MutableGrid {
       workhorse.set(voxel.position).add(translation);
       if (bounds.contains(workhorse)) {
         // TODO double check if we need to handle translation with bounds
-        grid.add(new Voxel(workhorse.asPosition(), voxel.color));
+        grid.put(new Voxel(workhorse.asPosition(), voxel.color));
       }
     }
   }

@@ -52,7 +52,7 @@ public class Voxels {
       Character boxed = chr;
       if (charToColor.containsKey(boxed)) {
         int color = charToColor.get(boxed);
-        grid.add(new Voxel(workhorse.asPosition(), color));
+        grid.put(new Voxel(workhorse.asPosition(), color));
       }
       workhorse.x++;
     }
@@ -83,7 +83,7 @@ public class Voxels {
       err_1 = dy2 - l;
       err_2 = dz2 - l;
       for (i = 0; i < l; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
+        grid.put(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.y += y_inc;
           err_1 -= dx2;
@@ -100,7 +100,7 @@ public class Voxels {
       err_1 = dx2 - m;
       err_2 = dz2 - m;
       for (i = 0; i < m; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
+        grid.put(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.x += x_inc;
           err_1 -= dy2;
@@ -117,7 +117,7 @@ public class Voxels {
       err_1 = dy2 - n;
       err_2 = dx2 - n;
       for (i = 0; i < n; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
+        grid.put(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.y += y_inc;
           err_1 -= dz2;
@@ -131,7 +131,7 @@ public class Voxels {
         pixel.z += z_inc;
       }
     }
-    grid.add(new Voxel(pixel.asPosition(), color));
+    grid.put(new Voxel(pixel.asPosition(), color));
   }
 
   static void drawPath(MutableGrid grid, Path path) {

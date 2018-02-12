@@ -40,7 +40,7 @@ public class SparseArrayGrid implements MutableGrid {
   private final Z zMap = new Z();
   private final Translation translation = new Translation(0, 0, 0);
   private final String name;
-  // TODO delete this flag, we really shouldn't allow them.
+  // TODO delete this flag, we just can run this as a map
   private final boolean ignoreDuplicatePositions;
   private final Set<Voxel> all = new TreeSet<>(zxyIncreasing); // TODO maybe zxyIncreasing?
   private final AllNeighbors theNeighbors = new AllNeighbors();
@@ -66,7 +66,7 @@ public class SparseArrayGrid implements MutableGrid {
 //    Collections.sort(all, zIncreasing);
   }
 
-  @Override public void add(Voxel v) {
+  @Override public void put(Voxel v) {
     dirty = true;
     Y yMap = zMap.get(v.position.z);
     if (yMap == null) {
@@ -168,7 +168,7 @@ public class SparseArrayGrid implements MutableGrid {
       for (Voxel voxel : all) {
         if (bounds.contains(voxel.position)
             && notSurroundedInBounds(bounds, voxel)) {
-          grid.add(voxel);
+          grid.put(voxel);
         }
       }
       return;
@@ -180,7 +180,7 @@ public class SparseArrayGrid implements MutableGrid {
       if (bounds.contains(workhorse)
           && notSurroundedInBounds(bounds, voxel)) {
         // TODO double check if we need to handle translation with bounds
-        grid.add(new Voxel(workhorse.asPosition(), voxel.color));
+        grid.put(new Voxel(workhorse.asPosition(), voxel.color));
       }
     }
   }
@@ -192,7 +192,7 @@ public class SparseArrayGrid implements MutableGrid {
       // We can skip cloning and translation.
       for (Voxel voxel : all) {
         if (bounds.contains(voxel.position)) {
-          grid.add(voxel);
+          grid.put(voxel);
         }
       }
       return;
@@ -203,7 +203,7 @@ public class SparseArrayGrid implements MutableGrid {
       workhorse.set(voxel.position).add(translation);
       if (bounds.contains(workhorse)) {
         // TODO double check if we need to handle translation with bounds
-        grid.add(new Voxel(workhorse.asPosition(), voxel.color));
+        grid.put(new Voxel(workhorse.asPosition(), voxel.color));
       }
     }
   }
