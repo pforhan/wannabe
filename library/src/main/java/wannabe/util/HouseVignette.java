@@ -5,6 +5,7 @@ import wannabe.Position;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.SimpleGrid;
+import wannabe.projection.Projection;
 
 import static wannabe.util.Voxels.line;
 
@@ -22,6 +23,10 @@ import static wannabe.util.Voxels.line;
  * </ul>
  */
 public class HouseVignette {
+  public Projection preferredProjection() {
+    return null; //Projections.PROJECTIONS.
+  }
+
   public Grid buildHouse() {
     SimpleGrid scene = new SimpleGrid("House");
 

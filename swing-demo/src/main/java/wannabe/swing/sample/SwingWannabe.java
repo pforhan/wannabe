@@ -69,8 +69,8 @@ public class SwingWannabe {
     currentGrid = SwingGrids.GRIDS.get(0);
     panel.addGrid(currentGrid);
     settings.gridSelected(currentGrid);
-    panel.setProjection(Projections.PROJECTIONS.get(0));
-    settings.projectionSelected(Projections.PROJECTIONS.get(0));
+    panel.setProjection(Projections.values()[0].projection);
+    settings.projectionsSelected(Projections.values()[0]);
     settings.renderTypeSelected(panel.getRenderer());
 
     frame.setSize(mainLayout.getPreferredSize());
@@ -148,9 +148,9 @@ public class SwingWannabe {
             settings.renderTypeSelected(nextRenderType);
             break;
           case KeyEvent.VK_P:
-            Projection next = Projections.next(panel.getProjection());
-            panel.setProjection(next);
-            settings.projectionSelected(next);
+            Projections next = Projections.withProjection(panel.getProjection()).next();
+            panel.setProjection(next.projection);
+            settings.projectionsSelected(next);
             break;
           case KeyEvent.VK_E:
             exportHidden = !exportHidden;
