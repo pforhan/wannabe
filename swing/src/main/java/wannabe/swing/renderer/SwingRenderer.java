@@ -1,11 +1,11 @@
 package wannabe.swing.renderer;
 
 import java.awt.Graphics;
-import wannabe.Rendered;
+import wannabe.Projected;
 
 /** Displays a voxel. */
 public abstract class SwingRenderer {
-  abstract public void draw(Graphics g, Rendered r);
+  abstract public void draw(Graphics g, Projected r);
 
   @Override public String toString() {
     return getClass().getSimpleName();

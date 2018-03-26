@@ -3,13 +3,13 @@ package wannabe.swing.renderer;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
-import wannabe.Rendered;
+import wannabe.Projected;
 
 /** * Utility class for drawing sides of cubes. */
 class Sides {
   private final Polygon polygon = new Polygon();
 
-  void fillSides(Graphics g, Rendered r) {
+  void fillSides(Graphics g, Projected r) {
     populateCubeSidesPolygon(r);
     fillSides(g, r.darkerColor, r.color);
   }
@@ -29,7 +29,7 @@ class Sides {
     // Kinda cool: if I connect other points it adds texture to the sides.
   }
 
-  void wireSides(Graphics g, Rendered r) {
+  void wireSides(Graphics g, Projected r) {
     populateCubeSidesPolygon(r);
     wireSides(g, r.darkerColor, r.color);
   }
@@ -57,13 +57,13 @@ class Sides {
    *
    * See the various populate methods for more details:
    * <ul>
-   * <li> {@link #populateAboveLeft(Rendered)}
-   * <li> {@link #populateAboveRight(Rendered)}
-   * <li> {@link #populateBelowLeft(Rendered)}
-   * <li> {@link #populateBelowRight(Rendered)}
+   * <li> {@link #populateAboveLeft(Projected)}
+   * <li> {@link #populateAboveRight(Projected)}
+   * <li> {@link #populateBelowLeft(Projected)}
+   * <li> {@link #populateBelowRight(Projected)}
    * </ul>
    */
-  void populateCubeSidesPolygon(Rendered r) {
+  void populateCubeSidesPolygon(Projected r) {
     polygon.reset();
     // Pick the first three points based on direction.
     if (r.hDepth < 0) {
@@ -166,7 +166,7 @@ class Sides {
    *
    * Note that there are at most 8 points in any cases.
    */
-  public void populateAboveLeft(Rendered r) {
+  public void populateAboveLeft(Projected r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
     int outTop = r.top + r.vDepth;
@@ -222,8 +222,8 @@ class Sides {
     }
   }
 
-  /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
-  public void populateBelowRight(Rendered r) {
+  /** See javadoc on {@link #populateAboveLeft(Projected)} for details. */
+  public void populateBelowRight(Projected r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
     int outRight = right + r.hDepth;
@@ -280,8 +280,8 @@ class Sides {
     }
   }
 
-  /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
-  public void populateAboveRight(Rendered r) {
+  /** See javadoc on {@link #populateAboveLeft(Projected)} for details. */
+  public void populateAboveRight(Projected r) {
     int bottom = r.top + r.size;
     int right = r.left + r.size;
     int outRight = right + r.hDepth;
@@ -338,8 +338,8 @@ class Sides {
     }
   }
 
-  /** See javadoc on {@link #populateAboveLeft(Rendered)} for details. */
-  public void populateBelowLeft(Rendered r) {
+  /** See javadoc on {@link #populateAboveLeft(Projected)} for details. */
+  public void populateBelowLeft(Projected r) {
     // TODO fix this up like the others
     int bottom = r.top + r.size;
     int right = r.left + r.size;

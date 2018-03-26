@@ -2,7 +2,7 @@ package wannabe.swing.renderer;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import wannabe.Rendered;
+import wannabe.Projected;
 
 /** Cube filled with {@code fill} and outlined with each voxel's colors. */
 public class SolidWireCube extends SwingRenderer {
@@ -13,7 +13,7 @@ public class SolidWireCube extends SwingRenderer {
     this.fill = fill;
   }
 
-  @Override public void draw(Graphics g, Rendered r) {
+  @Override public void draw(Graphics g, Projected r) {
     // Populate manually so that we only calculate it once.
     sides.populateCubeSidesPolygon(r);
 

@@ -5,7 +5,7 @@ public class Camera {
   /** The position of this camera in the voxel space. */
   public final Translation position;
   /** This position of this camera in the UI (pixel) space. The size value is ignored. */
-  public final Rendered uiPosition = new Rendered();
+  public final Projected uiPosition = new Projected();
   private final Translation translated = new Translation(0, 0, 0);
   public boolean isDirty;
 

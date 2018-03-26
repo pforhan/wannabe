@@ -16,7 +16,7 @@ import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 /** Describes real pixel color, location, and size for a voxel. */
 // TODO do we want java.awt.Color here?
 // TODO should I just put the Voxel in here?
-public class Rendered {
+public class Projected {
   public int left;
   public int top;
   public int size;

@@ -11,7 +11,7 @@ import java.util.List;
 import javax.swing.JPanel;
 import wannabe.Bounds.XYBounds;
 import wannabe.Camera;
-import wannabe.Rendered;
+import wannabe.Projected;
 import wannabe.Translation;
 import wannabe.UI;
 import wannabe.Voxel;
@@ -184,7 +184,7 @@ import wannabe.util.UIs;
     g.fillRect(0, 0, widthPx, heightPx);
 
     for (Voxel voxel : activeBuffer) {
-      Rendered r = projection.render(camera, voxel.position, realPixelSize);
+      Projected r = projection.project(camera, voxel.position, realPixelSize);
       // If it's going to be fully off-screen, don't bother drawing.
       if (r.left < -realPixelSize || r.left > widthPx //
           || r.top < -realPixelSize || r.top > heightPx) {
