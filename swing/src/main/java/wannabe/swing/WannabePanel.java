@@ -25,7 +25,10 @@ import wannabe.swing.renderer.FilledThreeDSquareWithCabinetSides;
 import wannabe.swing.renderer.SwingRenderer;
 import wannabe.util.UIs;
 
-/** Swing painting code to display a Wannabe {@link Grid}. */
+/**
+ * Swing painting code to display a Wannabe {@link Grid}. Treats {@link Voxel#color} as an ARGB
+ * value.  If the alpha component is 0x00, it is treated as 0xFF (100% opaque).
+ */
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
   public static final int DEFAULT_PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
@@ -224,21 +227,21 @@ import wannabe.util.UIs;
     lastCameraTranslation.set(camera.position);
   }
 
-  private Color getSwingColor(int rgb) {
-    Color color = colorCache.get(rgb);
+  private Color getSwingColor(int argb) {
+    Color color = colorCache.get(argb);
     if (color == null) {
-      boolean hasAlpha = rgb >> 24 > 0;
-      color = new Color(rgb, hasAlpha);
-      colorCache.put(rgb, color);
+      boolean hasAlpha = argb >> 24 > 0;
+      color = new Color(argb, hasAlpha);
+      colorCache.put(argb, color);
     }
     return color;
   }
 
-  private Color getDarkerColor(int rgb) {
-    Color color = darkerCache.get(rgb);
+  private Color getDarkerColor(int argb) {
+    Color color = darkerCache.get(argb);
     if (color == null) {
-      color = getSwingColor(rgb).darker();
-      darkerCache.put(rgb, color);
+      color = getSwingColor(argb).darker();
+      darkerCache.put(argb, color);
     }
     return color;
   }

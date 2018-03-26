@@ -58,39 +58,40 @@ public class HouseVignette {
     // Add a roof. Extends 2 over the sides of the house. Spine runs along the x axis.
     // In practice, a triangular prism, just made out of lines stacked together.
     // TODO: eaves should be hollow, ie just the edges hang over
+    // TODO ...could do that via some lines at the end
     // First level: full depth
     int y = 9;
     for (int z = -7; z < 12; z++) {
-      Position left  = new Position(-10, y, z);
-      Position right = new Position(13, y, z);
+      Position left  = new Position(-9, y, z);
+      Position right = new Position(12, y, z);
       line(scene, left, right, 0xFFAA4444);
     }
     // Next level: -2 depth on each side
     y = 8;
     for (int z = -5; z < 10; z++) {
-      Position left  = new Position(-10, y, z);
-      Position right = new Position(13, y, z);
+      Position left  = new Position(-9, y, z);
+      Position right = new Position(12, y, z);
       line(scene, left, right, 0xFFAA4444);
     }
     // Next level: -4 depth on each side
     y = 7;
     for (int z = -3; z < 8; z++) {
-      Position left  = new Position(-10, y, z);
-      Position right = new Position(13, y, z);
+      Position left  = new Position(-9, y, z);
+      Position right = new Position(12, y, z);
       line(scene, left, right, 0xFFAA4444);
     }
     // Next level: -6 depth on each side
     y = 6;
     for (int z = -1; z < 6; z++) {
-      Position left  = new Position(-10, y, z);
-      Position right = new Position(13, y, z);
+      Position left  = new Position(-9, y, z);
+      Position right = new Position(12, y, z);
       line(scene, left, right, 0xFFAA4444);
     }
     // Next level: -8 depth on each side
     y = 5;
     for (int z = 1; z < 4; z++) {
-      Position left  = new Position(-10, y, z);
-      Position right = new Position(13, y, z);
+      Position left  = new Position(-9, y, z);
+      Position right = new Position(12, y, z);
       line(scene, left, right, 0xFFAA4444);
     }
   }
@@ -105,8 +106,7 @@ public class HouseVignette {
     line(scene, topRight, botRight, 0xFFFFFFFF);
 
     // Doorknob
-    RGB is a good gold color 254 205 80
-    scene.put(new Voxel(12, 23, 6, 0xFFFFFFFf));
+    scene.put(new Voxel(12, 23, 6, 0xFFFDCD50));
   }
 
   private void windows(SimpleGrid scene) {

@@ -27,9 +27,10 @@ public class SwingGrids {
       for (int col = 20; col < 40; col++) {
         // All clouds are about 50-60z in height. There are three for each x, y coordinate.
         // The higher a cloud, the lighter its color.
-        int cloudHeight = r.nextInt(8); // 0-7
+        int cloudHeight = r.nextInt(4) + 1; // 1-4
         int cloudColorComponent = (cloudHeight << 3) + 199; // 199 - 255
-        int cloudColor = (cloudColorComponent << 16)
+        int cloudColor = (0x7A << 24)
+            + (cloudColorComponent << 16)
             + (cloudColorComponent << 8)
             + cloudColorComponent; // 0x888888 - 0xFFFFFF
         grid.put(new Voxel(col, row, 50 + cloudHeight, cloudColor));
