@@ -68,6 +68,13 @@ public class Voxels {
     }
   }
 
+  /**
+   * Constructs a voxel with position x, z, and a calculated y. Returns {@code null} if there is
+   * nothing to plot at this x and z
+   */
+  public interface YPlotter {
+    Voxel plot(int x, int z);
+  }
 
   /**
    * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the value

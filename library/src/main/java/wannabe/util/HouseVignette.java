@@ -1,12 +1,15 @@
 package wannabe.util;
 
+import java.util.Random;
 import wannabe.Bounds.XYBounds;
+import wannabe.Bounds.XZBounds;
 import wannabe.Position;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.SimpleGrid;
 import wannabe.util.Voxels.EdgesZPlotter;
 import wannabe.util.Voxels.FloodFillZPlotter;
+import wannabe.util.Voxels.YPlotter;
 
 import static wannabe.util.Voxels.line;
 
@@ -19,7 +22,7 @@ import static wannabe.util.Voxels.line;
  * <li>House on the left with door, windows, roof.
  * <li>Fenced yard with pathway and gate
  * <li>Distant hills
- * <li>Cloudy sky
+ * <li>Dark, cloudy sky
  * <li>Animated rain coming in at an angle toward the house.
  * </ul>
  */
@@ -184,8 +187,16 @@ public class HouseVignette {
   }
 
   private void yard(SimpleGrid scene) {
-    // TODO Auto-generated method stub
-
+    // Yard is just a flat bit of greens beneath the house, stretches 5 beyond the walls on
+    // the sides and back, 25 out the front.
+    Random r = new Random();
+    XZBounds bounds = new XZBounds();
+    bounds.setFromWidthHeight(-13, -10, 50, 30);
+    bounds.plot(scene, new YPlotter() {
+      @Override public Voxel plot(int x, int z) {
+        return new Voxel(x, 30, z, 0xFF00A000 + (r.nextInt(128) << 16) + r.nextInt(128));
+      }
+    });
   }
 
   private void path(SimpleGrid scene) {
