@@ -4,12 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import wannabe.Projected;
+import wannabe.swing.SwingProjected;
 
 /** * Utility class for drawing sides of cubes. */
 class Sides {
   private final Polygon polygon = new Polygon();
 
-  void fillSides(Graphics g, Projected r) {
+  void fillSides(Graphics g, SwingProjected r) {
     populateCubeSidesPolygon(r);
     fillSides(g, r.darkerColor, r.color);
   }
@@ -29,7 +30,7 @@ class Sides {
     // Kinda cool: if I connect other points it adds texture to the sides.
   }
 
-  void wireSides(Graphics g, Projected r) {
+  void wireSides(Graphics g, SwingProjected r) {
     populateCubeSidesPolygon(r);
     wireSides(g, r.darkerColor, r.color);
   }

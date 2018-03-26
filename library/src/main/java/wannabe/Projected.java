@@ -1,6 +1,5 @@
 package wannabe;
 
-import java.awt.Color;
 import wannabe.grid.AllNeighbors;
 
 import static wannabe.grid.AllNeighbors.RelativePosition.CENTER;
@@ -14,7 +13,6 @@ import static wannabe.grid.AllNeighbors.RelativePosition.SOUTHWEST;
 import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 
 /** Describes real pixel color, location, and size for a voxel. */
-// TODO do we want java.awt.Color here?
 // TODO should I just put the Voxel in here?
 public class Projected {
   public int left;
@@ -24,8 +22,6 @@ public class Projected {
   public int hDepth;
   /** Vertical space to use to indicate height. */
   public int vDepth;
-  public Color color;
-  public Color darkerColor;
 
   // Hints about whether there are neighboring voxels nearby.
 
@@ -68,5 +64,14 @@ public class Projected {
     neighborNorthWest = neighbors.same.get(NORTHWEST);
     neighborAbove = neighbors.above.get(CENTER);
     neighborBelow = neighbors.below.get(CENTER);
+  }
+
+  /** Copies core (ie, non-neighbor) fields from {@code other} to this object. */
+  public void copyCoreFrom(Projected other) {
+    left = other.left;
+    top = other.top;
+    size = other.size;
+    hDepth = other.hDepth;
+    vDepth = other.vDepth;
   }
 }

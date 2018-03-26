@@ -1,10 +1,10 @@
 package wannabe.swing.renderer;
 
 import java.awt.Graphics;
-import wannabe.Projected;
+import wannabe.swing.SwingProjected;
 
 public class Square extends SwingRenderer {
-  @Override public void draw(Graphics g, Projected r) {
-    g.drawRect(r.left, r.top, r.size, r.size);
+  @Override public void draw(Graphics g, SwingProjected p) {
+    g.drawRect(p.left, p.top, p.size, p.size);
   }
 }

@@ -29,7 +29,8 @@ import wannabe.util.UIs;
  * Swing painting code to display a Wannabe {@link Grid}. Treats {@link Voxel#value} as an ARGB
  * value.  If the alpha component is 0x00, it is treated as 0xFF (100% opaque).
  */
-@SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
+@SuppressWarnings("serial")
+public class WannabePanel extends JPanel implements UI {
   public static final int DEFAULT_PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
   private static final int MIN_PLAYFIELD_WIDTH = 50;
@@ -66,6 +67,7 @@ import wannabe.util.UIs;
   private boolean exportHidden;
   private boolean dirty;
   private final Translation lastCameraTranslation = new Translation(0,0,0);
+  private final SwingProjected swing = new SwingProjected();
 
   public WannabePanel(final Camera camera) {
     this.camera = camera;
@@ -184,24 +186,24 @@ import wannabe.util.UIs;
     g.fillRect(0, 0, widthPx, heightPx);
 
     for (Voxel voxel : activeBuffer) {
-      Projected r = projection.project(camera, voxel.position, realPixelSize);
+      Projected p = projection.project(camera, voxel.position, realPixelSize);
       // If it's going to be fully off-screen, don't bother drawing.
-      if (r.left < -realPixelSize || r.left > widthPx //
-          || r.top < -realPixelSize || r.top > heightPx) {
+      if (p.left < -realPixelSize || p.left > widthPx //
+          || p.top < -realPixelSize || p.top > heightPx) {
         continue;
       }
       // If it's too small don't draw:
       // TODO probably should put a specific bounds on when PsPerspective used, but anyway...
       // TODO and of course this affects pixel-sized rendering if we want to try that
-      if (r.size <= 1) continue;
-      r.color = getSwingColor(voxel.value);
-      r.darkerColor = getDarkerColor(voxel.value);
-      r.neighborsFrom(activeBuffer.neighbors(voxel));
+      if (p.size <= 1) continue;
+      swing.copyCoreFrom(p);
+      swing.neighborsFrom(activeBuffer.neighbors(voxel));
+      swing.color = getSwingColor(voxel.value);
+      swing.darkerColor = getDarkerColor(voxel.value);
 
-      // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
-      // awt colors in this case) and b) that it controls the context value
-      g.setColor(r.color);
-      renderer.draw(g, r);
+      // TODO it seems a bit weird that that this method controls the context value
+      g.setColor(swing.color);
+      renderer.draw(g, swing);
     }
 
     // Timing info:
