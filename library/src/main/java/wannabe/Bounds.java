@@ -56,6 +56,10 @@ public interface Bounds {
       this.bottom = bottom;
     }
 
+    public boolean isEdge(int x, int y) {
+      return x == left || x == right - 1 || y == top || y == bottom - 1;
+    }
+
     @Override public boolean contains(Position pos) {
       return pos.x >= left && pos.x < right
           && pos.y >= top && pos.y < bottom;
@@ -91,7 +95,9 @@ public interface Bounds {
     public void plot(MutableGrid grid, ZPlotter plotter) {
       for (int row = top; row < bottom; row++) {
         for (int col = left; col < right; col++) {
-          grid.put(plotter.plot(col, row));
+          final Voxel plotted = plotter.plot(col, row);
+          if (plotted == null) continue;
+          grid.put(plotted);
         }
       }
     }

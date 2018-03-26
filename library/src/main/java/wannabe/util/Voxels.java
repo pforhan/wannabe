@@ -1,6 +1,7 @@
 package wannabe.util;
 
 import java.util.Map;
+import wannabe.Bounds.XYBounds;
 import wannabe.Position;
 import wannabe.Translation;
 import wannabe.Voxel;
@@ -24,10 +25,49 @@ public class Voxels {
     Translation drawAndMove(MutableGrid grid, Translation current);
   }
 
-  /** Constructs a voxel with position x, y, and a calculated z. */
+  /**
+   * Constructs a voxel with position x, y, and a calculated z. Returns {@code null} if there is
+   * nothing to plot at this x and y
+   */
   public interface ZPlotter {
     Voxel plot(int x, int y);
   }
+
+  /** Fills every x,y with a voxel at z with value {@code value}. */
+  public static class FloodFillZPlotter implements ZPlotter {
+    private final int z;
+    private final int value;
+
+    public FloodFillZPlotter(int z, int value) {
+      this.z = z;
+      this.value = value;
+    }
+
+    @Override public Voxel plot(int x, int y) {
+      return new Voxel(x, y, z, value);
+    }
+  }
+
+  /**
+   * If x or y matches either bound of {@code bounds} plots a voxel at z with value {@code value},
+   * otherwise returns null;
+   */
+  public static class EdgesZPlotter implements ZPlotter {
+    private final XYBounds bounds;
+    private final int z;
+    private final int value;
+
+    public EdgesZPlotter(XYBounds bounds, int z, int value) {
+      this.bounds = bounds;
+      this.z = z;
+      this.value = value;
+    }
+
+    @Override public Voxel plot(int x, int y) {
+      return bounds.isEdge(x, y) ? new Voxel(x, y, z, value) : null;
+    }
+  }
+
 
   /**
    * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the value

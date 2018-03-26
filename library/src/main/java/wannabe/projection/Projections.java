@@ -6,12 +6,12 @@ public enum Projections {
   TOP_RIGHT_5(new Cabinet(-5, 5)),
   BOTTOM_LEFT_5(new Cabinet(5, -5)),
   BOTTOM_RIGHT_5(new Cabinet(-5, -5)),
+  PSEUDO_PERSPECTIVE(new PseudoPerspective()),
   TOP_LEFT_1(new Cabinet(1, 1)),
   TOP_RIGHT_1(new Cabinet(-1, 1)),
   BOTTOM_LEFT_1(new Cabinet(1, -1)),
   BOTTOM_RIGHT_1(new Cabinet(-1, -1)),
   FLAT(new Flat()),
-  PSEUDO_PERSPECTIVE(new PseudoPerspective()),
   ;
 
   public final Projection projection;

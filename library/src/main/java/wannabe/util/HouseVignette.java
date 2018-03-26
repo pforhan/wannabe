@@ -5,6 +5,8 @@ import wannabe.Position;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.SimpleGrid;
+import wannabe.util.Voxels.EdgesZPlotter;
+import wannabe.util.Voxels.FloodFillZPlotter;
 
 import static wannabe.util.Voxels.line;
 
@@ -22,6 +24,12 @@ import static wannabe.util.Voxels.line;
  * </ul>
  */
 public class HouseVignette {
+  private static final int FRAMING_COLOR = 0xFFFFFFFF;
+  private static final int DOOR_KNOB_COLOR = 0xFFFDCD50;
+  private static final int ROOF_COLOR = 0xFFAA4444;
+  private static final int HOUSE_COLOR = 0xFFAA9988;
+  private static final int GLASS_COLOR = 0x60888888;
+
   public Grid buildHouse() {
     SimpleGrid scene = new SimpleGrid("House");
 
@@ -45,13 +53,16 @@ public class HouseVignette {
 
   private void house(SimpleGrid scene) {
     // Flood-fill a 20x20x15 base house from -8,10,-5 to 12,30,10
+    // Make the house hollow
     XYBounds bounds = new XYBounds();
     bounds.setFromWidthHeight(-8, 10, 20, 20);
-    final int[] ugh = { 0 };
     for (int z = -5; z < 10; z++) {
-      ugh[0] = z;
-      bounds.plot(scene, (x, y) -> new Voxel(x, y, ugh[0], 0xFFAA9988));
+      bounds.plot(scene, new EdgesZPlotter(bounds, z, HOUSE_COLOR));
     }
+
+    // Left and right sides:
+    bounds.plot(scene, new FloodFillZPlotter(-5, HOUSE_COLOR));
+    bounds.plot(scene, new FloodFillZPlotter(9, HOUSE_COLOR));
   }
 
   private void roof(SimpleGrid scene) {
@@ -64,53 +75,112 @@ public class HouseVignette {
     for (int z = -7; z < 12; z++) {
       Position left  = new Position(-9, y, z);
       Position right = new Position(12, y, z);
-      line(scene, left, right, 0xFFAA4444);
+      line(scene, left, right, ROOF_COLOR);
     }
     // Next level: -2 depth on each side
     y = 8;
     for (int z = -5; z < 10; z++) {
       Position left  = new Position(-9, y, z);
       Position right = new Position(12, y, z);
-      line(scene, left, right, 0xFFAA4444);
+      line(scene, left, right, ROOF_COLOR);
     }
     // Next level: -4 depth on each side
     y = 7;
     for (int z = -3; z < 8; z++) {
       Position left  = new Position(-9, y, z);
       Position right = new Position(12, y, z);
-      line(scene, left, right, 0xFFAA4444);
+      line(scene, left, right, ROOF_COLOR);
     }
     // Next level: -6 depth on each side
     y = 6;
     for (int z = -1; z < 6; z++) {
       Position left  = new Position(-9, y, z);
       Position right = new Position(12, y, z);
-      line(scene, left, right, 0xFFAA4444);
+      line(scene, left, right, ROOF_COLOR);
     }
     // Next level: -8 depth on each side
     y = 5;
     for (int z = 1; z < 4; z++) {
       Position left  = new Position(-9, y, z);
       Position right = new Position(12, y, z);
-      line(scene, left, right, 0xFFAA4444);
+      line(scene, left, right, ROOF_COLOR);
     }
   }
 
   private void door(SimpleGrid scene) {
+    // Frame
     Position topLeft  = new Position(11, 13, 7);
     Position topRight = new Position(11, 13, 2);
     Position botLeft  = new Position(11, 29, 7);
     Position botRight = new Position(11, 29, 2);
-    line(scene, topLeft,  topRight, 0xFFFFFFFF);
-    line(scene, topLeft,  botLeft,  0xFFFFFFFF);
-    line(scene, topRight, botRight, 0xFFFFFFFF);
+    line(scene, topLeft,  topRight, FRAMING_COLOR);
+    line(scene, topLeft,  botLeft,  FRAMING_COLOR);
+    line(scene, topRight, botRight, FRAMING_COLOR);
 
     // Doorknob
-    scene.put(new Voxel(12, 23, 6, 0xFFFDCD50));
+    scene.put(new Voxel(12, 23, 6, DOOR_KNOB_COLOR));
+
+    // Door window (T, B, L, R from the perspective of facing the door from the outside)
+    topLeft = new Position(11, 15, 5);
+    botLeft = new Position(11, 20, 5);
+    topRight = new Position(11, 15, 4);
+    botRight = new Position(11, 20, 4);
+    line(scene, topLeft, botLeft, GLASS_COLOR);
+    line(scene, topRight, botRight, GLASS_COLOR);
   }
 
   private void windows(SimpleGrid scene) {
+    // "Front" window, beside the door (T, B, L, R from the perspective of facing the window outside)
+    final int windowTop = 14;
+    final int windowBot = 25;
+    Position topLeft  = new Position(11, windowTop, 0);
+    Position topRight = new Position(11, windowTop, -4);
+    Position botLeft  = new Position(11, windowBot, 0);
+    Position botRight = new Position(11, windowBot, -4);
 
+    // - Frame
+    line(scene, topLeft,  topRight, FRAMING_COLOR);
+    line(scene, topLeft,  botLeft,  FRAMING_COLOR);
+    line(scene, topRight, botRight, FRAMING_COLOR);
+    line(scene, botLeft, botRight, FRAMING_COLOR);
+    // - Glass
+    for (int z = -3; z < 0; z++) {
+      line(scene, new Position(11, windowTop + 1, z), new Position(11, windowBot - 1, z),
+          GLASS_COLOR);
+    }
+
+    // Left side rear window (facing from the outside)
+    xyWindow(scene, -6, 9);
+
+    // Left side fore window
+    xyWindow(scene, 4, 9);
+
+    // Right side rear window (unlike others, as facing window from inside)
+    xyWindow(scene, -6, -5);
+
+    // Right side fore window
+    xyWindow(scene, 4, -5);
+  }
+
+  /** Draws a window on the x-y plane at the specified left and z values. */
+  private void xyWindow(SimpleGrid scene, int left, int z) {
+    final int windowTop = 14;
+    final int windowBot = 25;
+
+    Position topLeft = new Position(left, windowTop, z);
+    Position topRight = new Position(left + 5, windowTop, z);
+    Position botLeft = new Position(left, windowBot, z);
+    Position botRight = new Position(left + 5, windowBot, z);
+    // - Frame
+    line(scene, topLeft,  topRight, FRAMING_COLOR);
+    line(scene, topLeft,  botLeft,  FRAMING_COLOR);
+    line(scene, topRight, botRight, FRAMING_COLOR);
+    line(scene, botLeft, botRight, FRAMING_COLOR);
+    // - Glass
+    for (int x = left + 1; x < left + 5; x++) {
+      line(scene, new Position(x, windowTop + 1, z), new Position(x, windowBot - 1, z),
+          GLASS_COLOR);
+    }
   }
 
   private void yard(SimpleGrid scene) {
