@@ -21,7 +21,7 @@ public final class TranslatingIterator implements Iterator<Voxel> {
   @Override public Voxel next() {
     Voxel real = realIterator.next();
     if (translation.isZero()) return real;
-    Voxel newVox = new Voxel(workhorse.set(real.position).add(translation).asPosition(), real.color);
+    Voxel newVox = new Voxel(workhorse.set(real.position).add(translation).asPosition(), real.value);
     return newVox;
   }
 

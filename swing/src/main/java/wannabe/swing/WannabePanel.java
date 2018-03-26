@@ -26,7 +26,7 @@ import wannabe.swing.renderer.SwingRenderer;
 import wannabe.util.UIs;
 
 /**
- * Swing painting code to display a Wannabe {@link Grid}. Treats {@link Voxel#color} as an ARGB
+ * Swing painting code to display a Wannabe {@link Grid}. Treats {@link Voxel#value} as an ARGB
  * value.  If the alpha component is 0x00, it is treated as 0xFF (100% opaque).
  */
 @SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
@@ -194,12 +194,12 @@ import wannabe.util.UIs;
       // TODO probably should put a specific bounds on when PsPerspective used, but anyway...
       // TODO and of course this affects pixel-sized rendering if we want to try that
       if (r.size <= 1) continue;
-      r.color = getSwingColor(voxel.color);
-      r.darkerColor = getDarkerColor(voxel.color);
+      r.color = getSwingColor(voxel.value);
+      r.darkerColor = getDarkerColor(voxel.value);
       r.neighborsFrom(activeBuffer.neighbors(voxel));
 
       // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
-      // awt colors in this case) and b) that it controls the context color
+      // awt colors in this case) and b) that it controls the context value
       g.setColor(r.color);
       renderer.draw(g, r);
     }

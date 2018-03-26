@@ -30,13 +30,13 @@ public class Voxels {
   }
 
   /**
-   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the color
+   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the value
    * map will act as spacers (leaves empty space in the final grid).
    *
    * @param grid Grid to populate
    * @param topLeft top-left position to start reading into.
    * @param textmap two-dimensional array of characters representing the desired output.
-   * @param charToColor map of character to color describing what colors to use.
+   * @param charToColor map of character to value describing what colors to use.
    */
   public static void fromTextMap(MutableGrid grid, Position topLeft, String textmap,
       Map<Character, Integer> charToColor) {

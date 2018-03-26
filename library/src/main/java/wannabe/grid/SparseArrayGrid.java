@@ -180,7 +180,7 @@ public class SparseArrayGrid implements MutableGrid {
       if (bounds.contains(workhorse)
           && notSurroundedInBounds(bounds, voxel)) {
         // TODO double check if we need to handle translation with bounds
-        grid.put(new Voxel(workhorse.asPosition(), voxel.color));
+        grid.put(new Voxel(workhorse.asPosition(), voxel.value));
       }
     }
   }
@@ -203,7 +203,7 @@ public class SparseArrayGrid implements MutableGrid {
       workhorse.set(voxel.position).add(translation);
       if (bounds.contains(workhorse)) {
         // TODO double check if we need to handle translation with bounds
-        grid.put(new Voxel(workhorse.asPosition(), voxel.color));
+        grid.put(new Voxel(workhorse.asPosition(), voxel.value));
       }
     }
   }
