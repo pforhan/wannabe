@@ -227,7 +227,8 @@ import wannabe.util.UIs;
   private Color getSwingColor(int rgb) {
     Color color = colorCache.get(rgb);
     if (color == null) {
-      color = new Color(rgb);
+      boolean hasAlpha = rgb >> 24 > 0;
+      color = new Color(rgb, hasAlpha);
       colorCache.put(rgb, color);
     }
     return color;
