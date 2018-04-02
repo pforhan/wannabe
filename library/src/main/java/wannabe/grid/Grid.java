@@ -11,6 +11,7 @@ import wannabe.Voxel;
  * may change.
  */
 public interface Grid extends Iterable<Voxel> {
+  // TODO come up with a way to merge exportTo / iterator
   /**
    * Returns an iterator over all {@link Voxel}s in this grid. Note that optimized implementations
    * may return the same {@link Voxel} reference with every call to {@link Iterator#next()} so it is
@@ -28,12 +29,22 @@ public interface Grid extends Iterable<Voxel> {
   /** Number of Voxels this grid contains. */
   int size();
 
+  /**
+   * Returns {@code true} if anything about this grid has changed (such as voxels or translation)
+   * since the last time {@link #iterator()} or {@link #exportTo(MutableGrid, Bounds, boolean)}
+   * was called.
+   */
+  boolean isDirty();
+
   /** Translates every {@link Voxel} in this grid by the specified offset. Additive. */
   void translate(Translation offset);
 
   /** Resets translation to zero. */
   void clearTranslation();
 
-  Neighbors neighbors(Voxel voxel);
+  AllNeighbors neighbors(Voxel voxel);
 
+//  don't remember what I was doing here:
+//  // Painting methods.
+//  Voxel at(Translation translation);
 }

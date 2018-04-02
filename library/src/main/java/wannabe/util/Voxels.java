@@ -1,6 +1,7 @@
 package wannabe.util;
 
 import java.util.Map;
+import wannabe.Bounds.XYBounds;
 import wannabe.Position;
 import wannabe.Translation;
 import wannabe.Voxel;
@@ -13,7 +14,7 @@ public class Voxels {
    * Simple mechanism to iteratively add a set of voxels. See {@link #drawPath}.
    * TODO Can I make an Iterable? Would that gain anything?
    */
-  interface Path {
+  public interface Path {
     /** Set up the path and return its starting Position. */
     Position start();
 
@@ -21,28 +22,68 @@ public class Voxels {
      * Adds voxel(s) at the specified location, and returns the next location, or {@code null} if
      * complete.
      */
-    Translation drawAndMove(MutableGrid grid, Translation pos);
+    Translation drawAndMove(MutableGrid grid, Translation current);
   }
 
   /**
-   * TODO does it make sense to restrict to x, y inputs? And when I make it generic this way,
-   * I bet there's better function interfaces out there...
-   * It may be worth letting the plotter plot voxels directly, could make more accurate color
-   * decisions... or could plot multiple points.  This reduces capability to a single scalar.
+   * Constructs a voxel with position x, y, and a calculated z. Returns {@code null} if there is
+   * nothing to plot at this x and y
    */
-  interface Plotter {
-    int plot(int x, int y);
+  public interface ZPlotter {
+    Voxel plot(int x, int y);
   }
 
+  /** Fills every x,y with a voxel at z with value {@code value}. */
+  public static class FloodFillZPlotter implements ZPlotter {
+    private final int z;
+    private final int value;
+
+    public FloodFillZPlotter(int z, int value) {
+      this.z = z;
+      this.value = value;
+    }
+
+    @Override public Voxel plot(int x, int y) {
+      return new Voxel(x, y, z, value);
+    }
+  }
 
   /**
-   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the color
+   * If x or y matches either bound of {@code bounds} plots a voxel at z with value {@code value},
+   * otherwise returns null;
+   */
+  public static class EdgesZPlotter implements ZPlotter {
+    private final XYBounds bounds;
+    private final int z;
+    private final int value;
+
+    public EdgesZPlotter(XYBounds bounds, int z, int value) {
+      this.bounds = bounds;
+      this.z = z;
+      this.value = value;
+    }
+
+    @Override public Voxel plot(int x, int y) {
+      return bounds.isEdge(x, y) ? new Voxel(x, y, z, value) : null;
+    }
+  }
+
+  /**
+   * Constructs a voxel with position x, z, and a calculated y. Returns {@code null} if there is
+   * nothing to plot at this x and z
+   */
+  public interface YPlotter {
+    Voxel plot(int x, int z);
+  }
+
+  /**
+   * Parses a textmap to create a grid. newlines separate rows.  Any characters not in the value
    * map will act as spacers (leaves empty space in the final grid).
    *
    * @param grid Grid to populate
    * @param topLeft top-left position to start reading into.
    * @param textmap two-dimensional array of characters representing the desired output.
-   * @param charToColor map of character to color describing what colors to use.
+   * @param charToColor map of character to value describing what colors to use.
    */
   public static void fromTextMap(MutableGrid grid, Position topLeft, String textmap,
       Map<Character, Integer> charToColor) {
@@ -58,7 +99,7 @@ public class Voxels {
       Character boxed = chr;
       if (charToColor.containsKey(boxed)) {
         int color = charToColor.get(boxed);
-        grid.add(new Voxel(workhorse.asPosition(), color));
+        grid.put(new Voxel(workhorse.asPosition(), color));
       }
       workhorse.x++;
     }
@@ -89,7 +130,7 @@ public class Voxels {
       err_1 = dy2 - l;
       err_2 = dz2 - l;
       for (i = 0; i < l; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
+        grid.put(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.y += y_inc;
           err_1 -= dx2;
@@ -106,7 +147,7 @@ public class Voxels {
       err_1 = dx2 - m;
       err_2 = dz2 - m;
       for (i = 0; i < m; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
+        grid.put(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.x += x_inc;
           err_1 -= dy2;
@@ -123,7 +164,7 @@ public class Voxels {
       err_1 = dy2 - n;
       err_2 = dx2 - n;
       for (i = 0; i < n; i++) {
-        grid.add(new Voxel(pixel.asPosition(), color));
+        grid.put(new Voxel(pixel.asPosition(), color));
         if (err_1 > 0) {
           pixel.y += y_inc;
           err_1 -= dz2;
@@ -137,7 +178,7 @@ public class Voxels {
         pixel.z += z_inc;
       }
     }
-    grid.add(new Voxel(pixel.asPosition(), color));
+    grid.put(new Voxel(pixel.asPosition(), color));
   }
 
   static void drawPath(MutableGrid grid, Path path) {
@@ -146,14 +187,4 @@ public class Voxels {
       pos = path.drawAndMove(grid, pos);
     }
   }
-
-  static void plot(MutableGrid grid, Plotter plotter) {
-    for (int x = 0; x < 40; x++) {
-      for (int y = 0; y < 40; y++) {
-        int height = plotter.plot(x - 20, y - 20);
-        grid.add(new Voxel(x,  y, height, 0x888888 + height * 10));
-      }
-    }
-  }
-
 }

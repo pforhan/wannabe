@@ -11,20 +11,26 @@ import java.util.List;
 import javax.swing.JPanel;
 import wannabe.Bounds.XYBounds;
 import wannabe.Camera;
-import wannabe.Rendered;
+import wannabe.Projected;
+import wannabe.Translation;
 import wannabe.UI;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
 import wannabe.grid.MutableGrid;
 import wannabe.grid.SimpleGrid;
+import wannabe.grid.SparseArrayGrid;
 import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
 import wannabe.swing.renderer.FilledThreeDSquareWithCabinetSides;
 import wannabe.swing.renderer.SwingRenderer;
 import wannabe.util.UIs;
 
-/** Swing painting code to display a Wannabe {@link Grid}. */
-@SuppressWarnings("serial") public class WannabePanel extends JPanel implements UI {
+/**
+ * Swing painting code to display a Wannabe {@link Grid}. Treats {@link Voxel#value} as an ARGB
+ * value.  If the alpha component is 0x00, it is treated as 0xFF (100% opaque).
+ */
+@SuppressWarnings("serial")
+public class WannabePanel extends JPanel implements UI {
   public static final int DEFAULT_PIXEL_SIZE = 20;
   private static final int MIN_PLAYFIELD_HEIGHT = 50;
   private static final int MIN_PLAYFIELD_WIDTH = 50;
@@ -46,13 +52,22 @@ import wannabe.util.UIs;
 
   // Playfield paraphanellia:
   private final List<Grid> grids = new ArrayList<>();
-  private final MutableGrid buffer = new SimpleGrid("buffer", true);
+  private final MutableGrid[] buffers = {
+      new SimpleGrid("buffer"),
+      new SparseArrayGrid("buffer", true),
+  };
+  private int bufferOffset = 0;
+  private final XYBounds bounds = new XYBounds();
+
   /** Camera is fixed to the center of the widget. */
   private Camera camera;
   private Projection projection = new Cabinet();
   private SwingRenderer renderer = new FilledThreeDSquareWithCabinetSides();
   private boolean stats;
   private boolean exportHidden;
+  private boolean dirty;
+  private final Translation lastCameraTranslation = new Translation(0,0,0);
+  private final SwingProjected swing = new SwingProjected();
 
   public WannabePanel(final Camera camera) {
     this.camera = camera;
@@ -79,10 +94,12 @@ import wannabe.util.UIs;
   }
 
   @Override public void addGrid(Grid grid) {
+    dirty = true;
     grids.add(grid);
   }
 
   @Override public void removeGrid(Grid grid) {
+    dirty = true;
     grids.remove(grid);
   }
 
@@ -120,7 +137,13 @@ import wannabe.util.UIs;
     return renderer;
   }
 
+  public void nextBuffer() {
+    dirty = true;
+    bufferOffset = (bufferOffset + 1) % buffers.length;
+  }
+
   public void exportHidden(boolean exportHidden) {
+    dirty = true;
     this.exportHidden = exportHidden;
   }
 
@@ -133,38 +156,54 @@ import wannabe.util.UIs;
   @Override public final void paintComponent(Graphics g) {
     long start = System.currentTimeMillis();
 
+    bounds.setFromWidthHeight(camera.position.x - halfWidthCells, //
+        camera.position.y - halfHeightCells, //
+        widthCells, heightCells);
+
+    MutableGrid activeBuffer = buffers[bufferOffset];
+    for (Grid grid : grids) {
+      if (grid.isDirty()) {
+        dirty = true;
+        break;
+      }
+    }
+    if (!lastCameraTranslation.equals(camera.position)) {
+      dirty = true;
+    }
+    if (dirty) {
+      activeBuffer.clear();
+      for (Grid grid : grids) {
+        grid.exportTo(activeBuffer, bounds, exportHidden);
+      }
+      activeBuffer.optimize();
+      dirty = false;
+    }
+
+    long afterGrid = System.currentTimeMillis();
+
     // Background:
     g.setColor(Color.BLACK);
     g.fillRect(0, 0, widthPx, heightPx);
 
-    buffer.clear();
-    XYBounds bounds = new XYBounds();
-    bounds.setFromWidthHeight(camera.position.x - halfWidthCells, //
-        camera.position.y - halfHeightCells, //
-        widthCells, heightCells);
-    for (Grid grid : grids) {
-      grid.exportTo(buffer, bounds, exportHidden);
-    }
-    buffer.optimize();
-
-    // Determine the voxels we care about:
-    long afterGrid = System.currentTimeMillis();
-
-    for (Voxel voxel : buffer) {
-      Rendered r = projection.render(camera, voxel.position, realPixelSize);
+    for (Voxel voxel : activeBuffer) {
+      Projected p = projection.project(camera, voxel.position, realPixelSize);
       // If it's going to be fully off-screen, don't bother drawing.
-      if (r.left < -realPixelSize || r.left > widthPx //
-          || r.top < -realPixelSize || r.top > heightPx) {
+      if (p.left < -realPixelSize || p.left > widthPx //
+          || p.top < -realPixelSize || p.top > heightPx) {
         continue;
       }
-      r.color = getSwingColor(voxel.color);
-      r.darkerColor = getDarkerColor(voxel.color);
-      r.neighborsFrom(buffer.neighbors(voxel));
+      // If it's too small don't draw:
+      // TODO probably should put a specific bounds on when PsPerspective used, but anyway...
+      // TODO and of course this affects pixel-sized rendering if we want to try that
+      if (p.size <= 1) continue;
+      swing.copyCoreFrom(p);
+      swing.neighborsFrom(activeBuffer.neighbors(voxel));
+      swing.color = getSwingColor(voxel.value);
+      swing.darkerColor = getDarkerColor(voxel.value);
 
-      // TODO it seems a bit weird that a) this class sets up some of rendered (though it is
-      // awt colors in this case) and b) that it controls the context color
-      g.setColor(r.color);
-      renderer.draw(g, r);
+      // TODO it seems a bit weird that that this method controls the context value
+      g.setColor(swing.color);
+      renderer.draw(g, swing);
     }
 
     // Timing info:
@@ -177,30 +216,34 @@ import wannabe.util.UIs;
 
     if (stats) {
       long gridTime = afterGrid - start;
-      String statistics = "voxels on screen: " + buffer.size() + "; time: grid " + gridTime
-          + " render " + (total - gridTime);
+      String statistics = "voxels on screen: " + activeBuffer.size() + "; time: grid "
+          + gridTime + " render " + (total - gridTime) + " on "
+          + activeBuffer.getClass().getSimpleName();
       // Make a small shadow to help stand out:
       g.setColor(Color.BLACK);
       g.drawString(statistics, 20, 20);
       g.setColor(Color.WHITE);
       g.drawString(statistics, 19, 19);
     }
+
+    lastCameraTranslation.set(camera.position);
   }
 
-  private Color getSwingColor(int rgb) {
-    Color color = colorCache.get(rgb);
+  private Color getSwingColor(int argb) {
+    Color color = colorCache.get(argb);
     if (color == null) {
-      color = new Color(rgb);
-      colorCache.put(rgb, color);
+      boolean hasAlpha = argb >> 24 > 0;
+      color = new Color(argb, hasAlpha);
+      colorCache.put(argb, color);
     }
     return color;
   }
 
-  private Color getDarkerColor(int rgb) {
-    Color color = darkerCache.get(rgb);
+  private Color getDarkerColor(int argb) {
+    Color color = darkerCache.get(argb);
     if (color == null) {
-      color = getSwingColor(rgb).darker();
-      darkerCache.put(rgb, color);
+      color = getSwingColor(argb).darker();
+      darkerCache.put(argb, color);
     }
     return color;
   }

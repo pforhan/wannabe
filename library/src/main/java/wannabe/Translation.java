@@ -1,7 +1,10 @@
 package wannabe;
 
-/** Effectively the same as a {@link Position} but mutable. */
-public class Translation {
+/**
+ * Effectively the same as a {@link Position} but mutable. Produces the same hashcode and equals
+ * results as a Position for the same values of x, y, and z.
+ */
+public class Translation implements Pos {
   public int x;
   public int y;
   public int z;
@@ -52,7 +55,19 @@ public class Translation {
     return this;
   }
 
-  public boolean isZero() {
+  @Override public int x() {
+    return x;
+  }
+
+  @Override public int y() {
+    return y;
+  }
+
+  @Override public int z() {
+    return z;
+  }
+
+  @Override public boolean isZero() {
     return x == 0 && y == 0 && z == 0;
   }
 

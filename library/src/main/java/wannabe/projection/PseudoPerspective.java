@@ -2,7 +2,7 @@ package wannabe.projection;
 
 import wannabe.Camera;
 import wannabe.Position;
-import wannabe.Rendered;
+import wannabe.Projected;
 import wannabe.Translation;
 import wannabe.Voxel;
 
@@ -18,9 +18,9 @@ import wannabe.Voxel;
  * TODO xDiff and yDiff are too drastic.
  */
 public class PseudoPerspective implements Projection {
-  private final Rendered rendered = new Rendered();
+  private final Projected projected = new Projected();
 
-  @Override public Rendered render(Camera camera, Position position, int pixelSize) {
+  @Override public Projected project(Camera camera, Position position, int pixelSize) {
     // Determine distance from camera:
     int xDiff = camera.position.x - position.x;
     int yDiff = camera.position.y - position.y;
@@ -28,15 +28,15 @@ public class PseudoPerspective implements Projection {
 
     // Get the rough location to draw from:
     Translation onScreen = camera.translate(position);
-    rendered.size = pixelSize - zDiff;
-    int halfSize = rendered.size >> 1;
-    rendered.left = pixelSize * onScreen.x - onScreen.z * xDiff + camera.uiPosition.left - halfSize;
-    rendered.top = pixelSize * onScreen.y - onScreen.z * yDiff + camera.uiPosition.top - halfSize;
+    projected.size = pixelSize - zDiff;
+    int halfSize = projected.size >> 1;
+    projected.left = pixelSize * onScreen.x - onScreen.z * xDiff + camera.uiPosition.left - halfSize;
+    projected.top = pixelSize * onScreen.y - onScreen.z * yDiff + camera.uiPosition.top - halfSize;
     // TODO come up with better depth calcs... though this works decently
-    rendered.hDepth = xDiff;
-    rendered.vDepth = yDiff;
+    projected.hDepth = xDiff;
+    projected.vDepth = yDiff;
 
-    return rendered;
+    return projected;
   }
 
   @Override public String toString() {

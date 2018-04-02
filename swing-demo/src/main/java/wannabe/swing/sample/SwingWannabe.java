@@ -3,12 +3,17 @@ package wannabe.swing.sample;
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.Translation;
+import wannabe.Voxel;
 import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
+import wannabe.grid.RotateGrid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
 import wannabe.swing.WannabePanel;
@@ -29,6 +34,9 @@ public class SwingWannabe {
 
   private static Grid currentGrid;
   private static FrameAnimatedGrid playerGrid = SampleGrids.megaManRunning();
+  private static RotateGrid rotateGrid;
+  private static int startDragX, startDragY;
+
   private static boolean movingPlayer;
   private static boolean playerVisible;
   private static boolean exportHidden;
@@ -69,8 +77,8 @@ public class SwingWannabe {
     currentGrid = SwingGrids.GRIDS.get(0);
     panel.addGrid(currentGrid);
     settings.gridSelected(currentGrid);
-    panel.setProjection(Projections.PROJECTIONS.get(0));
-    settings.projectionSelected(Projections.PROJECTIONS.get(0));
+    panel.setProjection(Projections.values()[0].projection);
+    settings.projectionsSelected(Projections.values()[0]);
     settings.renderTypeSelected(panel.getRenderer());
 
     frame.setSize(mainLayout.getPreferredSize());
@@ -133,6 +141,9 @@ public class SwingWannabe {
               panel.addGrid(playerGrid);
             }
             break;
+          case KeyEvent.VK_B:
+            panel.nextBuffer();
+            break;
           case KeyEvent.VK_G:
             panel.removeGrid(currentGrid);
             currentGrid = SwingGrids.next(currentGrid);
@@ -145,9 +156,9 @@ public class SwingWannabe {
             settings.renderTypeSelected(nextRenderType);
             break;
           case KeyEvent.VK_P:
-            Projection next = Projections.next(panel.getProjection());
-            panel.setProjection(next);
-            settings.projectionSelected(next);
+            Projections next = Projections.withProjection(panel.getProjection()).next();
+            panel.setProjection(next.projection);
+            settings.projectionsSelected(next);
             break;
           case KeyEvent.VK_E:
             exportHidden = !exportHidden;
@@ -162,6 +173,12 @@ public class SwingWannabe {
           case KeyEvent.VK_BACK_QUOTE:
             panel.realPixelSize = WannabePanel.DEFAULT_PIXEL_SIZE;
             break;
+          case KeyEvent.VK_SLASH:
+            rotateGrid =
+                new RotateGrid("rotate a " + currentGrid.getClass().getSimpleName(), currentGrid);
+            panel.removeGrid(currentGrid);
+            panel.addGrid(rotateGrid);
+            currentGrid = rotateGrid;
           default:
             // Don't care.
             break;
@@ -169,10 +186,28 @@ public class SwingWannabe {
       }
     });
 
+    panel.addMouseListener(new MouseAdapter() {
+      @Override public void mousePressed(MouseEvent e) {
+        startDragX = e.getX();
+        startDragY = e.getY();
+      }
+    });
+
+    panel.addMouseMotionListener(new MouseMotionAdapter() {
+      @Override public void mouseDragged(MouseEvent e) {
+        if (rotateGrid != null) {
+          // Odd ordering here is just because it looks best, since most content is down-right of origin
+          rotateGrid.setRotate(e.getY() - startDragY, startDragX - e.getX(), 0);
+        }
+        //System.out.println(
+        //    "Mouse diff: " + (e.getX() - startDragX) + " " + (e.getY() - startDragY));
+      }
+    });
+
     while (true) {
       playerGrid.nextFrame();
       panel.render();
-      Thread.sleep(200);
+      Thread.sleep(100);
     }
   }
 }

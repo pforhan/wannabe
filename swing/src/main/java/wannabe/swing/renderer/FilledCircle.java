@@ -1,10 +1,10 @@
 package wannabe.swing.renderer;
 
 import java.awt.Graphics;
-import wannabe.Rendered;
+import wannabe.swing.SwingProjected;
 
 public class FilledCircle extends SwingRenderer {
-  @Override public void draw(Graphics g, Rendered r) {
-    g.fillOval(r.left, r.top, r.size, r.size);
+  @Override public void draw(Graphics g, SwingProjected p) {
+    g.fillOval(p.left, p.top, p.size, p.size);
   }
 }

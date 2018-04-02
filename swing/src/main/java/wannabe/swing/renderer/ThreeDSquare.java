@@ -1,10 +1,10 @@
 package wannabe.swing.renderer;
 
 import java.awt.Graphics;
-import wannabe.Rendered;
+import wannabe.swing.SwingProjected;
 
 public class ThreeDSquare extends SwingRenderer {
-  @Override public void draw(Graphics g, Rendered r) {
-    g.draw3DRect(r.left, r.top, r.size, r.size, true);
+  @Override public void draw(Graphics g, SwingProjected p) {
+    g.draw3DRect(p.left, p.top, p.size, p.size, true);
   }
 }

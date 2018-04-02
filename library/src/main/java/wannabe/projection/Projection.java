@@ -2,7 +2,7 @@ package wannabe.projection;
 
 import wannabe.Camera;
 import wannabe.Position;
-import wannabe.Rendered;
+import wannabe.Projected;
 
 /** Converts a 3d Position to a 2d coordinate for rendering. */
 public interface Projection {
@@ -12,5 +12,5 @@ public interface Projection {
    * {@link Camera#uiPosition} to allow the UI to render voxels appropriately.
    * Implementations may reuse the returned instance for performance.
    */
-  Rendered render(Camera camera, Position position, int pixelSize);
+  Projected project(Camera camera, Position position, int pixelSize);
 }

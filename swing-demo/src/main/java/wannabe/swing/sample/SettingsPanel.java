@@ -37,7 +37,7 @@ import wannabe.swing.renderer.ThreeDSquare;
 public class SettingsPanel extends JPanel {
 
   private static final long serialVersionUID = 1L;
-  private final JList<Projection> projection;
+  private final JList<Projections> projectionView;
   private final JList<SwingRenderer> renderer;
   private final JList<Grid> grid;
   private Listener listener;
@@ -55,10 +55,12 @@ public class SettingsPanel extends JPanel {
         + "\nSpace - toggle move camera / player"
         + "\nZ - lower camera"
         + "\nX - raise camera"
+        + "\nB - change buffer impl"
         + "\nG - change Grid"
         + "\nA - toggle player grid"
+        + "\n/ - Make grid rotatable"
         + "\nR - change renderer"
-        + "\nP - change projection"
+        + "\nP - change projectionView"
         + "\nE - toggle export hidden"
         + "\n1 - set pixel size to 1"
         + "\n2 - set pixel size to 2"
@@ -68,9 +70,9 @@ public class SettingsPanel extends JPanel {
     help.setEditable(false);
     help.setBorder(new TitledBorder("Help"));
 
-    projection = new JList<>(createProjectionModel());
-    projection.setFocusable(false);
-    projection.setBorder(new TitledBorder("Projection"));
+    projectionView = new JList<>(createProjectionsModel());
+    projectionView.setFocusable(false);
+    projectionView.setBorder(new TitledBorder("Projection"));
     renderer = new JList<>(renderers.toArray(new SwingRenderer[renderers.size()]));
     renderer.setFocusable(false);
     renderer.setBorder(new TitledBorder("Render Type"));
@@ -79,10 +81,11 @@ public class SettingsPanel extends JPanel {
     grid.setBorder(new TitledBorder("Available Grids"));
 
     // Listen for list changes and fire events accordingly.
-    projection.addListSelectionListener(new ListSelectionListener() {
+    projectionView.addListSelectionListener(new ListSelectionListener() {
       @Override public void valueChanged(ListSelectionEvent e) {
         if (!reacting && listener != null) {
-          listener.onProjectionChanged(Projections.PROJECTIONS.get(projection.getSelectedIndex()));
+          listener.onProjectionChanged(
+              Projections.values()[projectionView.getSelectedIndex()].projection);
         }
       }
     });
@@ -103,7 +106,7 @@ public class SettingsPanel extends JPanel {
 
     // Add all components together:
     add(new JScrollPane(help));
-    add(new JScrollPane(projection));
+    add(new JScrollPane(projectionView));
     add(new JScrollPane(renderer));
     add(new JScrollPane(grid));
   }
@@ -140,10 +143,11 @@ public class SettingsPanel extends JPanel {
     return list;
   }
 
-  protected ListModel<Projection> createProjectionModel() {
-    DefaultListModel<Projection> model = new DefaultListModel<>();
-    for (Projection projection : Projections.PROJECTIONS) {
-      model.addElement(projection);
+  private static ListModel<Projections> createProjectionsModel() {
+    DefaultListModel<Projections> model = new DefaultListModel<>();
+    Projections[] allProjections = Projections.values();
+    for (Projections projections : allProjections) {
+      model.addElement(projections);
     }
     return model;
   }
@@ -160,9 +164,9 @@ public class SettingsPanel extends JPanel {
     reacting = false;
   }
 
-  public void projectionSelected(Projection projection) {
+  public void projectionsSelected(Projections projections) {
     reacting = true;
-    this.projection.setSelectedValue(projection, true);
+    this.projectionView.setSelectedValue(projections, true);
     reacting = false;
   }
 

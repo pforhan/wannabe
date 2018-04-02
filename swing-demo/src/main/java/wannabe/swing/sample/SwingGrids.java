@@ -27,21 +27,18 @@ public class SwingGrids {
       for (int col = 20; col < 40; col++) {
         // All clouds are about 50-60z in height. There are three for each x, y coordinate.
         // The higher a cloud, the lighter its color.
-        int cloudHeight = r.nextInt(8); // 0-7
+        int cloudHeight = r.nextInt(4) + 1; // 1-4
         int cloudColorComponent = (cloudHeight << 3) + 199; // 199 - 255
-        int cloudColor = (cloudColorComponent << 16)
+        int cloudColor = (0x7A << 24) // alpha
+            + (cloudColorComponent << 16)
             + (cloudColorComponent << 8)
             + cloudColorComponent; // 0x888888 - 0xFFFFFF
-        grid.add(new Voxel(col, row, 50 + cloudHeight, cloudColor));
-        grid.add(new Voxel(col, row, 51 + cloudHeight, cloudColor));
-        grid.add(new Voxel(col, row, 52 + cloudHeight, cloudColor));
+        grid.put(new Voxel(col, row, 50 + cloudHeight, cloudColor));
+        grid.put(new Voxel(col, row, 51 + cloudHeight, cloudColor));
+        grid.put(new Voxel(col, row, 52 + cloudHeight, cloudColor));
       }
     }
     return grid;
-  }
-
-  public static Grid deepHeightMap() {
-    return heightMap("deep heightmap 256x256", true);
   }
 
   /**
@@ -57,20 +54,18 @@ public class SwingGrids {
       byte[] bytes = data.getData();
 
       int width = img.getWidth();
-      System.out.println(String.format("heightmap Width %s, height %s, w*h %s, len %s", width,
-          img.getHeight(), width * img.getHeight(), bytes.length));
       for (int i = 0; i < bytes.length; i++) {
         byte b = bytes[i];
         int x = i % width;
         int y = i / width;
         int z = (0xFF & b) / 4;
         int color = 0x888800 + b;
-        grid.add(new Voxel(x, y, z, color));
+        grid.put(new Voxel(x, y, z, color));
         // Continue down to height 0 if deep:
         if (deep) {
           for (int d = 0; d < z; d++) {
             color = 0x888800 + d * 4;
-            grid.add(new Voxel(x, y, d, color));
+            grid.put(new Voxel(x, y, d, color));
           }
         }
       }
