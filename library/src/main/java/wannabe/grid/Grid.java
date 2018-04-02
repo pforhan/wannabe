@@ -11,6 +11,7 @@ import wannabe.Voxel;
  * may change.
  */
 public interface Grid extends Iterable<Voxel> {
+  // TODO come up with a way to merge exportTo / iterator
   /**
    * Returns an iterator over all {@link Voxel}s in this grid. Note that optimized implementations
    * may return the same {@link Voxel} reference with every call to {@link Iterator#next()} so it is

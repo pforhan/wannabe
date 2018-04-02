@@ -29,7 +29,7 @@ public class SwingGrids {
         // The higher a cloud, the lighter its color.
         int cloudHeight = r.nextInt(4) + 1; // 1-4
         int cloudColorComponent = (cloudHeight << 3) + 199; // 199 - 255
-        int cloudColor = (0x7A << 24)
+        int cloudColor = (0x7A << 24) // alpha
             + (cloudColorComponent << 16)
             + (cloudColorComponent << 8)
             + cloudColorComponent; // 0x888888 - 0xFFFFFF
@@ -39,10 +39,6 @@ public class SwingGrids {
       }
     }
     return grid;
-  }
-
-  public static Grid deepHeightMap() {
-    return heightMap("deep heightmap 256x256", true);
   }
 
   /**

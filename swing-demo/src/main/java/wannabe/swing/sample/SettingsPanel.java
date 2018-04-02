@@ -58,6 +58,7 @@ public class SettingsPanel extends JPanel {
         + "\nB - change buffer impl"
         + "\nG - change Grid"
         + "\nA - toggle player grid"
+        + "\n/ - Make grid rotatable"
         + "\nR - change renderer"
         + "\nP - change projectionView"
         + "\nE - toggle export hidden"
