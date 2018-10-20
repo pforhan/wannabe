@@ -2,7 +2,6 @@ package wannabe;
 
 import wannabe.grid.AllNeighbors;
 import wannabe.grid.MutableGrid;
-import wannabe.grid.Neighbors;
 import wannabe.util.Voxels.YPlotter;
 import wannabe.util.Voxels.ZPlotter;
 
@@ -22,10 +21,6 @@ public interface Bounds {
       return true;
     }
 
-    @Override public boolean containsAll(Neighbors neighbors) {
-      return true;
-    }
-
     @Override public boolean containsAll(Position pos, AllNeighbors neighbors) {
       return true;
     }
@@ -34,7 +29,6 @@ public interface Bounds {
   public boolean contains(Position position);
   public boolean contains(Translation position);
   /** Indicates whether all specified neighbors are within bounds. */
-  public boolean containsAll(Neighbors neighbors);
   public boolean containsAll(Position pos, AllNeighbors neighbors);
 
   /** A 2d {@link Bounds} on the XY plane. */
@@ -72,14 +66,6 @@ public interface Bounds {
           && pos.y >= top && pos.y < bottom;
     }
 
-    /** Ignores above and below. */
-    @Override public boolean containsAll(Neighbors neighbors) {
-      return containsOrNull(neighbors.north)
-          && containsOrNull(neighbors.south)
-          && containsOrNull(neighbors.east)
-          && containsOrNull(neighbors.west);
-    }
-
     /** This XY bounds ignores above and below. */
     @Override public boolean containsAll(Position pos, AllNeighbors neighbors) {
       // Must contain the N,S,E,W neighbors, if they exist.
@@ -88,10 +74,6 @@ public interface Bounds {
           && (!neighbors.same.get(EAST)  || pos.x + 1 <  right)
           && (!neighbors.same.get(NORTH) || pos.y - 1 >= top)
           && (!neighbors.same.get(SOUTH) || pos.y + 1 <  bottom);
-    }
-
-    private boolean containsOrNull(Neighbors neighbors) {
-      return neighbors == null || contains(neighbors.voxel.position);
     }
 
     public void plot(MutableGrid grid, ZPlotter plotter) {
@@ -141,14 +123,6 @@ public interface Bounds {
           && pos.y >= top && pos.y < bottom;
     }
 
-    /** Ignores above and below. */
-    @Override public boolean containsAll(Neighbors neighbors) {
-      return containsOrNull(neighbors.north)
-          && containsOrNull(neighbors.south)
-          && containsOrNull(neighbors.east)
-          && containsOrNull(neighbors.west);
-    }
-
     /** This XY bounds ignores above and below. */
     @Override public boolean containsAll(Position pos, AllNeighbors neighbors) {
       // Must contain the N,S,E,W neighbors, if they exist.
@@ -157,10 +131,6 @@ public interface Bounds {
           && (!neighbors.same.get(EAST)  || pos.x + 1 <  right)
           && (!neighbors.same.get(NORTH) || pos.y - 1 >= top)
           && (!neighbors.same.get(SOUTH) || pos.y + 1 <  bottom);
-    }
-
-    private boolean containsOrNull(Neighbors neighbors) {
-      return neighbors == null || contains(neighbors.voxel.position);
     }
 
     public void plot(MutableGrid grid, YPlotter plotter) {
