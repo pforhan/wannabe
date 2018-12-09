@@ -73,7 +73,7 @@ public class SettingsPanel extends JPanel {
     projectionView = new JList<>(createProjectionsModel());
     projectionView.setFocusable(false);
     projectionView.setBorder(new TitledBorder("Projection"));
-    renderer = new JList<>(renderers.toArray(new SwingRenderer[renderers.size()]));
+    renderer = new JList<>(renderers.toArray(new SwingRenderer[0]));
     renderer.setFocusable(false);
     renderer.setBorder(new TitledBorder("Render Type"));
     grid = new JList<>(createGridModel());
@@ -81,26 +81,20 @@ public class SettingsPanel extends JPanel {
     grid.setBorder(new TitledBorder("Available Grids"));
 
     // Listen for list changes and fire events accordingly.
-    projectionView.addListSelectionListener(new ListSelectionListener() {
-      @Override public void valueChanged(ListSelectionEvent e) {
-        if (!reacting && listener != null) {
-          listener.onProjectionChanged(
-              Projections.values()[projectionView.getSelectedIndex()].projection);
-        }
+    projectionView.addListSelectionListener(ignored -> {
+      if (!reacting && listener != null) {
+        listener.onProjectionChanged(
+            Projections.values()[projectionView.getSelectedIndex()].projection);
       }
     });
-    renderer.addListSelectionListener(new ListSelectionListener() {
-      @Override public void valueChanged(ListSelectionEvent e) {
-        if (!reacting && listener != null) {
-          listener.onRendererChanged(renderers.get(renderer.getSelectedIndex()));
-        }
+    renderer.addListSelectionListener(ignored -> {
+      if (!reacting && listener != null) {
+        listener.onRendererChanged(renderers.get(renderer.getSelectedIndex()));
       }
     });
-    grid.addListSelectionListener(new ListSelectionListener() {
-      @Override public void valueChanged(ListSelectionEvent e) {
-        if (!reacting && listener != null) {
-          listener.onGridChanged(SwingGrids.GRIDS.get(grid.getSelectedIndex()));
-        }
+    grid.addListSelectionListener(ignored -> {
+      if (!reacting && listener != null) {
+        listener.onGridChanged(SwingGrids.GRIDS.get(grid.getSelectedIndex()));
       }
     });
 

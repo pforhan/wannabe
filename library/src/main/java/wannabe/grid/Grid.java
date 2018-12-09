@@ -19,13 +19,6 @@ public interface Grid extends Iterable<Voxel> {
    */
   @Override Iterator<Voxel> iterator();
 
-  /**
-   * Copies all {@link Voxel}s from this grid to the specified grid.  Applies any translation to
-   * each copied {@link Voxel}.  Voxels filtered based on supplied parameters.  If includeHidden
-   * is true, then even surrounded voxels will be included.
-   */
-  void exportTo(MutableGrid grid, Bounds bounds, boolean includeHidden);
-
   /** Number of Voxels this grid contains. */
   int size();
 
@@ -35,12 +28,6 @@ public interface Grid extends Iterable<Voxel> {
    * was called.
    */
   boolean isDirty();
-
-  /** Translates every {@link Voxel} in this grid by the specified offset. Additive. */
-  void translate(Translation offset);
-
-  /** Resets translation to zero. */
-  void clearTranslation();
 
   AllNeighbors neighbors(Voxel voxel);
 

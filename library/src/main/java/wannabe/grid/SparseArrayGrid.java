@@ -21,24 +21,21 @@ import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
  */
 public class SparseArrayGrid implements MutableGrid {
 
-  static final Comparator<Voxel> zxyIncreasing = new Comparator<Voxel>() {
-    @Override public int compare(Voxel o1, Voxel o2) {
-      int zCmp = o1.position.z - o2.position.z;
-      if (zCmp != 0) {
-        return zCmp;
-      }
-
-      int xCmp = o1.position.x() - o2.position.x();
-      if (xCmp != 0) {
-        return xCmp;
-      }
-
-      return o1.position.y() - o2.position.y();
+  static final Comparator<Voxel> zxyIncreasing = (o1, o2) -> {
+    int zCmp = o1.position.z - o2.position.z;
+    if (zCmp != 0) {
+      return zCmp;
     }
+
+    int xCmp = o1.position.x() - o2.position.x();
+    if (xCmp != 0) {
+      return xCmp;
+    }
+
+    return o1.position.y() - o2.position.y();
   };
 
   private final Z zMap = new Z();
-  private final Translation translation = new Translation(0, 0, 0);
   private final String name;
   // TODO delete this flag, we just can run this as a map
   private final boolean ignoreDuplicatePositions;
@@ -53,8 +50,7 @@ public class SparseArrayGrid implements MutableGrid {
 
   @Override public Iterator<Voxel> iterator() {
     dirty = false;
-    Iterator<Voxel> realIterator = all.iterator();
-    return translation.isZero() ? realIterator : new TranslatingIterator(realIterator, translation);
+    return all.iterator();
   }
 
   @Override public boolean isDirty() {
@@ -122,29 +118,9 @@ public class SparseArrayGrid implements MutableGrid {
     }
   }
 
-  @Override public void exportTo(MutableGrid grid, Bounds bounds, boolean includeHidden) {
-    dirty = false;
-    if (includeHidden) {
-      exportWithHidden(grid, bounds);
-      return;
-    }
-
-    exportNoHidden(grid, bounds);
-  }
-
   @Override public AllNeighbors neighbors(Voxel voxel) {
     populateNeighbors(voxel);
     return theNeighbors;
-  }
-
-  @Override public void translate(Translation offset) {
-    dirty = true;
-    translation.add(offset);
-  }
-
-  @Override public void clearTranslation() {
-    dirty = true;
-    translation.zero();
   }
 
   @Override public int size() {
@@ -160,52 +136,6 @@ public class SparseArrayGrid implements MutableGrid {
     workhorse.set(voxel.position);
     populateNeighbors(voxel);
     return !theNeighbors.isSurrounded() || !bounds.containsAll(voxel.position, theNeighbors);
-  }
-
-  private void exportNoHidden(MutableGrid grid, Bounds bounds) {
-    if (translation.isZero()) {
-      // We can skip cloning and translation.
-      for (Voxel voxel : all) {
-        if (bounds.contains(voxel.position)
-            && notSurroundedInBounds(bounds, voxel)) {
-          grid.put(voxel);
-        }
-      }
-      return;
-    }
-
-    // Otherwise, we have to translate all the things.
-    for (Voxel voxel : all) {
-      workhorse.set(voxel.position).add(translation);
-      if (bounds.contains(workhorse)
-          && notSurroundedInBounds(bounds, voxel)) {
-        // TODO double check if we need to handle translation with bounds
-        grid.put(new Voxel(workhorse.asPosition(), voxel.value));
-      }
-    }
-  }
-
-  // TODO this is a bit of an ugly near-duplication, but seems good for clarity and perf.
-  // TODO consider if this should just be the api instead of the bool param.
-  private void exportWithHidden(MutableGrid grid, Bounds bounds) {
-    if (translation.isZero()) {
-      // We can skip cloning and translation.
-      for (Voxel voxel : all) {
-        if (bounds.contains(voxel.position)) {
-          grid.put(voxel);
-        }
-      }
-      return;
-    }
-
-    // Otherwise, we have to translate all the things.
-    for (Voxel voxel : all) {
-      workhorse.set(voxel.position).add(translation);
-      if (bounds.contains(workhorse)) {
-        // TODO double check if we need to handle translation with bounds
-        grid.put(new Voxel(workhorse.asPosition(), voxel.value));
-      }
-    }
   }
 
   final Translation workhorse = new Translation(0, 0, 0);
