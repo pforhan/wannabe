@@ -15,7 +15,7 @@ public class IteratingIterator implements Iterator<Voxel> {
 
   @Override public boolean hasNext() {
     maybeAdvance();
-    return false;
+    return current.hasNext();
   }
 
   @Override public Voxel next() {
@@ -29,9 +29,9 @@ public class IteratingIterator implements Iterator<Voxel> {
 
   private void maybeAdvance() {
     // If the current one is used up but there is another grid, advance:
-    if (!current.hasNext() && gridIterator.hasNext()) {
+    while (!current.hasNext() && gridIterator.hasNext()) {
+      // Grab the next grid and its voxel iterator:\
       current = gridIterator.next().iterator();
     }
   }
-
 }

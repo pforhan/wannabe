@@ -54,6 +54,8 @@ public class Projected {
   }
 
   public void neighborsFrom(AllNeighbors neighbors) {
+    // TODO remove me!
+    if (neighbors == null) return;
     neighborNorth     = neighbors.same.get(NORTH);
     neighborNorthEast = neighbors.same.get(NORTHEAST);
     neighborEast      = neighbors.same.get(EAST);
