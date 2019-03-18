@@ -37,7 +37,10 @@ public class SwingWannabe {
   private static final Translation TRANSLATE_LOWER = new Translation(0, 0, -1);
 
   private static GroupGrid allGrids = new GroupGrid("Demo Group");
+  /** Maps a grid to its visibility grid */
   private static Map<Grid, VisibilityGrid> gridToVis = new HashMap<>();
+  /** Maps a grid to its rotation grid */
+  private static Map<Grid, RotateGrid> gridToRot = new HashMap<>();
   private static Grid currentGrid;
   private static boolean exportHidden;
 
@@ -80,6 +83,7 @@ public class SwingWannabe {
         // TODO make this support multiselect
         hideGrid(currentGrid);
         currentGrid = newGrid;
+        rotateGrid = gridToRot.get(currentGrid);
         showGrid(currentGrid);
       }
     });
@@ -89,16 +93,21 @@ public class SwingWannabe {
 
     // Wrap each demo grid in a visibility and rotate control. Hide each.
     for (Grid grid : SwingGrids.GRIDS) {
+      RotateGrid rot = new RotateGrid("Rotate", grid);
       VisibilityGrid vis =
-          new VisibilityGrid("vis for " + grid.toString(), new RotateGrid("Rotate", grid));
+          new VisibilityGrid("vis for " + grid.toString(), rot);
       vis.hide();
       allGrids.add(vis);
       gridToVis.put(grid, vis);
+      gridToRot.put(grid, rot);
     }
+
     allGrids.add(playerGridVisibility);
     playerGridVisibility.hide();
     // Show the first grid:
+    // TODO make one method for this and the settings listener above
     currentGrid = SwingGrids.GRIDS.get(0);
+    rotateGrid = gridToRot.get(SwingGrids.GRIDS.get(0));
     showGrid(currentGrid);
 
     panel.setGrid(allGrids);
@@ -189,11 +198,7 @@ public class SwingWannabe {
             panel.realPixelSize = WannabePanel.DEFAULT_PIXEL_SIZE;
             break;
           case KeyEvent.VK_SLASH:
-            rotateGrid =
-                new RotateGrid("rotate a " + currentGrid.getClass().getSimpleName(), currentGrid);
-            //panel.removeGrid(currentGrid);
-            //panel.addGrid(rotateGrid);
-            currentGrid = rotateGrid;
+            gridToRot.get(currentGrid).setRotate(0,0,0);
           default:
             // Don't care.
             break;
@@ -210,12 +215,8 @@ public class SwingWannabe {
 
     panel.addMouseMotionListener(new MouseMotionAdapter() {
       @Override public void mouseDragged(MouseEvent e) {
-        if (rotateGrid != null) {
-          // Odd ordering here is just because it looks best, since most content is down-right of origin
-          rotateGrid.setRotate(e.getY() - startDragY, startDragX - e.getX(), 0);
-        }
-        //System.out.println(
-        //    "Mouse diff: " + (e.getX() - startDragX) + " " + (e.getY() - startDragY));
+        // Odd ordering here is just because it looks best, since most content is down-right of origin
+        rotateGrid.setRotate(e.getY() - startDragY, startDragX - e.getX(), 0);
       }
     });
 
