@@ -98,7 +98,6 @@ public class SimpleGrid implements MutableGrid {
 
   private AllNeighbors createAndPopulateNeighbors(Voxel voxel) {
     AllNeighbors theNeighbors = new AllNeighbors();
-    theNeighbors.clear();
     workhorse.set(voxel.position);
     // Above:
     workhorse.z++;

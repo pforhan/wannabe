@@ -1,1 +1,5 @@
 apply plugin: 'java'
+
+dependencies {
+  implementation 'junit:junit:4.13-beta-2'
+}

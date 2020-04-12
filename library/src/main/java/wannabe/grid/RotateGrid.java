@@ -42,8 +42,8 @@ public class RotateGrid implements Grid {
   }
 
   @Override public AllNeighbors neighbors(Voxel voxel) {
-    // TODO this is probably wrong, source likely won't have this voxel. Throw? do a reverse op?
-    return source.neighbors(voxel);
+    throw new IllegalStateException("RotateGrid " + name + " cannot provide neighbors; "
+        + "Did you forget to add a caching layer?");
   }
 
   @Override public String toString() {

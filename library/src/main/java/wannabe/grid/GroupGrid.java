@@ -19,7 +19,7 @@ public class GroupGrid implements Grid {
 
   @Override public Iterator<Voxel> iterator() {
     dirty = false;
-    return new IteratingIterator(sources.iterator());
+    return new IteratingIterator<>(sources.iterator());
   }
 
   @Override public boolean isDirty() {
@@ -69,9 +69,20 @@ public class GroupGrid implements Grid {
     }
   }
 
+  AllNeighbors sum = new AllNeighbors();
+
   @Override public AllNeighbors neighbors(Voxel voxel) {
-    // TODO uh... how do I do this?
-    return null; // TODO ... definitely not this way
+    // Ask each child grid about neighbors for this voxel. We need to aggregate all answers, however,
+    // effectively forming a bitwise OR over them all. If any of them report a neighbor we keep it.
+    // TODO can this be more efficient?  Even if child grids are caching, this one is not.
+
+    sum.clear();
+
+    for (Grid source : sources) {
+      AllNeighbors allNeighbors = source.neighbors(voxel);
+      sum.orWith(allNeighbors);
+    }
+    return sum;
   }
 
   @Override public String toString() {

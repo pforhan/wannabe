@@ -34,7 +34,7 @@ import wannabe.swing.renderer.SquareWithWireSides;
 import wannabe.swing.renderer.SwingRenderer;
 import wannabe.swing.renderer.ThreeDSquare;
 
-public class SettingsPanel extends JPanel {
+class SettingsPanel extends JPanel {
 
   private static final long serialVersionUID = 1L;
   private final JList<Projections> projectionView;
@@ -44,7 +44,7 @@ public class SettingsPanel extends JPanel {
   private boolean reacting;
   private final List<SwingRenderer> renderers;
 
-  public SettingsPanel() {
+  SettingsPanel() {
     super(new GridLayout(4,1));
     setBackground(Color.WHITE);
     setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -105,7 +105,7 @@ public class SettingsPanel extends JPanel {
     add(new JScrollPane(grid));
   }
 
-  public void setListener(Listener listener) {
+  void setListener(Listener listener) {
     this.listener = listener;
   }
 
@@ -152,25 +152,25 @@ public class SettingsPanel extends JPanel {
     void onGridChanged(Grid newGrid);
   }
 
-  public void gridSelected(Grid grid) {
+  void gridSelected(Grid grid) {
     reacting = true;
     this.grid.setSelectedValue(grid, true);
     reacting = false;
   }
 
-  public void projectionsSelected(Projections projections) {
+  void projectionsSelected(Projections projections) {
     reacting = true;
     this.projectionView.setSelectedValue(projections, true);
     reacting = false;
   }
 
-  public void renderTypeSelected(SwingRenderer sidedRenderer) {
+  void renderTypeSelected(SwingRenderer sidedRenderer) {
     reacting = true;
     this.renderer.setSelectedValue(sidedRenderer, true);
     reacting = false;
   }
 
-  public SwingRenderer nextRenderer() {
+  SwingRenderer nextRenderer() {
     int index = renderer.getSelectedIndex();
     index++;
     if (index >= renderers.size()) {

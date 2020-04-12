@@ -4,12 +4,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import wannabe.Voxel;
 
-public class EmptyIterator implements Iterator<Voxel> {
+public class EmptyIterator<T> implements Iterator<T> {
   @Override public boolean hasNext() {
     return false;
   }
 
-  @Override public Voxel next() {
+  @Override public T next() {
     throw new NoSuchElementException("Empty iterator has no elements");
   }
 

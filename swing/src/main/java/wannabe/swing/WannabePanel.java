@@ -171,7 +171,6 @@ public class WannabePanel extends JPanel implements UI {
     g.setColor(Color.BLACK);
     g.fillRect(0, 0, widthPx, heightPx);
 
-    // TODO need to eliminate the grid list here... should have just one root node
     for (Voxel voxel : grid) {
       Projected p = projection.project(camera, voxel.position, realPixelSize);
       // If it's going to be fully off-screen, don't bother drawing.

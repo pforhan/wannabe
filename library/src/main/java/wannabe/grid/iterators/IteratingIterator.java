@@ -1,16 +1,21 @@
 package wannabe.grid.iterators;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import wannabe.Voxel;
-import wannabe.grid.Grid;
 
-/** Iterates over a list of iterators, advancing to the next one as each is exhausted. */
-public class IteratingIterator implements Iterator<Voxel> {
-  private final Iterator<Grid> gridIterator;
-  private Iterator<Voxel> current = new EmptyIterator();
+/**
+ * Depth-first iterates over a group of {@link Iterable}s, iterating each in turn, advancing
+ * to the next one as each is exhausted.
+ */
+public class IteratingIterator<T> implements Iterator<T> {
+  private final Iterator<? extends Iterable<T>> iterableIterator;
+  private Iterator<T> current = new EmptyIterator<>();
 
-  public IteratingIterator(Iterator<Grid> gridIterator) {
-    this.gridIterator = gridIterator;
+  public IteratingIterator(Iterator<? extends Iterable<T>> iterableIterator) {
+    this.iterableIterator = iterableIterator;
   }
 
   @Override public boolean hasNext() {
@@ -18,7 +23,7 @@ public class IteratingIterator implements Iterator<Voxel> {
     return current.hasNext();
   }
 
-  @Override public Voxel next() {
+  @Override public T next() {
     maybeAdvance();
     return current.next();
   }
@@ -29,9 +34,23 @@ public class IteratingIterator implements Iterator<Voxel> {
 
   private void maybeAdvance() {
     // If the current one is used up but there is another grid, advance:
-    while (!current.hasNext() && gridIterator.hasNext()) {
+    while (!current.hasNext() && iterableIterator.hasNext()) {
       // Grab the next grid and its voxel iterator:\
-      current = gridIterator.next().iterator();
+      current = iterableIterator.next().iterator();
+    }
+  }
+
+  public static void main(String[] args) {
+    Set<String> first = new HashSet<>(Arrays.asList("first one", "first two", "first three"));
+    Set<String> second = new HashSet<>(Arrays.asList("sec one", "sec two"));
+    Set<String> third = new HashSet<>(Arrays.asList("th one", "th two", "th three"));
+
+    IteratingIterator<String> test =
+        new IteratingIterator<>(Arrays.asList(first, second, third).iterator());
+
+    while (test.hasNext()) {
+      System.out.println("test " + test.next());
     }
   }
 }
+

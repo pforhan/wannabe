@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.Translation;
+import wannabe.grid.CachingGrid;
 import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
 import wannabe.grid.GroupGrid;
@@ -80,11 +81,7 @@ public class SwingWannabe {
       }
 
       @Override public void onGridChanged(Grid newGrid) {
-        // TODO make this support multiselect
-        hideGrid(currentGrid);
-        currentGrid = newGrid;
-        rotateGrid = gridToRot.get(currentGrid);
-        showGrid(currentGrid);
+        moveToGrid(newGrid);
       }
     });
 
@@ -95,7 +92,9 @@ public class SwingWannabe {
     for (Grid grid : SwingGrids.GRIDS) {
       RotateGrid rot = new RotateGrid("Rotate", grid);
       VisibilityGrid vis =
-          new VisibilityGrid("vis for " + grid.toString(), rot);
+          new VisibilityGrid("vis for " + grid.toString(),
+              new CachingGrid("rot cache for " + grid.toString(), rot));
+      //TODO something wrong with caching grid?
       vis.hide();
       allGrids.add(vis);
       gridToVis.put(grid, vis);
@@ -105,10 +104,8 @@ public class SwingWannabe {
     allGrids.add(playerGridVisibility);
     playerGridVisibility.hide();
     // Show the first grid:
-    // TODO make one method for this and the settings listener above
     currentGrid = SwingGrids.GRIDS.get(0);
-    rotateGrid = gridToRot.get(SwingGrids.GRIDS.get(0));
-    showGrid(currentGrid);
+    moveToGrid(currentGrid);
 
     panel.setGrid(allGrids);
     settings.gridSelected(currentGrid);
@@ -174,6 +171,10 @@ public class SwingWannabe {
           case KeyEvent.VK_B:
             // TODO could reimplement this with two different root groups maybe?
             break;
+          case KeyEvent.VK_G:
+            moveToGrid(SwingGrids.next(currentGrid));
+            settings.gridSelected(currentGrid);
+            break;
           case KeyEvent.VK_R:
             SwingRenderer nextRenderType = settings.nextRenderer();
             panel.setRenderer(nextRenderType);
@@ -226,6 +227,14 @@ public class SwingWannabe {
       panel.render();
       Thread.sleep(100);
     }
+  }
+
+  private static void moveToGrid(Grid newGrid) {
+    // TODO make this support multiselect
+    hideGrid(currentGrid);
+    currentGrid = newGrid;
+    rotateGrid = gridToRot.get(currentGrid);
+    showGrid(currentGrid);
   }
 
   private static void showGrid(Grid grid) {
