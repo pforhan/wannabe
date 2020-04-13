@@ -7,3 +7,5 @@ build
 .idea
 local.properties
 *.iml
+.project
+.classpath
