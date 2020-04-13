@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import wannabe.Voxel;
 
 /**
  * Depth-first iterates over a group of {@link Iterable}s, iterating each in turn, advancing
@@ -36,7 +35,9 @@ public class IteratingIterator<T> implements Iterator<T> {
     // If the current one is used up but there is another grid, advance:
     while (!current.hasNext() && iterableIterator.hasNext()) {
       // Grab the next grid and its voxel iterator:\
-      current = iterableIterator.next().iterator();
+      Iterable<T> next = iterableIterator.next();
+      // System.out.println("Starting to iterate on " + next);
+      current = next.iterator();
     }
   }
 

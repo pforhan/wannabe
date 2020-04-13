@@ -19,14 +19,16 @@ public class RotateGrid implements Grid {
   }
 
   @Override public Iterator<Voxel> iterator() {
+    dirty = false;
     return new RotatingIterator(source.iterator(), rotation.clone());
   }
 
   @Override public boolean isDirty() {
-    return realIsDirty();
+    return dirty || source.isDirty();
   }
 
-  @Override public int size() {
+  @Override
+  public int size() {
     return source.size();
   }
 
@@ -37,11 +39,8 @@ public class RotateGrid implements Grid {
     dirty = true;
   }
 
-  private boolean realIsDirty() {
-    return dirty || source.isDirty();
-  }
-
-  @Override public AllNeighbors neighbors(Voxel voxel) {
+  @Override
+  public AllNeighbors neighbors(Voxel voxel) {
     throw new IllegalStateException("RotateGrid " + name + " cannot provide neighbors; "
         + "Did you forget to add a caching layer?");
   }
