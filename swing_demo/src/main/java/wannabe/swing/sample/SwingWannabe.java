@@ -6,14 +6,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import wannabe.Camera;
 import wannabe.Translation;
-import wannabe.Voxel;
+import wannabe.grid.CachingGrid;
 import wannabe.grid.FrameAnimatedGrid;
 import wannabe.grid.Grid;
+import wannabe.grid.GroupGrid;
 import wannabe.grid.RotateGrid;
+import wannabe.grid.TranslateGrid;
+import wannabe.grid.VisibilityGrid;
 import wannabe.projection.Projection;
 import wannabe.projection.Projections;
 import wannabe.swing.WannabePanel;
@@ -32,14 +37,25 @@ public class SwingWannabe {
   private static final Translation TRANSLATE_HIGHER = new Translation(0, 0, 1);
   private static final Translation TRANSLATE_LOWER = new Translation(0, 0, -1);
 
+  private static GroupGrid allGrids = new GroupGrid("Demo Group");
+  /** Maps a grid to its visibility grid */
+  private static Map<Grid, VisibilityGrid> gridToVis = new HashMap<>();
+  /** Maps a grid to its rotation grid */
+  private static Map<Grid, RotateGrid> gridToRot = new HashMap<>();
   private static Grid currentGrid;
-  private static FrameAnimatedGrid playerGrid = SampleGrids.megaManRunning();
+  private static boolean exportHidden;
+
+  // Player grid stuff
+  private static FrameAnimatedGrid playerGridFrames = SampleGrids.megaManRunning();
+  private static TranslateGrid playerGridTranslate =
+      new TranslateGrid("Translate Player", playerGridFrames);
+  private static VisibilityGrid playerGridVisibility =
+      new VisibilityGrid("Player Visibility", playerGridTranslate);
+  private static boolean movingPlayer;
+
+  // Rotating stuff
   private static RotateGrid rotateGrid;
   private static int startDragX, startDragY;
-
-  private static boolean movingPlayer;
-  private static boolean playerVisible;
-  private static boolean exportHidden;
 
   public static void main(String[] args) throws InterruptedException {
     JFrame frame = new JFrame("SwingWannabe");
@@ -65,17 +81,33 @@ public class SwingWannabe {
       }
 
       @Override public void onGridChanged(Grid newGrid) {
-        panel.removeGrid(currentGrid);
-        currentGrid = newGrid;
-        panel.addGrid(currentGrid);
+        moveToGrid(newGrid);
       }
     });
 
     mainLayout.add(panel, BorderLayout.CENTER);
     mainLayout.add(settings, BorderLayout.EAST);
 
+    // Wrap each demo grid in a visibility and rotate control. Hide each.
+    for (Grid grid : SwingGrids.GRIDS) {
+      RotateGrid rot = new RotateGrid("Rotate", grid);
+      VisibilityGrid vis =
+          new VisibilityGrid("vis for " + grid.toString(),
+              new CachingGrid("rot cache for " + grid.toString(), rot));
+      //TODO something wrong with caching grid?
+      vis.hide();
+      allGrids.add(vis);
+      gridToVis.put(grid, vis);
+      gridToRot.put(grid, rot);
+    }
+
+    allGrids.add(playerGridVisibility);
+    playerGridVisibility.hide();
+    // Show the first grid:
     currentGrid = SwingGrids.GRIDS.get(0);
-    panel.addGrid(currentGrid);
+    moveToGrid(currentGrid);
+
+    panel.setGrid(allGrids);
     settings.gridSelected(currentGrid);
     panel.setProjection(Projections.values()[0].projection);
     settings.projectionsSelected(Projections.values()[0]);
@@ -89,42 +121,42 @@ public class SwingWannabe {
         switch (e.getKeyCode()) {
           case KeyEvent.VK_UP:
             if (movingPlayer) {
-              playerGrid.translate(TRANSLATE_UP);
+              playerGridTranslate.translate(TRANSLATE_UP);
             } else {
               camera.position.y--;
             }
             break;
           case KeyEvent.VK_DOWN:
             if (movingPlayer) {
-              playerGrid.translate(TRANSLATE_DOWN);
+              playerGridTranslate.translate(TRANSLATE_DOWN);
             } else {
               camera.position.y++;
             }
             break;
           case KeyEvent.VK_LEFT:
             if (movingPlayer) {
-              playerGrid.translate(TRANSLATE_LEFT);
+              playerGridTranslate.translate(TRANSLATE_LEFT);
             } else {
               camera.position.x--;
             }
             break;
           case KeyEvent.VK_RIGHT:
             if (movingPlayer) {
-              playerGrid.translate(TRANSLATE_RIGHT);
+              playerGridTranslate.translate(TRANSLATE_RIGHT);
             } else {
               camera.position.x++;
             }
             break;
           case KeyEvent.VK_Z:
             if (movingPlayer) {
-              playerGrid.translate(TRANSLATE_LOWER);
+              playerGridTranslate.translate(TRANSLATE_LOWER);
             } else {
               camera.position.z--;
             }
             break;
           case KeyEvent.VK_X:
             if (movingPlayer) {
-              playerGrid.translate(TRANSLATE_HIGHER);
+              playerGridTranslate.translate(TRANSLATE_HIGHER);
             } else {
               camera.position.z++;
             }
@@ -133,21 +165,14 @@ public class SwingWannabe {
             movingPlayer = !movingPlayer;
             break;
           case KeyEvent.VK_A:
-            if (playerVisible) {
-              panel.removeGrid(playerGrid);
-              playerVisible = false;
-            } else {
-              playerVisible = true;
-              panel.addGrid(playerGrid);
-            }
+            playerGridVisibility.toggle();
+            System.out.println("player state: " + playerGridVisibility);
             break;
           case KeyEvent.VK_B:
-            panel.nextBuffer();
+            // TODO could reimplement this with two different root groups maybe?
             break;
           case KeyEvent.VK_G:
-            panel.removeGrid(currentGrid);
-            currentGrid = SwingGrids.next(currentGrid);
-            panel.addGrid(currentGrid);
+            moveToGrid(SwingGrids.next(currentGrid));
             settings.gridSelected(currentGrid);
             break;
           case KeyEvent.VK_R:
@@ -174,11 +199,7 @@ public class SwingWannabe {
             panel.realPixelSize = WannabePanel.DEFAULT_PIXEL_SIZE;
             break;
           case KeyEvent.VK_SLASH:
-            rotateGrid =
-                new RotateGrid("rotate a " + currentGrid.getClass().getSimpleName(), currentGrid);
-            panel.removeGrid(currentGrid);
-            panel.addGrid(rotateGrid);
-            currentGrid = rotateGrid;
+            gridToRot.get(currentGrid).setRotate(0,0,0);
           default:
             // Don't care.
             break;
@@ -195,19 +216,32 @@ public class SwingWannabe {
 
     panel.addMouseMotionListener(new MouseMotionAdapter() {
       @Override public void mouseDragged(MouseEvent e) {
-        if (rotateGrid != null) {
-          // Odd ordering here is just because it looks best, since most content is down-right of origin
-          rotateGrid.setRotate(e.getY() - startDragY, startDragX - e.getX(), 0);
-        }
-        //System.out.println(
-        //    "Mouse diff: " + (e.getX() - startDragX) + " " + (e.getY() - startDragY));
+        // Odd ordering here is just because it looks best, since most content is down-right of origin
+        rotateGrid.setRotate(e.getY() - startDragY, startDragX - e.getX(), 0);
       }
     });
 
+    // noinspection InfiniteLoopStatement
     while (true) {
-      playerGrid.nextFrame();
+      playerGridFrames.nextFrame();
       panel.render();
       Thread.sleep(100);
     }
+  }
+
+  private static void moveToGrid(Grid newGrid) {
+    // TODO make this support multiselect
+    hideGrid(currentGrid);
+    currentGrid = newGrid;
+    rotateGrid = gridToRot.get(currentGrid);
+    showGrid(currentGrid);
+  }
+
+  private static void showGrid(Grid grid) {
+    gridToVis.get(grid).show();
+  }
+
+  private static void hideGrid(Grid grid) {
+    gridToVis.get(grid).hide();
   }
 }

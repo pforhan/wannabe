@@ -2,7 +2,7 @@ package wannabe.grid;
 
 import wannabe.Voxel;
 
-/** A grid that supports adding or removing voxels. */
+/** A grid that supports adding or removing voxels. TODO we should be able to drop this */
 public interface MutableGrid extends Grid {
   /** Places a single {@link Voxel}. */
   void put(Voxel v);

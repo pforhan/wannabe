@@ -25,28 +25,25 @@ import static wannabe.grid.AllNeighbors.RelativePosition.WEST;
 public class SimpleGrid implements MutableGrid {
 
   /** Sorts by Z increasing then X increasing then Y increasing. */
-  private static final Comparator<Pos> zxyIncreasing = new Comparator<Pos>() {
-    @Override public int compare(Pos o1, Pos o2) {
-      int zCmp = o1.z() - o2.z();
-      if (zCmp != 0) {
-        return zCmp;
-      }
-
-      int xCmp = o1.x() - o2.x();
-      if (xCmp != 0) {
-        return xCmp;
-      }
-
-      return o1.y() - o2.y();
+  private static final Comparator<Pos> zxyIncreasing = (o1, o2) -> {
+    int zCmp = o1.z() - o2.z();
+    if (zCmp != 0) {
+      return zCmp;
     }
 
+    int xCmp = o1.x() - o2.x();
+    if (xCmp != 0) {
+      return xCmp;
+    }
+
+    return o1.y() - o2.y();
   };
 
   private final Map<Position, Voxel> positionToVoxels = new TreeMap<>(zxyIncreasing);
   private final Map<Voxel, AllNeighbors> neighborCache = new HashMap<>();
   private final Translation translation = new Translation(0, 0, 0);
   private final String name;
-  final Translation workhorse = new Translation(0, 0, 0);
+  private final Translation workhorse = new Translation(0, 0, 0);
 
   private boolean dirty;
 
@@ -56,8 +53,7 @@ public class SimpleGrid implements MutableGrid {
 
   @Override public Iterator<Voxel> iterator() {
     dirty = false;
-    Iterator<Voxel> realIterator = positionToVoxels.values().iterator();
-    return translation.isZero() ? realIterator : new TranslatingIterator(realIterator, translation);
+    return positionToVoxels.values().iterator();
   }
 
   @Override public boolean isDirty() {
@@ -66,6 +62,7 @@ public class SimpleGrid implements MutableGrid {
 
   /** Sorts the voxels by z order, from lowest to highest. */
   @Override public void optimize() {
+    // TODO why is this empty?
   }
 
   @Override public void put(Voxel v) {
@@ -82,16 +79,6 @@ public class SimpleGrid implements MutableGrid {
   @Override public void clear() {
     markDirty();
     positionToVoxels.clear();
-  }
-
-  @Override public void exportTo(MutableGrid grid, Bounds bounds, boolean includeHidden) {
-    dirty = false;
-    if (includeHidden) {
-      exportWithHidden(grid, bounds);
-      return;
-    }
-
-    exportNoHidden(grid, bounds);
   }
 
   @Override public AllNeighbors neighbors(Voxel voxel) {
@@ -111,7 +98,6 @@ public class SimpleGrid implements MutableGrid {
 
   private AllNeighbors createAndPopulateNeighbors(Voxel voxel) {
     AllNeighbors theNeighbors = new AllNeighbors();
-    theNeighbors.clear();
     workhorse.set(voxel.position);
     // Above:
     workhorse.z++;
@@ -141,16 +127,6 @@ public class SimpleGrid implements MutableGrid {
     theNeighbors.same.set(NORTHWEST, positionToVoxels.get(workhorse) != null);
 
     return theNeighbors;
-  }
-
-  @Override public void translate(Translation offset) {
-    markDirty();
-    translation.add(offset);
-  }
-
-  @Override public void clearTranslation() {
-    markDirty();
-    translation.zero();
   }
 
   @Override public int size() {

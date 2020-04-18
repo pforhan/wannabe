@@ -1,14 +1,14 @@
 package wannabe.swing;
 
-import android.util.SparseArray;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.swing.JPanel;
+
+import android.util.SparseArray;
 import wannabe.Bounds.XYBounds;
 import wannabe.Camera;
 import wannabe.Projected;
@@ -16,9 +16,6 @@ import wannabe.Translation;
 import wannabe.UI;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
-import wannabe.grid.MutableGrid;
-import wannabe.grid.SimpleGrid;
-import wannabe.grid.SparseArrayGrid;
 import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
 import wannabe.swing.renderer.FilledThreeDSquareWithCabinetSides;
@@ -51,12 +48,7 @@ public class WannabePanel extends JPanel implements UI {
   final SparseArray<Color> darkerCache = new SparseArray<>(256);
 
   // Playfield paraphanellia:
-  private final List<Grid> grids = new ArrayList<>();
-  private final MutableGrid[] buffers = {
-      new SimpleGrid("buffer"),
-      new SparseArrayGrid("buffer", true),
-  };
-  private int bufferOffset = 0;
+  private Grid grid;
   private final XYBounds bounds = new XYBounds();
 
   /** Camera is fixed to the center of the widget. */
@@ -93,14 +85,9 @@ public class WannabePanel extends JPanel implements UI {
     });
   }
 
-  @Override public void addGrid(Grid grid) {
+  @Override public void setGrid(Grid grid) {
     dirty = true;
-    grids.add(grid);
-  }
-
-  @Override public void removeGrid(Grid grid) {
-    dirty = true;
-    grids.remove(grid);
+    this.grid = grid;
   }
 
   @Override public void setCamera(Camera camera) {
@@ -137,11 +124,6 @@ public class WannabePanel extends JPanel implements UI {
     return renderer;
   }
 
-  public void nextBuffer() {
-    dirty = true;
-    bufferOffset = (bufferOffset + 1) % buffers.length;
-  }
-
   public void exportHidden(boolean exportHidden) {
     dirty = true;
     this.exportHidden = exportHidden;
@@ -160,23 +142,8 @@ public class WannabePanel extends JPanel implements UI {
         camera.position.y - halfHeightCells, //
         widthCells, heightCells);
 
-    MutableGrid activeBuffer = buffers[bufferOffset];
-    for (Grid grid : grids) {
-      if (grid.isDirty()) {
-        dirty = true;
-        break;
-      }
-    }
     if (!lastCameraTranslation.equals(camera.position)) {
       dirty = true;
-    }
-    if (dirty) {
-      activeBuffer.clear();
-      for (Grid grid : grids) {
-        grid.exportTo(activeBuffer, bounds, exportHidden);
-      }
-      activeBuffer.optimize();
-      dirty = false;
     }
 
     long afterGrid = System.currentTimeMillis();
@@ -185,7 +152,7 @@ public class WannabePanel extends JPanel implements UI {
     g.setColor(Color.BLACK);
     g.fillRect(0, 0, widthPx, heightPx);
 
-    for (Voxel voxel : activeBuffer) {
+    for (Voxel voxel : grid) {
       Projected p = projection.project(camera, voxel.position, realPixelSize);
       // If it's going to be fully off-screen, don't bother drawing.
       if (p.left < -realPixelSize || p.left > widthPx //
@@ -197,7 +164,7 @@ public class WannabePanel extends JPanel implements UI {
       // TODO and of course this affects pixel-sized rendering if we want to try that
       if (p.size <= 1) continue;
       swing.copyCoreFrom(p);
-      swing.neighborsFrom(activeBuffer.neighbors(voxel));
+      swing.neighborsFrom(grid.neighbors(voxel));
       swing.color = getSwingColor(voxel.value);
       swing.darkerColor = getDarkerColor(voxel.value);
 
@@ -216,9 +183,8 @@ public class WannabePanel extends JPanel implements UI {
 
     if (stats) {
       long gridTime = afterGrid - start;
-      String statistics = "voxels on screen: " + activeBuffer.size() + "; time: grid "
-          + gridTime + " render " + (total - gridTime) + " on "
-          + activeBuffer.getClass().getSimpleName();
+      String statistics = "voxels on screen: " + grid.size() + "; time: grid "
+          + gridTime + " render " + (total - gridTime);
       // Make a small shadow to help stand out:
       g.setColor(Color.BLACK);
       g.drawString(statistics, 20, 20);

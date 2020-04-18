@@ -93,7 +93,7 @@ public class Translation implements Pos {
   }
 
   @Override public String toString() {
-    return "addr[x=" + x + ", y=" + y + ", z=" + z + "]";
+    return "translation[x=" + x + ", y=" + y + ", z=" + z + "]";
   }
 
 }

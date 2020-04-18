@@ -34,7 +34,7 @@ import wannabe.swing.renderer.SquareWithWireSides;
 import wannabe.swing.renderer.SwingRenderer;
 import wannabe.swing.renderer.ThreeDSquare;
 
-public class SettingsPanel extends JPanel {
+class SettingsPanel extends JPanel {
 
   private static final long serialVersionUID = 1L;
   private final JList<Projections> projectionView;
@@ -44,7 +44,7 @@ public class SettingsPanel extends JPanel {
   private boolean reacting;
   private final List<SwingRenderer> renderers;
 
-  public SettingsPanel() {
+  SettingsPanel() {
     super(new GridLayout(4,1));
     setBackground(Color.WHITE);
     setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -58,7 +58,7 @@ public class SettingsPanel extends JPanel {
         + "\nB - change buffer impl"
         + "\nG - change Grid"
         + "\nA - toggle player grid"
-        + "\n/ - Make grid rotatable"
+        + "\n/ - reset rotation to 0"
         + "\nR - change renderer"
         + "\nP - change projectionView"
         + "\nE - toggle export hidden"
@@ -73,7 +73,7 @@ public class SettingsPanel extends JPanel {
     projectionView = new JList<>(createProjectionsModel());
     projectionView.setFocusable(false);
     projectionView.setBorder(new TitledBorder("Projection"));
-    renderer = new JList<>(renderers.toArray(new SwingRenderer[renderers.size()]));
+    renderer = new JList<>(renderers.toArray(new SwingRenderer[0]));
     renderer.setFocusable(false);
     renderer.setBorder(new TitledBorder("Render Type"));
     grid = new JList<>(createGridModel());
@@ -81,26 +81,20 @@ public class SettingsPanel extends JPanel {
     grid.setBorder(new TitledBorder("Available Grids"));
 
     // Listen for list changes and fire events accordingly.
-    projectionView.addListSelectionListener(new ListSelectionListener() {
-      @Override public void valueChanged(ListSelectionEvent e) {
-        if (!reacting && listener != null) {
-          listener.onProjectionChanged(
-              Projections.values()[projectionView.getSelectedIndex()].projection);
-        }
+    projectionView.addListSelectionListener(ignored -> {
+      if (!reacting && listener != null) {
+        listener.onProjectionChanged(
+            Projections.values()[projectionView.getSelectedIndex()].projection);
       }
     });
-    renderer.addListSelectionListener(new ListSelectionListener() {
-      @Override public void valueChanged(ListSelectionEvent e) {
-        if (!reacting && listener != null) {
-          listener.onRendererChanged(renderers.get(renderer.getSelectedIndex()));
-        }
+    renderer.addListSelectionListener(ignored -> {
+      if (!reacting && listener != null) {
+        listener.onRendererChanged(renderers.get(renderer.getSelectedIndex()));
       }
     });
-    grid.addListSelectionListener(new ListSelectionListener() {
-      @Override public void valueChanged(ListSelectionEvent e) {
-        if (!reacting && listener != null) {
-          listener.onGridChanged(SwingGrids.GRIDS.get(grid.getSelectedIndex()));
-        }
+    grid.addListSelectionListener(ignored -> {
+      if (!reacting && listener != null) {
+        listener.onGridChanged(SwingGrids.GRIDS.get(grid.getSelectedIndex()));
       }
     });
 
@@ -111,7 +105,7 @@ public class SettingsPanel extends JPanel {
     add(new JScrollPane(grid));
   }
 
-  public void setListener(Listener listener) {
+  void setListener(Listener listener) {
     this.listener = listener;
   }
 
@@ -158,25 +152,25 @@ public class SettingsPanel extends JPanel {
     void onGridChanged(Grid newGrid);
   }
 
-  public void gridSelected(Grid grid) {
+  void gridSelected(Grid grid) {
     reacting = true;
     this.grid.setSelectedValue(grid, true);
     reacting = false;
   }
 
-  public void projectionsSelected(Projections projections) {
+  void projectionsSelected(Projections projections) {
     reacting = true;
     this.projectionView.setSelectedValue(projections, true);
     reacting = false;
   }
 
-  public void renderTypeSelected(SwingRenderer sidedRenderer) {
+  void renderTypeSelected(SwingRenderer sidedRenderer) {
     reacting = true;
     this.renderer.setSelectedValue(sidedRenderer, true);
     reacting = false;
   }
 
-  public SwingRenderer nextRenderer() {
+  SwingRenderer nextRenderer() {
     int index = renderer.getSelectedIndex();
     index++;
     if (index >= renderers.size()) {

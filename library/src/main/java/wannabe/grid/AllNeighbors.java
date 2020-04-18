@@ -45,4 +45,10 @@ public class AllNeighbors {
         && same.get(SOUTH)
         && same.get(WEST);
   }
+
+  public void orWith(AllNeighbors other) {
+    above.or(other.above);
+    below.or(other.below);
+    same.or(other.same);
+  }
 }
