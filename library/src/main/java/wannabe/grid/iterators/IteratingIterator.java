@@ -35,9 +35,7 @@ public class IteratingIterator<T> implements Iterator<T> {
     // If the current one is used up but there is another grid, advance:
     while (!current.hasNext() && iterableIterator.hasNext()) {
       // Grab the next grid and its voxel iterator:\
-      Iterable<T> next = iterableIterator.next();
-      // System.out.println("Starting to iterate on " + next);
-      current = next.iterator();
+      current = iterableIterator.next().iterator();
     }
   }
 

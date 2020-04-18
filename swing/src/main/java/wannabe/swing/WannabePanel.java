@@ -1,14 +1,14 @@
 package wannabe.swing;
 
-import android.util.SparseArray;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.swing.JPanel;
+
+import android.util.SparseArray;
 import wannabe.Bounds.XYBounds;
 import wannabe.Camera;
 import wannabe.Projected;
@@ -16,9 +16,6 @@ import wannabe.Translation;
 import wannabe.UI;
 import wannabe.Voxel;
 import wannabe.grid.Grid;
-import wannabe.grid.MutableGrid;
-import wannabe.grid.SimpleGrid;
-import wannabe.grid.SparseArrayGrid;
 import wannabe.projection.Cabinet;
 import wannabe.projection.Projection;
 import wannabe.swing.renderer.FilledThreeDSquareWithCabinetSides;
@@ -145,25 +142,9 @@ public class WannabePanel extends JPanel implements UI {
         camera.position.y - halfHeightCells, //
         widthCells, heightCells);
 
-    // TODO revisit below, throw out code
-    //MutableGrid activeBuffer = buffers[bufferOffset];
-    //for (Grid grid : grids) {
-    //  if (grid.isDirty()) {
-    //    dirty = true;
-    //    break;
-    //  }
-    //}
     if (!lastCameraTranslation.equals(camera.position)) {
       dirty = true;
     }
-    //if (dirty) {
-    //  activeBuffer.clear();
-    //  for (Grid grid : grids) {
-    //    grid.exportTo(activeBuffer, bounds, exportHidden);
-    //  }
-    //  activeBuffer.optimize();
-    //  dirty = false;
-    //}
 
     long afterGrid = System.currentTimeMillis();
 

@@ -9,3 +9,4 @@ local.properties
 *.iml
 .project
 .classpath
+launch.json

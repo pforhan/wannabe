@@ -1,8 +1,7 @@
 package wannabe.grid;
 
 import java.util.Iterator;
-import wannabe.Bounds;
-import wannabe.Translation;
+
 import wannabe.Voxel;
 
 /**
@@ -11,7 +10,6 @@ import wannabe.Voxel;
  * may change.
  */
 public interface Grid extends Iterable<Voxel> {
-  // TODO come up with a way to merge exportTo / iterator
   /**
    * Returns an iterator over all {@link Voxel}s in this grid. Note that optimized implementations
    * may return the same {@link Voxel} reference with every call to {@link Iterator#next()} so it is
@@ -24,8 +22,7 @@ public interface Grid extends Iterable<Voxel> {
 
   /**
    * Returns {@code true} if anything about this grid has changed (such as voxels or translation)
-   * since the last time {@link #iterator()} or {@link #exportTo(MutableGrid, Bounds, boolean)}
-   * was called.
+   * since the last time {@link #iterator()} was called.
    */
   boolean isDirty();
 
