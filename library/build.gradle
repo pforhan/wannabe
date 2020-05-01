@@ -3,5 +3,5 @@ apply plugin: 'kotlin'
 
 dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-  implementation 'junit:junit:4.13-beta-2'
+  testImplementation 'junit:junit:4.13-beta-2'
 }

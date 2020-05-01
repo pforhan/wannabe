@@ -7,6 +7,6 @@ mainClassName = 'wannabe.swing.sample.SwingWannabe'
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-	compile project(':library')
-	compile project(':swing')
+	implementation project(':library')
+	implementation project(':swing')
 }
