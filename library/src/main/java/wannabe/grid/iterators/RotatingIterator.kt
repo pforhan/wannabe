@@ -1,14 +1,17 @@
 package wannabe.grid.iterators
 
 import wannabe.Voxel
+import wannabe.Position
+import wannabe.Translation
 
 class RotatingIterator(
   private val realIterator: Iterator<Voxel>,
-  rotation: RotationDegrees
+  private val rotation: RotationDegrees
 ) : Iterator<Voxel> {
   private val xRad: Double
   private val yRad: Double
   private val noRotate: Boolean
+  private val workhorse = Translation()
 
   init {
     noRotate = rotation.isZero
@@ -27,7 +30,9 @@ class RotatingIterator(
       return real
     }
 
-    val (x, y, z) = real.position
+    // Move towards the custom origin:
+    workhorse.set(real.position).subtract(rotation.around)
+    val (x, y, z) = workhorse
 
     // from https://www.opengl.org/discussion_boards/showthread.php/139444-Easiest-way-to-rotate-point-in-3d-using-trig
     // only rotates about the x and y axes
@@ -41,14 +46,19 @@ class RotatingIterator(
       (Math.sin(yRad) * x + Math.cos(yRad) * -Math.sin(xRad) * y + Math.cos(yRad) * Math.cos(
           xRad
       ) * z).toInt()
-    return Voxel(newX, newY, newZ, real.value)
+
+    // move back to original location:
+    workhorse.set(newX, newY, newZ).add(rotation.around)
+    return Voxel(workhorse.asPosition(), real.value)
   }
 }
 
+// TODO probably make these all vals.
 data class RotationDegrees(
   var x: Int = 0,
   var y: Int = 0,
-  var z: Int = 0
+  var z: Int = 0,
+  var around: Position = Position.Companion.ZERO
 ) {
   val isZero: Boolean
     get() = x == 0 && y == 0 && z == 0

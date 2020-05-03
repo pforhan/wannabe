@@ -12,7 +12,6 @@ data class Voxel(
     y: Int,
     z: Int,
     value: Int
-  ) : this(Position(x, y, z), value) {
-  }
+  ) : this(Position(x, y, z), value)
 
 }

@@ -2,10 +2,12 @@ package wannabe.swing.sample
 
 import wannabe.Camera
 import wannabe.Translation
+import wannabe.Voxel
 import wannabe.grid.CachingGrid
 import wannabe.grid.Grid
 import wannabe.grid.GroupGrid
 import wannabe.grid.RotateGrid
+import wannabe.grid.SingleGrid
 import wannabe.grid.TranslateGrid
 import wannabe.grid.VisibilityGrid
 import wannabe.projection.Projection
@@ -50,6 +52,9 @@ object SwingWannabe {
   private val playerGridVisibility =
     VisibilityGrid("Player Visibility", playerGridTranslate)
   private var movingPlayer = false
+  
+  // Cursor pick stuff
+  private val pickGrid = SingleGrid("Cursor")
 
   // Rotating stuff
   private var rotateGrid: RotateGrid? = null
@@ -59,6 +64,7 @@ object SwingWannabe {
   @Throws(InterruptedException::class) @JvmStatic
   fun main(args: Array<String>) {
     val frame = JFrame("SwingWannabe")
+    frame.setLocation(20, 30)
     frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
     val mainLayout = JPanel(BorderLayout())
     frame.contentPane = mainLayout
@@ -100,6 +106,7 @@ object SwingWannabe {
       gridToRot[grid] = rot
     }
     allGrids.add(playerGridVisibility)
+    allGrids.add(pickGrid)
     playerGridVisibility.hide()
     // Show the first grid:
     currentGrid = SwingGrids.GRIDS[0]
@@ -191,10 +198,16 @@ object SwingWannabe {
       }
     })
     panel.addMouseMotionListener(object : MouseMotionAdapter() {
+      override fun mouseMoved(e: MouseEvent) {
+        val pos = panel.positionAtPixel(e.x, e.y)
+        // We effectively capture the picked voxel here, and then use it
+        // below for the rotation offset.
+        pickGrid.voxel = Voxel(pos, 0xFFFFFF)
+      }
       override fun mouseDragged(e: MouseEvent) {
         // Odd ordering here is just because it looks best, since most content is down-right of origin
         rotateGrid!!.setRotate(
-            e.y - startDragY, startDragX - e.x, 0
+            e.y - startDragY, startDragX - e.x, 0, pickGrid.voxel.position
         )
       }
     })

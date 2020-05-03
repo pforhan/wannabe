@@ -1,12 +1,12 @@
 package wannabe
 
 /**
- * Parent interface that allows easy comparison of [Position] and [Translation].
- * TODO delete this class -- consider a special class that somehow hides mutability
+ * Simple interface that allows easy comparison of [Position] and [Translation].
  */
 interface Pos {
-  fun x(): Int
-  fun y(): Int
-  fun z(): Int
+  val x: Int
+  val y: Int
+  val z: Int
   val isZero: Boolean
+      get() = x == 0 && y == 0 && z == 0
 }

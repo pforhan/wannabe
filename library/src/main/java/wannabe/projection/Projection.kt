@@ -8,9 +8,10 @@ import wannabe.Projected
 interface Projection {
   /**
    * Resolves a [Position] to a two-dimensional location relative to the specified
-   * [Camera] with a height-0 size of `pixelSize`.  Projections should honor
-   * [Camera.uiPosition] to allow the UI to render voxels appropriately.
-   * Implementations may reuse the returned instance for performance.
+   * [Camera] with a height-0 size of `pixelSize` (other heights may have other 
+   * relative sizes).  Projections should honor [Camera.uiPosition] to allow the
+   * UI to render voxels appropriately. Implementations may reuse the returned
+   * [Projected] instance for performance.
    */
   fun project(
     camera: Camera,

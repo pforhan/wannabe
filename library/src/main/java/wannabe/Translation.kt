@@ -5,27 +5,28 @@ package wannabe
  * results as a Position for the same values of x, y, and z.
  */
 data class Translation(
-  var x: Int = 0,
-  var y: Int = 0,
-  var z: Int = 0
+  override var x: Int = 0,
+  override var y: Int = 0,
+  override var z: Int = 0
 ) : Pos {
 
-  constructor(position: Translation) : this(
-      x = position.x,
-      y = position.y,
-      z = position.z
+  constructor(pos: Pos) : this(
+      x = pos.x,
+      y = pos.y,
+      z = pos.z
   )
 
-  constructor(position: Position) : this(
-      x = position.x,
-      y = position.y,
-      z = position.z
-  )
-
-  fun add(offset: Translation): Translation {
+  fun add(offset: Pos): Translation {
     x += offset.x
     y += offset.y
     z += offset.z
+    return this
+  }
+
+  fun subtract(offset: Pos): Translation {
+    x -= offset.x
+    y -= offset.y
+    z -= offset.z
     return this
   }
 
@@ -33,17 +34,21 @@ data class Translation(
     return Position(x, y, z)
   }
 
-  fun set(position: Translation): Translation {
-    x = position.x
-    y = position.y
-    z = position.z
+  fun set(pos: Pos): Translation {
+    x = pos.x
+    y = pos.y
+    z = pos.z
     return this
   }
-
-  fun set(position: Position): Translation {
-    x = position.x
-    y = position.y
-    z = position.z
+  
+  fun set(
+    newX: Int = 0,
+    newY: Int = 0,
+    newZ: Int = 0
+  ): Translation {
+    x = newX
+    y = newY
+    z = newZ
     return this
   }
 
@@ -53,21 +58,6 @@ data class Translation(
     z = 0
     return this
   }
-
-  override fun x(): Int {
-    return x
-  }
-
-  override fun y(): Int {
-    return y
-  }
-
-  override fun z(): Int {
-    return z
-  }
-
-  override val isZero: Boolean
-    get() = x == 0 && y == 0 && z == 0
 
   override fun hashCode(): Int {
     val prime = 31
@@ -80,9 +70,7 @@ data class Translation(
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other is Translation) {
-      return x == other.x && y == other.y && z == other.z
-    } else if (other is Position) {
+    if (other is Pos) {
       return x == other.x && y == other.y && z == other.z
     }
     return false

@@ -160,11 +160,11 @@ class SparseArrayGrid(
         if (zCmp != 0) {
           return@Comparator zCmp
         }
-        val xCmp = o1.position.x() - o2.position.x()
+        val xCmp = o1.position.x - o2.position.x
         if (xCmp != 0) {
           xCmp
         } else {
-          o1.position.y() - o2.position.y()
+          o1.position.y - o2.position.y
         }
       }
   }
