@@ -20,6 +20,27 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 object SampleGrids {
+  fun originGrid(): Grid {
+    val grid: MutableGrid = SimpleGrid("Origin grid at z=0")
+    grid.put(Voxel(0, 0, 0, 0xFFEEDD))
+    grid.put(Voxel(-1, 0, 0, 0xEEDDCC))
+    grid.put(Voxel(1, 0, 0, 0xEEDDCC))
+    grid.put(Voxel(0, -1, 0, 0xEEDDCC))
+    grid.put(Voxel(0, 1, 0, 0xEEDDCC))
+
+    grid.put(Voxel(-5, 0, 0, 0xDDCCBB))
+    grid.put(Voxel(5, 0, 0, 0xDDCCBB))
+    grid.put(Voxel(0, -5, 0, 0xDDCCBB))
+    grid.put(Voxel(0, 5, 0, 0xDDCCBB))
+
+    grid.put(Voxel(-10, 0, 0, 0xCCBBAA))
+    grid.put(Voxel(10, 0, 0, 0xCCBBAA))
+    grid.put(Voxel(0, -10, 0, 0xCCBBAA))
+    grid.put(Voxel(0, 10, 0, 0xCCBBAA))
+
+    return grid
+  }
+
   /** Grid stretching 30x30 with voxels every 10 along the edge, and 600 random voxels.  */
   fun randomGrid(): Grid {
     val grid: MutableGrid = SimpleGrid("random sparse 30x30")
@@ -240,7 +261,7 @@ object SampleGrids {
     colorMap['H'] = 0xdb450f // Dark brown
     val grid = SimpleGrid("link")
     fromTextMap(
-        grid, Position(0, 0, 40), """
+        grid, Position(0, 0, 0), """
    .....GGGGGG....
    ....GGGGGGGG...
    ..S.GHHHHHHG.S.
@@ -270,9 +291,10 @@ object SampleGrids {
     colorMap['@'] = 0x444444 // Gray
     colorMap['@'] = 0xbbbbbb // Gray
     colorMap['y'] = 0xaaaa00 // Yellow
+    colorMap['.'] = 0xffffff // White
     val frame = SimpleGrid("morbo")
     fromTextMap(
-        frame, Position(0, 0, 40), """
+        frame, Position(0, 0, 0), """
    ...........................................................
    ......**...................................................
    .....**.............................*.......*..............
@@ -467,6 +489,7 @@ object SampleGrids {
   }
 
   val GRIDS = listOf(
+          originGrid(),
           neighborTest(),
           testBed(),
           HouseVignette().buildHouse(),
@@ -477,7 +500,8 @@ object SampleGrids {
           towers(),
           fullRandomGrid(),
           randomGrid(),
-          hollowCube(20, 0x21ffff)
+          hollowCube(20, 0x21ffff),
+          morboCat()
       )
 
   fun next(current: Grid): Grid {

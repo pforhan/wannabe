@@ -25,4 +25,13 @@ class Camera(
     translated.z = toTranslate.z - position.z
     return translated
   }
+
+  // TODO wrong in so many ways. Where's the 25 come from?
+  // size of the demo app playfield maybe?
+  fun reverseTranslate(toTranslate: Position): Translation {
+    translated.x = toTranslate.x + position.x - 25
+    translated.y = toTranslate.y + position.y - 25
+    translated.z = toTranslate.z + position.z
+    return translated
+  }
 }

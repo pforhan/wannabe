@@ -25,7 +25,6 @@ class SimpleGrid(
 
   private val positionToVoxels: MutableMap<Pos, Voxel> = TreeMap(zxyIncreasing)
   private val neighborCache: MutableMap<Voxel, AllNeighbors?> = mutableMapOf()
-  private val translation = Translation(0, 0, 0)
 
   override var isDirty = false
     private set
@@ -115,76 +114,18 @@ class SimpleGrid(
     return !theNeighbors.isSurrounded || !bounds.containsAll(voxel.position, theNeighbors)
   }
 
-  private fun exportNoHidden(
-    grid: MutableGrid,
-    bounds: Bounds
-  ) {
-    if (translation.isZero) {
-      // We can skip cloning and translation.
-      for (voxel in positionToVoxels.values) {
-        if (bounds.contains(voxel.position)
-            && notSurroundedInBounds(bounds, voxel)
-        ) {
-          grid.put(voxel)
-        }
-      }
-      return
-    }
-
-    // Otherwise, we have to translate all the things.
-    val workhorse = Translation(0, 0, 0)
-    for (voxel in positionToVoxels.values) {
-      workhorse.set(voxel.position)
-          .add(translation)
-      if (bounds.contains(workhorse)
-          && notSurroundedInBounds(bounds, voxel)
-      ) {
-        // TODO double check if we need to handle translation with bounds
-        grid.put(Voxel(workhorse.asPosition(), voxel.value))
-      }
-    }
-  }
-
-  // TODO this is a bit of an ugly near-duplication, but seems good for clarity and perf.
-  // TODO consider if this should just be the api instead of the bool param.
-  private fun exportWithHidden(
-    grid: MutableGrid,
-    bounds: Bounds
-  ) {
-    if (translation.isZero) {
-      // We can skip cloning and translation.
-      for (voxel in positionToVoxels.values) {
-        if (bounds.contains(voxel.position)) {
-          grid.put(voxel)
-        }
-      }
-      return
-    }
-
-    // Otherwise, we have to translate all the things.
-    val workhorse = Translation(0, 0, 0)
-    for ((position, value) in positionToVoxels.values) {
-      workhorse.set(position)
-          .add(translation)
-      if (bounds.contains(workhorse)) {
-        // TODO double check if we need to handle translation with bounds
-        grid.put(Voxel(workhorse.asPosition(), value))
-      }
-    }
-  }
-
   companion object {
     /** Sorts by Z increasing then X increasing then Y increasing.  */
     private val zxyIncreasing = Comparator { o1: Pos, o2: Pos ->
-        val zCmp = o1.z() - o2.z()
+        val zCmp = o1.z - o2.z
         if (zCmp != 0) {
           return@Comparator zCmp
         }
-        val xCmp = o1.x() - o2.x()
+        val xCmp = o1.x - o2.x
         if (xCmp != 0) {
           return@Comparator xCmp
         }
-        o1.y() - o2.y()
+        o1.y - o2.y
       }
   }
 }

@@ -5,18 +5,10 @@ package wannabe
  * Produces the same hashcode and equals results as a Translation for the same values of x, y, and z.
  */
 data class Position(
-  val x: Int = 0,
-  val y: Int = 0,
-  val z: Int = 0
+  override val x: Int = 0,
+  override val y: Int = 0,
+  override val z: Int = 0
 ) : Pos {
-  override fun x(): Int = x
-
-  override fun y(): Int = y
-
-  override fun z(): Int = z
-
-  override val isZero: Boolean
-    get() = x == 0 && y == 0 && z == 0
 
   override fun hashCode(): Int {
     val prime = 31
@@ -29,9 +21,7 @@ data class Position(
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other is Position) {
-      return x == other.x && y == other.y && z == other.z
-    } else if (other is Translation) {
+    if (other is Pos) {
       return x == other.x && y == other.y && z == other.z
     }
     return false

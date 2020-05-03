@@ -1,6 +1,7 @@
 package wannabe.grid
 
 import wannabe.Voxel
+import wannabe.Position
 import wannabe.grid.iterators.RotatingIterator
 import wannabe.grid.iterators.RotationDegrees
 
@@ -26,11 +27,13 @@ class RotateGrid(
   fun setRotate(
     xDegrees: Int,
     yDegrees: Int,
-    zDegrees: Int
+    zDegrees: Int,
+    around: Position = Position.Companion.ZERO
   ) {
     rotation.x = xDegrees
     rotation.y = yDegrees
     rotation.z = zDegrees
+    rotation.around = around
     dirty = true
   }
 

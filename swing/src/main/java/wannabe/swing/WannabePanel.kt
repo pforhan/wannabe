@@ -2,10 +2,10 @@ package wannabe.swing
 
 import android.util.SparseArray
 import wannabe.Camera
+import wannabe.Position
 import wannabe.Translation
 import wannabe.UI
 import wannabe.Voxel
-import wannabe.XYBounds
 import wannabe.grid.Grid
 import wannabe.projection.Cabinet
 import wannabe.projection.Projection
@@ -44,7 +44,6 @@ class WannabePanel(
 
   // Playfield paraphanellia:
   private lateinit var grid: Grid
-  private val bounds = XYBounds()
 
   private var projection: Projection = Cabinet(-1, -1)
   var renderer: SwingRenderer = FilledThreeDSquareWithCabinetSides()
@@ -108,19 +107,29 @@ class WannabePanel(
     this.exportHidden = exportHidden
   }
 
+  /** 
+   * Reverse lookup a Position from a pixel location. This location should be
+   * relative to this widget.
+   */
+  // TODO this probably needs to consult the projection, and take a z value
+  // so that it can work with any height.
+  // For now, assume 0 z dimension so that realPixelSize matches up.
+  fun positionAtPixel(x:Int, y: Int) = camera.reverseTranslate(Position(
+      x = x.toVoxels(),
+      y = y.toVoxels(),
+      z = 0
+    )
+  ).asPosition()
+
+  private fun Int.toVoxels(): Int = pxToCells(this, realPixelSize)
+
   override fun paintBorder(g: Graphics) {}
   override fun paintChildren(g: Graphics) {}
   public override fun paintComponent(g: Graphics) {
     val start = System.currentTimeMillis()
-    bounds.setFromWidthHeight(
-        camera.position.x() - halfWidthCells,  //
-        camera.position.y() - halfHeightCells,  //
-        widthCells, heightCells
-    )
     if (lastCameraTranslation != camera.position) {
       dirty = true
     }
-    val afterGrid = System.currentTimeMillis()
 
     // Background:
     g.color = Color.BLACK
@@ -134,7 +143,6 @@ class WannabePanel(
         continue
       }
       // If it's too small don't draw:
-      // TODO probably should put a specific bounds on when PsPerspective used, but anyway...
       // TODO and of course this affects pixel-sized rendering if we want to try that
       if (p.size <= 1) continue
       swing.copyCoreFrom(p)
@@ -150,18 +158,10 @@ class WannabePanel(
     // Timing info:
     val total = System.currentTimeMillis() - start
     if (total > 100) {
-      val gridTime = afterGrid - start
-      println(
-          String.format(
-              "render took %s; %s was grid, %s was render", total,
-              gridTime, total - gridTime
-          )
-      )
+      println("render took $total")
     }
     if (stats) {
-      val gridTime = afterGrid - start
-      val statistics = ("voxels on screen: " + grid.size + "; time: grid "
-          + gridTime + " render " + (total - gridTime))
+      val statistics = "voxels on screen: ${grid.size}; time: $total"
       // Make a small shadow to help stand out:
       g.color = Color.BLACK
       g.drawString(statistics, 20, 20)
