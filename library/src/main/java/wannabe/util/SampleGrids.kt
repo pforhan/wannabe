@@ -21,7 +21,7 @@ import kotlin.math.sin
 
 object SampleGrids {
   fun originGrid(): Grid {
-    val grid: MutableGrid = SimpleGrid("Origin grid at z=0")
+    val grid: MutableGrid = SimpleGrid("Origin grid on XY at z=0")
     grid.put(Voxel(0, 0, 0, 0xFFEEDD))
     grid.put(Voxel(-1, 0, 0, 0xEEDDCC))
     grid.put(Voxel(1, 0, 0, 0xEEDDCC))
@@ -37,6 +37,32 @@ object SampleGrids {
     grid.put(Voxel(10, 0, 0, 0xCCBBAA))
     grid.put(Voxel(0, -10, 0, 0xCCBBAA))
     grid.put(Voxel(0, 10, 0, 0xCCBBAA))
+
+    return grid
+  }
+
+  fun originGridZ(): Grid {
+    val grid: MutableGrid = SimpleGrid("Origin grid on XZ at y=0")
+    grid.put(Voxel(0, 0, 0, 0xFFEEDD))
+    grid.put(Voxel(-1, 0, 0, 0xEEDDCC))
+    grid.put(Voxel(1, 0, 0, 0xEEDDCC))
+    grid.put(Voxel(0, 0, -1, 0xEEDDCC))
+    grid.put(Voxel(0, 0, 1, 0xEEDDCC))
+
+    grid.put(Voxel(-5, 0, 0, 0xDDCCBB))
+    grid.put(Voxel(5, 0, 0, 0xDDCCBB))
+    grid.put(Voxel(0, 0, -5, 0xDDCCBB))
+    grid.put(Voxel(0, 0, 5, 0xDDCCBB))
+
+    grid.put(Voxel(-10, 0, 0, 0xCCBBAA))
+    grid.put(Voxel(10, 0, 0, 0xCCBBAA))
+    grid.put(Voxel(0, 0, -10, 0xCCBBAA))
+    grid.put(Voxel(0, 0, 10, 0xCCBBAA))
+    
+    grid.put(Voxel(-15, 0, 0, 0xBBAA99))
+    grid.put(Voxel(15, 0, 0, 0xBBAA99))
+    grid.put(Voxel(0, 0, -15, 0xBBAA99))
+    grid.put(Voxel(0, 0, 15, 0xBBAA99))
 
     return grid
   }
@@ -66,8 +92,8 @@ object SampleGrids {
   }
 
   /** Grid stretching 30x30 with voxels in simple patterns like stairsteps, etc  */
-  fun testBed(): Grid {
-    val grid: MutableGrid = SimpleGrid("testbed 30x30")
+  fun steps(): Grid {
+    val grid: MutableGrid = SimpleGrid("steps 30x30")
 
     // First set of steps: single color stairs to floor.
     var start = Position(5, 5, 0)
@@ -490,8 +516,9 @@ object SampleGrids {
 
   val GRIDS = listOf(
           originGrid(),
+          originGridZ(),
           neighborTest(),
-          testBed(),
+          steps(),
           HouseVignette().buildHouse(),
           plotSin(5),
           plotSin(2),

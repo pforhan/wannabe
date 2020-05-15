@@ -77,15 +77,15 @@ object SwingWannabe {
     // *Maybe* I could even move the key listener code to there, too, so i don't have to edit
     // two classes when bindings change
     settings.setListener(object : Listener {
-      override fun onRendererChanged(newType: SwingRenderer?) {
-        panel.renderer = newType!!
+      override fun onRendererChanged(newType: SwingRenderer) {
+        panel.renderer = newType
       }
 
-      override fun onProjectionChanged(newProjection: Projection?) {
-        panel.setProjection(newProjection!!)
+      override fun onProjectionChanged(newProjection: Projection) {
+        panel.setProjection(newProjection)
       }
 
-      override fun onGridChanged(newGrid: Grid?) {
+      override fun onGridChanged(newGrid: Grid) {
         moveToGrid(newGrid)
       }
     })
@@ -99,7 +99,6 @@ object SwingWannabe {
           "vis for $grid",
           CachingGrid("rot cache for $grid", rot)
       )
-      //TODO something wrong with caching grid?
       vis.hide()
       allGrids.add(vis)
       gridToVis[grid] = vis
@@ -113,12 +112,8 @@ object SwingWannabe {
     moveToGrid(currentGrid)
     panel.setGrid(allGrids)
     settings.gridSelected(currentGrid)
-    panel.setProjection(
-        Projections.values()[0].projection
-    )
-    settings.projectionsSelected(
-        Projections.values()[0]
-    )
+    panel.setProjection(Projections.values()[0].projection)
+    settings.projectionsSelected(Projections.values()[0])
     settings.renderTypeSelected(panel.renderer)
     frame.size = mainLayout.preferredSize
     frame.isVisible = true

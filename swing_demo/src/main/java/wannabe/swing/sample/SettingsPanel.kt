@@ -72,9 +72,9 @@ internal class SettingsPanel : JPanel(GridLayout(4, 1)) {
   }
 
   interface Listener {
-    fun onRendererChanged(newType: SwingRenderer?)
-    fun onProjectionChanged(newProjection: Projection?)
-    fun onGridChanged(newGrid: Grid?)
+    fun onRendererChanged(newType: SwingRenderer)
+    fun onProjectionChanged(newProjection: Projection)
+    fun onGridChanged(newGrid: Grid)
   }
 
   fun gridSelected(grid: Grid?) {
@@ -83,13 +83,13 @@ internal class SettingsPanel : JPanel(GridLayout(4, 1)) {
     reacting = false
   }
 
-  fun projectionsSelected(projections: Projections?) {
+  fun projectionsSelected(projection: Projections) {
     reacting = true
-    projectionView.setSelectedValue(projections, true)
+    projectionView.setSelectedValue(projection, true)
     reacting = false
   }
 
-  fun renderTypeSelected(sidedRenderer: SwingRenderer?) {
+  fun renderTypeSelected(sidedRenderer: SwingRenderer) {
     reacting = true
     renderer.setSelectedValue(sidedRenderer, true)
     reacting = false
@@ -154,21 +154,21 @@ internal class SettingsPanel : JPanel(GridLayout(4, 1)) {
     grid.border = TitledBorder("Available Grids")
 
     // Listen for list changes and fire events accordingly.
-    projectionView.addListSelectionListener { ignored: ListSelectionEvent? ->
-      if (!reacting && listener != null) {
-        listener!!.onProjectionChanged(
+    projectionView.addListSelectionListener { _ ->
+      if (!reacting) {
+        listener?.onProjectionChanged(
             Projections.values()[projectionView.selectedIndex].projection
         )
       }
     }
-    renderer.addListSelectionListener { ignored: ListSelectionEvent? ->
-      if (!reacting && listener != null) {
-        listener!!.onRendererChanged(renderers[renderer.selectedIndex])
+    renderer.addListSelectionListener { _ ->
+      if (!reacting) {
+        listener?.onRendererChanged(renderers[renderer.selectedIndex])
       }
     }
-    grid.addListSelectionListener { ignored: ListSelectionEvent? ->
-      if (!reacting && listener != null) {
-        listener!!.onGridChanged(SwingGrids.GRIDS[grid.selectedIndex])
+    grid.addListSelectionListener { _ ->
+      if (!reacting) {
+        listener?.onGridChanged(SwingGrids.GRIDS[grid.selectedIndex])
       }
     }
 

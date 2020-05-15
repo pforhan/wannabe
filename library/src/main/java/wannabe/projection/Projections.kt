@@ -6,12 +6,14 @@ enum class Projections(val projection: Projection) {
   TOP_RIGHT_5(Cabinet(-5, 5)),
   BOTTOM_LEFT_5(Cabinet(5, -5)),
   BOTTOM_RIGHT_5(Cabinet(-5, -5)),
-  PSEUDO_PERSPECTIVE(PseudoPerspective()),
   TOP_LEFT_1(Cabinet(1, 1)),
   TOP_RIGHT_1(Cabinet(-1, 1)),
   BOTTOM_LEFT_1(Cabinet(1, -1)),
   BOTTOM_RIGHT_1(Cabinet(-1, -1)),
+  PSEUDO_PERSPECTIVE(PseudoPerspective()),
   FLAT(Flat());
+  
+  override fun toString() = projection.toString()
 
   operator fun next(): Projections {
     val nextIdx = ordinal + 1

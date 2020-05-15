@@ -12,8 +12,6 @@ import wannabe.Projected
  * This class doesn't calculate a real perspective offset. Instead, it adds a simple x and/or y
  * pixel offset for increasing distance from the camera. All voxels at the same Z height have the
  * same size.
- * TODO change that last bit; as x or y offset increase, z should decrease a bit.
- * TODO xDiff and yDiff are too drastic.
  */
 class PseudoPerspective : Projection {
   private val projected = Projected()
@@ -33,9 +31,11 @@ class PseudoPerspective : Projection {
     val halfSize = projected.size shr 1
     projected.left = pixelSize * x - z * xDiff + camera.uiPosition.left - halfSize
     projected.top = pixelSize * y - z * yDiff + camera.uiPosition.top - halfSize
-    // TODO come up with better depth calcs... though this works decently
+    // TODO come up with better depth calcs... needs to scale when x,y are large at least
+    // But that makes things break up, which means left and top have to adjust as well
     projected.hDepth = xDiff
     projected.vDepth = yDiff
+
     return projected
   }
 
