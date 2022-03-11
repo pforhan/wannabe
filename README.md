@@ -28,7 +28,11 @@ Samples
 -------
 You can run SwingWannabe, a Kotlin/Swing implementation that I'm using as my testbed. Run its main method from the IDE, or try `./gradlew swing_demo:run` on the command line. It has a selection of sample grids, along with projection and render mode selections.
 
-(Click for larger views.)
+**Rotation Video tests (click to play)**
+
+[![Perspective Block Test](https://img.youtube.com/vi/MfYdNTo8nR8/0.jpg)](https://www.youtube.com/watch?v=MfYdNTo8nR8) [![Perspective Circle Test](https://img.youtube.com/vi/bdmP57BH-_A/0.jpg)](https://www.youtube.com/watch?v=bdmP57BH-_A)[![Cabinet Block Test](https://img.youtube.com/vi/s7FAf_rRXvQ/0.jpg)](https://www.youtube.com/watch?v=s7FAf_rRXvQ) [![Interactive Test](https://img.youtube.com/vi/HWenUpl_C-Q/0.jpg)](https://www.youtube.com/watch?v=HWenUpl_C-Q)
+
+**Projection and Render tests (Click for larger views.)**
 
 [![Projections](http://www.muddyhorse.com/wp-content/uploads/2020/05/wannabe-projections.gif)](http://www.muddyhorse.com/wp-content/uploads/2020/05/wannabe-projections-big.gif)
 [![Render Types](http://www.muddyhorse.com/wp-content/uploads/2020/05/wannabe-renders.gif)](http://www.muddyhorse.com/wp-content/uploads/2020/05/wannabe-renders-big.gif)
