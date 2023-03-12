@@ -191,7 +191,7 @@ class WannabePanel(
   }
 
   companion object {
-    const val DEFAULT_PIXEL_SIZE = 20
+    const val DEFAULT_PIXEL_SIZE = 30
     private const val MIN_PLAYFIELD_HEIGHT = 50
     private const val MIN_PLAYFIELD_WIDTH = 50
     private val PREFERRED_SIZE = Dimension(

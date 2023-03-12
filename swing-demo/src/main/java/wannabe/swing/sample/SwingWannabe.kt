@@ -18,6 +18,8 @@ import wannabe.swing.sample.SettingsPanel.Listener
 import wannabe.swing.sample.SwingGrids.next
 import wannabe.util.SampleGrids.megaManRunning
 import java.awt.BorderLayout
+import java.awt.Font
+import java.awt.Toolkit
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
@@ -25,6 +27,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.UIManager
 
 /** All the glue to make a sample swing Wannabe application.  */
 object SwingWannabe {
@@ -63,6 +66,7 @@ object SwingWannabe {
 
   @Throws(InterruptedException::class) @JvmStatic
   fun main(args: Array<String>) {
+    pickFonts()
     val frame = JFrame("SwingWannabe")
     frame.setLocation(20, 30)
     frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -229,5 +233,14 @@ object SwingWannabe {
 
   private fun hideGrid(grid: Grid?) {
     gridToVis[grid]!!.hide()
+  }
+}
+
+fun pickFonts() {
+  val font = Font("Dialog", Font.PLAIN, 18)
+  for (key in UIManager.getLookAndFeelDefaults().keys()) {
+      if (key.toString().endsWith(".font")) {
+          UIManager.put(key, font)
+      }
   }
 }
