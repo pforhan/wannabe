@@ -1,6 +1,5 @@
 package wannabe.swing
 
-import android.util.SparseArray
 import wannabe.Camera
 import wannabe.Position
 import wannabe.Translation
@@ -39,8 +38,8 @@ class WannabePanel(
   // Center cell:
   var halfWidthCells = 0
   var halfHeightCells = 0
-  private val colorCache = SparseArray<Color>(256)
-  private val darkerCache = SparseArray<Color>(256)
+  private val colorCache = mutableMapOf<Int, Color>()
+  private val darkerCache = mutableMapOf<Int, Color>()
 
   // Playfield paraphanellia:
   private lateinit var grid: Grid
@@ -176,7 +175,7 @@ class WannabePanel(
     if (color == null) {
       val hasAlpha = argb shr 24 > 0
       color = Color(argb, hasAlpha)
-      colorCache.put(argb, color)
+      colorCache[argb] = color
     }
     return color
   }
@@ -185,7 +184,7 @@ class WannabePanel(
     var color = darkerCache[argb]
     if (color == null) {
       color = getSwingColor(argb).darker()
-      darkerCache.put(argb, color)
+      darkerCache[argb] = color
     }
     return color
   }
