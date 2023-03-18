@@ -2,10 +2,6 @@ plugins {
   id "org.jetbrains.kotlin.jvm" version "1.8.10"
 }
 
-kotlin {
-  jvmToolchain(19)
-}
-
 allprojects {
   repositories {
     mavenCentral()

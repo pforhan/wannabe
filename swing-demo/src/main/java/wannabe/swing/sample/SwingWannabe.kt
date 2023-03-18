@@ -237,6 +237,9 @@ object SwingWannabe {
 }
 
 fun pickFonts() {
+  // Bump font size when the display manager isn't honoring UI scale.
+  if (!System.getProperty("os.version", "").contains(other = "wsl", ignoreCase = true)) return
+
   val font = Font("Dialog", Font.PLAIN, 18)
   for (key in UIManager.getLookAndFeelDefaults().keys()) {
       if (key.toString().endsWith(".font")) {
