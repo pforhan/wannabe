@@ -1,7 +1,7 @@
 wannabe
 =======
 
-Multiplatform low-resolution 3d engine.  For losers, by losers.
+Multiplatform low-resolution voxel 3d engine.  For losers, by losers.
 
 Summary
 -------
