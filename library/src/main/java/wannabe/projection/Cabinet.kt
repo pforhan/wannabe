@@ -32,4 +32,28 @@ class Cabinet(
   }
 
   override fun toString(): String = "Cabinet $hOffsetPerZ, $vOffsetPerZ"
+
+  companion object {
+    fun horizontalSequence(
+      vOffset: Int,
+      hStart: Int,
+      hEnd: Int,
+      bounce: Boolean
+    ): ProjectionSequence {
+      var range = (hStart..hEnd).toList()
+      // Remove the last entry since it'll be added again.
+      // TODO should we also remove the last entry of the combined since it would match the first?
+      println("range before $range")
+      if (bounce) range = range.subList(0, range.size - 1) + range.reversed()
+      println("range after $range")
+      return ProjectionSequence(
+        projections = range.map {
+          Cabinet(
+            vOffsetPerZ = vOffset,
+            hOffsetPerZ = it
+          )
+        }
+      )
+    }
+  }
 }

@@ -10,6 +10,8 @@ enum class Projections(val projection: Projection) {
   TOP_RIGHT_1(Cabinet(-1, 1)),
   BOTTOM_LEFT_1(Cabinet(1, -1)),
   BOTTOM_RIGHT_1(Cabinet(-1, -1)),
+  H_SLIDING_CABINET_1(Cabinet.horizontalSequence(1, -5, 5, true)),
+  H_SLIDING_CABINET_5(Cabinet.horizontalSequence(5, -5, 5, true)),
   PSEUDO_PERSPECTIVE(PseudoPerspective()),
   FLAT(Flat());
   

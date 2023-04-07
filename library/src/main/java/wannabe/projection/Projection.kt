@@ -18,4 +18,7 @@ interface Projection {
     position: Position,
     pixelSize: Int
   ): Projected
+
+  /** Called by the system to indicate enoguh time has passed to update, if any. */
+  fun tick() = Unit
 }

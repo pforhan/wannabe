@@ -214,6 +214,7 @@ object SwingWannabe {
     // noinspection InfiniteLoopStatement
     while (true) {
       playerGridFrames.nextFrame()
+      panel.getProjection().tick()
       panel.render()
       Thread.sleep(100)
     }
