@@ -5,18 +5,16 @@ import java.util.BitSet
 /** References to neighboring voxels.  */
 class AllNeighbors {
   /** Positions in a 3x3 grid. */
-  interface RelativePosition {
-    companion object {
-      const val NORTH = 0
-      const val NORTHEAST = 1
-      const val EAST = 2
-      const val SOUTHEAST = 3
-      const val SOUTH = 4
-      const val SOUTHWEST = 5
-      const val WEST = 6
-      const val NORTHWEST = 7
-      const val CENTER = 8
-    }
+  object RelativePosition {
+    const val NORTH = 0
+    const val NORTHEAST = 1
+    const val EAST = 2
+    const val SOUTHEAST = 3
+    const val SOUTH = 4
+    const val SOUTHWEST = 5
+    const val WEST = 6
+    const val NORTHWEST = 7
+    const val CENTER = 8
   }
 
   /** Whether there's a neighbor at z+1, indexed by RelativePosition.ordinal.  */

@@ -2,7 +2,6 @@ package wannabe.grid
 
 import wannabe.Voxel
 import wannabe.grid.iterators.IteratingIterator
-import java.util.ArrayList
 
 /** A Grid that aggregates other Grids.  */
 class GroupGrid(
@@ -41,7 +40,7 @@ class GroupGrid(
     require(removed) { "Trying to remove $grid not in Group" }
   }
 
-  var sum = AllNeighbors()
+  private var sum = AllNeighbors()
 
   // Ask each child grid about neighbors for this voxel. We need to aggregate all answers, however,
   // effectively forming a bitwise OR over them all. If any of them report a neighbor we keep it.

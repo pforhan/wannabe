@@ -11,7 +11,8 @@ class RotateGrid(
   private val source: Grid
 ) : Grid {
   private var dirty = true
-  private val rotation = RotationDegrees()
+  private var rotation = RotationDegrees()
+  private var around = Position.ZERO
 
   override fun iterator(): Iterator<Voxel> {
     dirty = false
@@ -28,12 +29,14 @@ class RotateGrid(
     xDegrees: Int,
     yDegrees: Int,
     zDegrees: Int,
-    around: Position = Position.Companion.ZERO
+    around: Position = Position.ZERO
   ) {
-    rotation.x = xDegrees
-    rotation.y = yDegrees
-    rotation.z = zDegrees
-    rotation.around = around
+    rotation = RotationDegrees(
+      x = xDegrees,
+      y = yDegrees,
+      z = zDegrees,
+    )
+    this.around = around
     dirty = true
   }
 

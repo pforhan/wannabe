@@ -1,7 +1,7 @@
 package wannabe.grid
 
 import wannabe.Voxel
-import wannabe.grid.iterators.HiddenRemovalIterator
+import wannabe.grid.iterators.hiddenRemoval
 
 /**
  * A Grid that removes all hidden voxels -- those with neighbors to the top, bottom, left, right
@@ -12,7 +12,7 @@ class RemoveHiddenGrid(
   private val name: String,
   private val source: Grid
 ) : Grid {
-  override fun iterator(): Iterator<Voxel> = HiddenRemovalIterator(source)
+  override fun iterator(): Iterator<Voxel> = hiddenRemoval()
 
   override val isDirty: Boolean
     get() = source.isDirty

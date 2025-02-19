@@ -25,8 +25,4 @@ interface Grid : Iterable<Voxel> {
    * returned instance, so it's only valid to use until the next [neighbors()] call
    */
   fun neighbors(voxel: Voxel): AllNeighbors
-
-  //  don't remember what I was doing here:
-  //  // Painting methods.
-  //  Voxel at(Translation translation);
 }

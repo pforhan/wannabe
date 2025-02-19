@@ -18,7 +18,6 @@ class OperationIterator(
    */
   private var next: Voxel? = null
 
-
   override fun hasNext(): Boolean = maybeAdvance()
 
   override fun next(): Voxel = advance()

@@ -2,20 +2,17 @@ package wannabe.grid
 
 import wannabe.Bounds
 import wannabe.Pos
-import wannabe.Position
 import wannabe.Translation
 import wannabe.Voxel
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.CENTER
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.EAST
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.NORTH
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.NORTHEAST
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.NORTHWEST
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.SOUTH
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.SOUTHEAST
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.SOUTHWEST
-import wannabe.grid.AllNeighbors.RelativePosition.Companion.WEST
-import java.util.Comparator
-import java.util.HashMap
+import wannabe.grid.AllNeighbors.RelativePosition.CENTER
+import wannabe.grid.AllNeighbors.RelativePosition.EAST
+import wannabe.grid.AllNeighbors.RelativePosition.NORTH
+import wannabe.grid.AllNeighbors.RelativePosition.NORTHEAST
+import wannabe.grid.AllNeighbors.RelativePosition.NORTHWEST
+import wannabe.grid.AllNeighbors.RelativePosition.SOUTH
+import wannabe.grid.AllNeighbors.RelativePosition.SOUTHEAST
+import wannabe.grid.AllNeighbors.RelativePosition.SOUTHWEST
+import wannabe.grid.AllNeighbors.RelativePosition.WEST
 import java.util.TreeMap
 
 /** [Grid] implementation that has a simple map of [Voxel]s and a means to sort.  */

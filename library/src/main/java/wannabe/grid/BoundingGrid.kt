@@ -2,7 +2,7 @@ package wannabe.grid
 
 import wannabe.Bounds
 import wannabe.Voxel
-import wannabe.grid.iterators.InBoundsIterator
+import wannabe.grid.iterators.inBounds
 
 /** A Grid that removes all voxels that lie outside the specified bounds.  */
 class BoundingGrid(
@@ -10,7 +10,7 @@ class BoundingGrid(
   private val source: Grid,
   private val bounds: Bounds
 ) : Grid {
-  override fun iterator(): Iterator<Voxel> = InBoundsIterator(source, bounds)
+  override fun iterator(): Iterator<Voxel> = inBounds(bounds)
 
   override val isDirty: Boolean
     get() = source.isDirty
