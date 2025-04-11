@@ -57,46 +57,55 @@ class RotatingIterator(
     val zRad = Math.toRadians(rotation.z.toDouble())
 
     // Create rotation matrices around each axis.
+    val xCos = cos(xRad)
+    val xSin = sin(xRad)
     val rx = mk.ndarray(
       mk[
         mk[1.0, 0.0, 0.0, 0.0],
-        mk[0.0, cos(xRad), -sin(xRad), 0.0],
-        mk[0.0, sin(xRad), cos(xRad), 0.0],
+        mk[0.0, xCos, -xSin, 0.0],
+        mk[0.0, xSin, xCos, 0.0],
         mk[0.0, 0.0, 0.0, 1.0]
       ]
     )
+    val yCos = cos(yRad)
+    val ySin = sin(yRad)
     val ry = mk.ndarray(
       mk[
-        mk[cos(yRad), 0.0, sin(yRad), 0.0],
+        mk[yCos, 0.0, ySin, 0.0],
         mk[0.0, 1.0, 0.0, 0.0],
-        mk[-sin(yRad), 0.0, cos(yRad), 0.0],
+        mk[-ySin, 0.0, yCos, 0.0],
         mk[0.0, 0.0, 0.0, 1.0]
       ]
     )
+    val zCos = cos(zRad)
+    val zSin = sin(zRad)
     val rz = mk.ndarray(
       mk[
-        mk[cos(zRad), -sin(zRad), 0.0, 0.0],
-        mk[sin(zRad), cos(zRad), 0.0, 0.0],
+        mk[zCos, -zSin, 0.0, 0.0],
+        mk[zSin, zCos, 0.0, 0.0],
         mk[0.0, 0.0, 1.0, 0.0],
         mk[0.0, 0.0, 0.0, 1.0]
       ]
     )
 
     // Translation
+    val xDbl = around.x.toDouble()
+    val yDbl = around.y.toDouble()
+    val zDbl = around.z.toDouble()
     val toOrigin = mk.ndarray(
       mk[
-        mk[1.0, 0.0, 0.0, -around.x.toDouble()],
-        mk[0.0, 1.0, 0.0, -around.y.toDouble()],
-        mk[0.0, 0.0, 1.0, -around.z.toDouble()],
+        mk[1.0, 0.0, 0.0, -xDbl],
+        mk[0.0, 1.0, 0.0, -yDbl],
+        mk[0.0, 0.0, 1.0, -zDbl],
         mk[0.0, 0.0, 0.0, 1.0]
       ]
     )
 
     val fromOrigin = mk.ndarray(
       mk[
-        mk[1.0, 0.0, 0.0, around.x.toDouble()],
-        mk[0.0, 1.0, 0.0, around.y.toDouble()],
-        mk[0.0, 0.0, 1.0, around.z.toDouble()],
+        mk[1.0, 0.0, 0.0, xDbl],
+        mk[0.0, 1.0, 0.0, yDbl],
+        mk[0.0, 0.0, 1.0, zDbl],
         mk[0.0, 0.0, 0.0, 1.0]
       ]
     )
