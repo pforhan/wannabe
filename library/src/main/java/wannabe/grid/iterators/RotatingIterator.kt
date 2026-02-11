@@ -1,21 +1,25 @@
 package wannabe.grid.iterators
 
-import wannabe.Voxel
+import org.jetbrains.kotlinx.multik.api.identity
+import org.jetbrains.kotlinx.multik.api.linalg.dot
+import org.jetbrains.kotlinx.multik.api.mk
+import org.jetbrains.kotlinx.multik.api.ndarray
+import org.jetbrains.kotlinx.multik.ndarray.data.D2Array
+import org.jetbrains.kotlinx.multik.ndarray.data.get
 import wannabe.Position
-import wannabe.Translation
+import wannabe.Voxel
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class RotatingIterator(
   private val realIterator: Iterator<Voxel>,
   rotation: RotationDegrees,
-  private val around: Position = Position.ZERO
+  around: Position = Position.ZERO
 ) : Iterator<Voxel> {
-  private val xRad: Double = Math.toRadians(rotation.x.toDouble())
-  private val yRad: Double = Math.toRadians(rotation.y.toDouble())
-  //zRad = Math.toRadians(rotation.z); // not used, probably the 0 term
   private val noRotate: Boolean = rotation.isZero
-  private val workhorse = Translation()
+  private val transformationMatrix: D2Array<Double> =
+      if (noRotate) mk.identity(4) else createTransformationMatrix(rotation, around)
 
   override fun hasNext(): Boolean = realIterator.hasNext()
 
@@ -27,22 +31,89 @@ class RotatingIterator(
       return real
     }
 
-    // Move towards the custom origin:
-    workhorse.set(real.position).subtract(around)
-    val (x, y, z) = workhorse
+    // Create a workhorse vector for the position including the homogenous coordinate
+    val (x, y, z) = real.position
 
-    // from https://www.opengl.org/discussion_boards/showthread.php/139444-Easiest-way-to-rotate-point-in-3d-using-trig
-    // only rotates about the x and y axes
-    // TODO let a matrix lib handle this
-    val newX = (cos(yRad) * x
-        + sin(yRad) * sin(xRad) * y
-        - sin(yRad) * cos(xRad) * z).toInt()
-    val newY = (0 + cos(xRad) * y + sin(xRad) * z).toInt()
-    val newZ = (sin(yRad) * x + cos(yRad) * -sin(xRad) * y + cos(yRad) * cos(xRad) * z).toInt()
+    val workhorse = mk.ndarray(mk[x.toDouble(), y.toDouble(), z.toDouble(), 1.0], 4, 1)
 
-    // move back to original location:
-    workhorse.set(newX, newY, newZ).add(around)
-    return Voxel(workhorse.asPosition(), real.value)
+    // Apply the transformation matrix to the workhorse vector
+    val transformed = transformationMatrix.dot(workhorse)
+
+    // Extract the new coordinates from the transformed vector
+    val newX = transformed[0, 0].roundToInt()
+    val newY = transformed[1, 0].roundToInt()
+    val newZ = transformed[2, 0].roundToInt()
+
+    return Voxel(newX, newY, newZ, real.value)
+  }
+
+  private fun createTransformationMatrix(
+    rotation: RotationDegrees,
+    around: Position
+  ): D2Array<Double> {
+    // Convert degrees to radians.
+    val xRad = Math.toRadians(rotation.x.toDouble())
+    val yRad = Math.toRadians(rotation.y.toDouble())
+    val zRad = Math.toRadians(rotation.z.toDouble())
+
+    // Create rotation matrices around each axis.
+    val xCos = cos(xRad)
+    val xSin = sin(xRad)
+    val rx = mk.ndarray(
+      mk[
+        mk[1.0, 0.0, 0.0, 0.0],
+        mk[0.0, xCos, -xSin, 0.0],
+        mk[0.0, xSin, xCos, 0.0],
+        mk[0.0, 0.0, 0.0, 1.0]
+      ]
+    )
+    val yCos = cos(yRad)
+    val ySin = sin(yRad)
+    val ry = mk.ndarray(
+      mk[
+        mk[yCos, 0.0, ySin, 0.0],
+        mk[0.0, 1.0, 0.0, 0.0],
+        mk[-ySin, 0.0, yCos, 0.0],
+        mk[0.0, 0.0, 0.0, 1.0]
+      ]
+    )
+    val zCos = cos(zRad)
+    val zSin = sin(zRad)
+    val rz = mk.ndarray(
+      mk[
+        mk[zCos, -zSin, 0.0, 0.0],
+        mk[zSin, zCos, 0.0, 0.0],
+        mk[0.0, 0.0, 1.0, 0.0],
+        mk[0.0, 0.0, 0.0, 1.0]
+      ]
+    )
+
+    // Translation
+    val xDbl = around.x.toDouble()
+    val yDbl = around.y.toDouble()
+    val zDbl = around.z.toDouble()
+    val toOrigin = mk.ndarray(
+      mk[
+        mk[1.0, 0.0, 0.0, -xDbl],
+        mk[0.0, 1.0, 0.0, -yDbl],
+        mk[0.0, 0.0, 1.0, -zDbl],
+        mk[0.0, 0.0, 0.0, 1.0]
+      ]
+    )
+
+    val fromOrigin = mk.ndarray(
+      mk[
+        mk[1.0, 0.0, 0.0, xDbl],
+        mk[0.0, 1.0, 0.0, yDbl],
+        mk[0.0, 0.0, 1.0, zDbl],
+        mk[0.0, 0.0, 0.0, 1.0]
+      ]
+    )
+
+    // Combine the rotations and translations.
+    // ZYX order is most common, but you can change it if needed.
+    // order matters here!
+    return fromOrigin.dot(rz.dot(ry.dot(rx.dot(toOrigin))))
   }
 }
 
